@@ -264,30 +264,182 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
       error: (err, stack) => const Center(child: Text('Error loading Kanji')),
       data: (list) {
         if (list.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.1),
-                    child: const Icon(Icons.abc_rounded, size: 36, color: PremiumDesignSystem.primaryBlue),
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 16),
+                // Glowing stack vector illustration
+                Center(
+                  child: SizedBox(
+                    width: 140,
+                    height: 140,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: RadialGradient(
+                              colors: [
+                                PremiumDesignSystem.primaryBlue.withValues(alpha: 0.2),
+                                PremiumDesignSystem.primaryBlue.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.15),
+                                blurRadius: 20,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: 68,
+                            height: 68,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [
+                                  PremiumDesignSystem.primaryBlue,
+                                  PremiumDesignSystem.primaryBlue.withValues(alpha: 0.7),
+                                ],
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            child: const Text(
+                              '漢',
+                              style: TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Your Kanji Collection is Empty',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 28),
+                // Title
+                const Text(
+                  'Build Your Personal Kanji Library',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Build your personal flashcard library by adding Kanji using the "+" button below.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).colorScheme.outline, height: 1.4),
+                ),
+                const SizedBox(height: 12),
+                // Description
+                Text(
+                  'Start adding the kanji you want to study.\nYour collection grows with your learning journey.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: Theme.of(context).colorScheme.outline,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 32),
+                // Statistics row (Current Kanji: 0, Today's Reviews: 0, Learned: 0)
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildOnboardingStatCard(
+                        title: 'Current Kanji',
+                        value: '0',
+                        icon: Icons.auto_stories_outlined,
+                        color: PremiumDesignSystem.primaryBlue,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildOnboardingStatCard(
+                        title: "Today's Reviews",
+                        value: '0',
+                        icon: Icons.rate_review_outlined,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildOnboardingStatCard(
+                        title: 'Learned',
+                        value: '0',
+                        icon: Icons.task_alt_outlined,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 36),
+                // Large primary floating-like button
+                ElevatedButton.icon(
+                  onPressed: () => _showAddKanjiDialog(context),
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text(
+                    'Add First Kanji',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: PremiumDesignSystem.primaryBlue,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 3,
+                    shadowColor: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.4),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Secondary button
+                OutlinedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('You can import your database backups anytime from the Settings tab.'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    'Import Later',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
             ),
           );
         }
@@ -960,6 +1112,41 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
             const Icon(Icons.chevron_right, size: 18),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildOnboardingStatCard({
+    required String title,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: color.withValues(alpha: 0.1),
+            child: Icon(icon, size: 18, color: color),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+          ),
+        ],
       ),
     );
   }
