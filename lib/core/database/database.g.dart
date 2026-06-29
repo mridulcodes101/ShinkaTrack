@@ -243,6 +243,83 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _rtkNumberMeta = const VerificationMeta(
+    'rtkNumber',
+  );
+  @override
+  late final GeneratedColumn<int> rtkNumber = GeneratedColumn<int>(
+    'rtk_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _frequencyRankMeta = const VerificationMeta(
+    'frequencyRank',
+  );
+  @override
+  late final GeneratedColumn<int> frequencyRank = GeneratedColumn<int>(
+    'frequency_rank',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pitchAccentMeta = const VerificationMeta(
+    'pitchAccent',
+  );
+  @override
+  late final GeneratedColumn<String> pitchAccent = GeneratedColumn<String>(
+    'pitch_accent',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _audioPathMeta = const VerificationMeta(
+    'audioPath',
+  );
+  @override
+  late final GeneratedColumn<String> audioPath = GeneratedColumn<String>(
+    'audio_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _animatedStrokeOrderPathMeta =
+      const VerificationMeta('animatedStrokeOrderPath');
+  @override
+  late final GeneratedColumn<String> animatedStrokeOrderPath =
+      GeneratedColumn<String>(
+        'animated_stroke_order_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _syncStatusMeta = const VerificationMeta(
+    'syncStatus',
+  );
+  @override
+  late final GeneratedColumn<String> syncStatus = GeneratedColumn<String>(
+    'sync_status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -266,6 +343,13 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
     reviewCount,
     easeFactor,
     nextReview,
+    rtkNumber,
+    frequencyRank,
+    pitchAccent,
+    audioPath,
+    animatedStrokeOrderPath,
+    syncStatus,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -436,6 +520,60 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
         nextReview.isAcceptableOrUnknown(data['next_review']!, _nextReviewMeta),
       );
     }
+    if (data.containsKey('rtk_number')) {
+      context.handle(
+        _rtkNumberMeta,
+        rtkNumber.isAcceptableOrUnknown(data['rtk_number']!, _rtkNumberMeta),
+      );
+    }
+    if (data.containsKey('frequency_rank')) {
+      context.handle(
+        _frequencyRankMeta,
+        frequencyRank.isAcceptableOrUnknown(
+          data['frequency_rank']!,
+          _frequencyRankMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pitch_accent')) {
+      context.handle(
+        _pitchAccentMeta,
+        pitchAccent.isAcceptableOrUnknown(
+          data['pitch_accent']!,
+          _pitchAccentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('audio_path')) {
+      context.handle(
+        _audioPathMeta,
+        audioPath.isAcceptableOrUnknown(data['audio_path']!, _audioPathMeta),
+      );
+    }
+    if (data.containsKey('animated_stroke_order_path')) {
+      context.handle(
+        _animatedStrokeOrderPathMeta,
+        animatedStrokeOrderPath.isAcceptableOrUnknown(
+          data['animated_stroke_order_path']!,
+          _animatedStrokeOrderPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+        _syncStatusMeta,
+        syncStatus.isAcceptableOrUnknown(data['sync_status']!, _syncStatusMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -529,6 +667,34 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}next_review'],
       ),
+      rtkNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rtk_number'],
+      ),
+      frequencyRank: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}frequency_rank'],
+      ),
+      pitchAccent: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pitch_accent'],
+      ),
+      audioPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audio_path'],
+      ),
+      animatedStrokeOrderPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}animated_stroke_order_path'],
+      ),
+      syncStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_status'],
+      ),
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -560,6 +726,13 @@ class Kanji extends DataClass implements Insertable<Kanji> {
   final int reviewCount;
   final double easeFactor;
   final DateTime? nextReview;
+  final int? rtkNumber;
+  final int? frequencyRank;
+  final String? pitchAccent;
+  final String? audioPath;
+  final String? animatedStrokeOrderPath;
+  final String? syncStatus;
+  final DateTime? lastSyncedAt;
   const Kanji({
     required this.id,
     required this.kanji,
@@ -582,6 +755,13 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     required this.reviewCount,
     required this.easeFactor,
     this.nextReview,
+    this.rtkNumber,
+    this.frequencyRank,
+    this.pitchAccent,
+    this.audioPath,
+    this.animatedStrokeOrderPath,
+    this.syncStatus,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -617,6 +797,29 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     if (!nullToAbsent || nextReview != null) {
       map['next_review'] = Variable<DateTime>(nextReview);
     }
+    if (!nullToAbsent || rtkNumber != null) {
+      map['rtk_number'] = Variable<int>(rtkNumber);
+    }
+    if (!nullToAbsent || frequencyRank != null) {
+      map['frequency_rank'] = Variable<int>(frequencyRank);
+    }
+    if (!nullToAbsent || pitchAccent != null) {
+      map['pitch_accent'] = Variable<String>(pitchAccent);
+    }
+    if (!nullToAbsent || audioPath != null) {
+      map['audio_path'] = Variable<String>(audioPath);
+    }
+    if (!nullToAbsent || animatedStrokeOrderPath != null) {
+      map['animated_stroke_order_path'] = Variable<String>(
+        animatedStrokeOrderPath,
+      );
+    }
+    if (!nullToAbsent || syncStatus != null) {
+      map['sync_status'] = Variable<String>(syncStatus);
+    }
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -651,6 +854,27 @@ class Kanji extends DataClass implements Insertable<Kanji> {
       nextReview: nextReview == null && nullToAbsent
           ? const Value.absent()
           : Value(nextReview),
+      rtkNumber: rtkNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rtkNumber),
+      frequencyRank: frequencyRank == null && nullToAbsent
+          ? const Value.absent()
+          : Value(frequencyRank),
+      pitchAccent: pitchAccent == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pitchAccent),
+      audioPath: audioPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioPath),
+      animatedStrokeOrderPath: animatedStrokeOrderPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(animatedStrokeOrderPath),
+      syncStatus: syncStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(syncStatus),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -683,6 +907,15 @@ class Kanji extends DataClass implements Insertable<Kanji> {
       reviewCount: serializer.fromJson<int>(json['reviewCount']),
       easeFactor: serializer.fromJson<double>(json['easeFactor']),
       nextReview: serializer.fromJson<DateTime?>(json['nextReview']),
+      rtkNumber: serializer.fromJson<int?>(json['rtkNumber']),
+      frequencyRank: serializer.fromJson<int?>(json['frequencyRank']),
+      pitchAccent: serializer.fromJson<String?>(json['pitchAccent']),
+      audioPath: serializer.fromJson<String?>(json['audioPath']),
+      animatedStrokeOrderPath: serializer.fromJson<String?>(
+        json['animatedStrokeOrderPath'],
+      ),
+      syncStatus: serializer.fromJson<String?>(json['syncStatus']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -712,6 +945,15 @@ class Kanji extends DataClass implements Insertable<Kanji> {
       'reviewCount': serializer.toJson<int>(reviewCount),
       'easeFactor': serializer.toJson<double>(easeFactor),
       'nextReview': serializer.toJson<DateTime?>(nextReview),
+      'rtkNumber': serializer.toJson<int?>(rtkNumber),
+      'frequencyRank': serializer.toJson<int?>(frequencyRank),
+      'pitchAccent': serializer.toJson<String?>(pitchAccent),
+      'audioPath': serializer.toJson<String?>(audioPath),
+      'animatedStrokeOrderPath': serializer.toJson<String?>(
+        animatedStrokeOrderPath,
+      ),
+      'syncStatus': serializer.toJson<String?>(syncStatus),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -737,6 +979,13 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     int? reviewCount,
     double? easeFactor,
     Value<DateTime?> nextReview = const Value.absent(),
+    Value<int?> rtkNumber = const Value.absent(),
+    Value<int?> frequencyRank = const Value.absent(),
+    Value<String?> pitchAccent = const Value.absent(),
+    Value<String?> audioPath = const Value.absent(),
+    Value<String?> animatedStrokeOrderPath = const Value.absent(),
+    Value<String?> syncStatus = const Value.absent(),
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => Kanji(
     id: id ?? this.id,
     kanji: kanji ?? this.kanji,
@@ -761,6 +1010,17 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     reviewCount: reviewCount ?? this.reviewCount,
     easeFactor: easeFactor ?? this.easeFactor,
     nextReview: nextReview.present ? nextReview.value : this.nextReview,
+    rtkNumber: rtkNumber.present ? rtkNumber.value : this.rtkNumber,
+    frequencyRank: frequencyRank.present
+        ? frequencyRank.value
+        : this.frequencyRank,
+    pitchAccent: pitchAccent.present ? pitchAccent.value : this.pitchAccent,
+    audioPath: audioPath.present ? audioPath.value : this.audioPath,
+    animatedStrokeOrderPath: animatedStrokeOrderPath.present
+        ? animatedStrokeOrderPath.value
+        : this.animatedStrokeOrderPath,
+    syncStatus: syncStatus.present ? syncStatus.value : this.syncStatus,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   Kanji copyWithCompanion(KanjisCompanion data) {
     return Kanji(
@@ -801,6 +1061,23 @@ class Kanji extends DataClass implements Insertable<Kanji> {
       nextReview: data.nextReview.present
           ? data.nextReview.value
           : this.nextReview,
+      rtkNumber: data.rtkNumber.present ? data.rtkNumber.value : this.rtkNumber,
+      frequencyRank: data.frequencyRank.present
+          ? data.frequencyRank.value
+          : this.frequencyRank,
+      pitchAccent: data.pitchAccent.present
+          ? data.pitchAccent.value
+          : this.pitchAccent,
+      audioPath: data.audioPath.present ? data.audioPath.value : this.audioPath,
+      animatedStrokeOrderPath: data.animatedStrokeOrderPath.present
+          ? data.animatedStrokeOrderPath.value
+          : this.animatedStrokeOrderPath,
+      syncStatus: data.syncStatus.present
+          ? data.syncStatus.value
+          : this.syncStatus,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -827,7 +1104,14 @@ class Kanji extends DataClass implements Insertable<Kanji> {
           ..write('lastReviewed: $lastReviewed, ')
           ..write('reviewCount: $reviewCount, ')
           ..write('easeFactor: $easeFactor, ')
-          ..write('nextReview: $nextReview')
+          ..write('nextReview: $nextReview, ')
+          ..write('rtkNumber: $rtkNumber, ')
+          ..write('frequencyRank: $frequencyRank, ')
+          ..write('pitchAccent: $pitchAccent, ')
+          ..write('audioPath: $audioPath, ')
+          ..write('animatedStrokeOrderPath: $animatedStrokeOrderPath, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -855,6 +1139,13 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     reviewCount,
     easeFactor,
     nextReview,
+    rtkNumber,
+    frequencyRank,
+    pitchAccent,
+    audioPath,
+    animatedStrokeOrderPath,
+    syncStatus,
+    lastSyncedAt,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -880,7 +1171,14 @@ class Kanji extends DataClass implements Insertable<Kanji> {
           other.lastReviewed == this.lastReviewed &&
           other.reviewCount == this.reviewCount &&
           other.easeFactor == this.easeFactor &&
-          other.nextReview == this.nextReview);
+          other.nextReview == this.nextReview &&
+          other.rtkNumber == this.rtkNumber &&
+          other.frequencyRank == this.frequencyRank &&
+          other.pitchAccent == this.pitchAccent &&
+          other.audioPath == this.audioPath &&
+          other.animatedStrokeOrderPath == this.animatedStrokeOrderPath &&
+          other.syncStatus == this.syncStatus &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class KanjisCompanion extends UpdateCompanion<Kanji> {
@@ -905,6 +1203,13 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
   final Value<int> reviewCount;
   final Value<double> easeFactor;
   final Value<DateTime?> nextReview;
+  final Value<int?> rtkNumber;
+  final Value<int?> frequencyRank;
+  final Value<String?> pitchAccent;
+  final Value<String?> audioPath;
+  final Value<String?> animatedStrokeOrderPath;
+  final Value<String?> syncStatus;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const KanjisCompanion({
     this.id = const Value.absent(),
@@ -928,6 +1233,13 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
     this.reviewCount = const Value.absent(),
     this.easeFactor = const Value.absent(),
     this.nextReview = const Value.absent(),
+    this.rtkNumber = const Value.absent(),
+    this.frequencyRank = const Value.absent(),
+    this.pitchAccent = const Value.absent(),
+    this.audioPath = const Value.absent(),
+    this.animatedStrokeOrderPath = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   KanjisCompanion.insert({
@@ -952,6 +1264,13 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
     this.reviewCount = const Value.absent(),
     this.easeFactor = const Value.absent(),
     this.nextReview = const Value.absent(),
+    this.rtkNumber = const Value.absent(),
+    this.frequencyRank = const Value.absent(),
+    this.pitchAccent = const Value.absent(),
+    this.audioPath = const Value.absent(),
+    this.animatedStrokeOrderPath = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        kanji = Value(kanji),
@@ -986,6 +1305,13 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
     Expression<int>? reviewCount,
     Expression<double>? easeFactor,
     Expression<DateTime>? nextReview,
+    Expression<int>? rtkNumber,
+    Expression<int>? frequencyRank,
+    Expression<String>? pitchAccent,
+    Expression<String>? audioPath,
+    Expression<String>? animatedStrokeOrderPath,
+    Expression<String>? syncStatus,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1011,6 +1337,14 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
       if (reviewCount != null) 'review_count': reviewCount,
       if (easeFactor != null) 'ease_factor': easeFactor,
       if (nextReview != null) 'next_review': nextReview,
+      if (rtkNumber != null) 'rtk_number': rtkNumber,
+      if (frequencyRank != null) 'frequency_rank': frequencyRank,
+      if (pitchAccent != null) 'pitch_accent': pitchAccent,
+      if (audioPath != null) 'audio_path': audioPath,
+      if (animatedStrokeOrderPath != null)
+        'animated_stroke_order_path': animatedStrokeOrderPath,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1037,6 +1371,13 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
     Value<int>? reviewCount,
     Value<double>? easeFactor,
     Value<DateTime?>? nextReview,
+    Value<int?>? rtkNumber,
+    Value<int?>? frequencyRank,
+    Value<String?>? pitchAccent,
+    Value<String?>? audioPath,
+    Value<String?>? animatedStrokeOrderPath,
+    Value<String?>? syncStatus,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return KanjisCompanion(
@@ -1062,6 +1403,14 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
       reviewCount: reviewCount ?? this.reviewCount,
       easeFactor: easeFactor ?? this.easeFactor,
       nextReview: nextReview ?? this.nextReview,
+      rtkNumber: rtkNumber ?? this.rtkNumber,
+      frequencyRank: frequencyRank ?? this.frequencyRank,
+      pitchAccent: pitchAccent ?? this.pitchAccent,
+      audioPath: audioPath ?? this.audioPath,
+      animatedStrokeOrderPath:
+          animatedStrokeOrderPath ?? this.animatedStrokeOrderPath,
+      syncStatus: syncStatus ?? this.syncStatus,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1134,6 +1483,29 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
     if (nextReview.present) {
       map['next_review'] = Variable<DateTime>(nextReview.value);
     }
+    if (rtkNumber.present) {
+      map['rtk_number'] = Variable<int>(rtkNumber.value);
+    }
+    if (frequencyRank.present) {
+      map['frequency_rank'] = Variable<int>(frequencyRank.value);
+    }
+    if (pitchAccent.present) {
+      map['pitch_accent'] = Variable<String>(pitchAccent.value);
+    }
+    if (audioPath.present) {
+      map['audio_path'] = Variable<String>(audioPath.value);
+    }
+    if (animatedStrokeOrderPath.present) {
+      map['animated_stroke_order_path'] = Variable<String>(
+        animatedStrokeOrderPath.value,
+      );
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<String>(syncStatus.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1164,6 +1536,13 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
           ..write('reviewCount: $reviewCount, ')
           ..write('easeFactor: $easeFactor, ')
           ..write('nextReview: $nextReview, ')
+          ..write('rtkNumber: $rtkNumber, ')
+          ..write('frequencyRank: $frequencyRank, ')
+          ..write('pitchAccent: $pitchAccent, ')
+          ..write('audioPath: $audioPath, ')
+          ..write('animatedStrokeOrderPath: $animatedStrokeOrderPath, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6452,6 +6831,13 @@ typedef $$KanjisTableCreateCompanionBuilder =
       Value<int> reviewCount,
       Value<double> easeFactor,
       Value<DateTime?> nextReview,
+      Value<int?> rtkNumber,
+      Value<int?> frequencyRank,
+      Value<String?> pitchAccent,
+      Value<String?> audioPath,
+      Value<String?> animatedStrokeOrderPath,
+      Value<String?> syncStatus,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$KanjisTableUpdateCompanionBuilder =
@@ -6477,6 +6863,13 @@ typedef $$KanjisTableUpdateCompanionBuilder =
       Value<int> reviewCount,
       Value<double> easeFactor,
       Value<DateTime?> nextReview,
+      Value<int?> rtkNumber,
+      Value<int?> frequencyRank,
+      Value<String?> pitchAccent,
+      Value<String?> audioPath,
+      Value<String?> animatedStrokeOrderPath,
+      Value<String?> syncStatus,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -6591,6 +6984,41 @@ class $$KanjisTableFilterComposer
 
   ColumnFilters<DateTime> get nextReview => $composableBuilder(
     column: $table.nextReview,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get rtkNumber => $composableBuilder(
+    column: $table.rtkNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get frequencyRank => $composableBuilder(
+    column: $table.frequencyRank,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pitchAccent => $composableBuilder(
+    column: $table.pitchAccent,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get audioPath => $composableBuilder(
+    column: $table.audioPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get animatedStrokeOrderPath => $composableBuilder(
+    column: $table.animatedStrokeOrderPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -6708,6 +7136,41 @@ class $$KanjisTableOrderingComposer
     column: $table.nextReview,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get rtkNumber => $composableBuilder(
+    column: $table.rtkNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get frequencyRank => $composableBuilder(
+    column: $table.frequencyRank,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pitchAccent => $composableBuilder(
+    column: $table.pitchAccent,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get audioPath => $composableBuilder(
+    column: $table.audioPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get animatedStrokeOrderPath => $composableBuilder(
+    column: $table.animatedStrokeOrderPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$KanjisTableAnnotationComposer
@@ -6797,6 +7260,37 @@ class $$KanjisTableAnnotationComposer
     column: $table.nextReview,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get rtkNumber =>
+      $composableBuilder(column: $table.rtkNumber, builder: (column) => column);
+
+  GeneratedColumn<int> get frequencyRank => $composableBuilder(
+    column: $table.frequencyRank,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get pitchAccent => $composableBuilder(
+    column: $table.pitchAccent,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get audioPath =>
+      $composableBuilder(column: $table.audioPath, builder: (column) => column);
+
+  GeneratedColumn<String> get animatedStrokeOrderPath => $composableBuilder(
+    column: $table.animatedStrokeOrderPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get syncStatus => $composableBuilder(
+    column: $table.syncStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$KanjisTableTableManager
@@ -6848,6 +7342,13 @@ class $$KanjisTableTableManager
                 Value<int> reviewCount = const Value.absent(),
                 Value<double> easeFactor = const Value.absent(),
                 Value<DateTime?> nextReview = const Value.absent(),
+                Value<int?> rtkNumber = const Value.absent(),
+                Value<int?> frequencyRank = const Value.absent(),
+                Value<String?> pitchAccent = const Value.absent(),
+                Value<String?> audioPath = const Value.absent(),
+                Value<String?> animatedStrokeOrderPath = const Value.absent(),
+                Value<String?> syncStatus = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => KanjisCompanion(
                 id: id,
@@ -6871,6 +7372,13 @@ class $$KanjisTableTableManager
                 reviewCount: reviewCount,
                 easeFactor: easeFactor,
                 nextReview: nextReview,
+                rtkNumber: rtkNumber,
+                frequencyRank: frequencyRank,
+                pitchAccent: pitchAccent,
+                audioPath: audioPath,
+                animatedStrokeOrderPath: animatedStrokeOrderPath,
+                syncStatus: syncStatus,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -6896,6 +7404,13 @@ class $$KanjisTableTableManager
                 Value<int> reviewCount = const Value.absent(),
                 Value<double> easeFactor = const Value.absent(),
                 Value<DateTime?> nextReview = const Value.absent(),
+                Value<int?> rtkNumber = const Value.absent(),
+                Value<int?> frequencyRank = const Value.absent(),
+                Value<String?> pitchAccent = const Value.absent(),
+                Value<String?> audioPath = const Value.absent(),
+                Value<String?> animatedStrokeOrderPath = const Value.absent(),
+                Value<String?> syncStatus = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => KanjisCompanion.insert(
                 id: id,
@@ -6919,6 +7434,13 @@ class $$KanjisTableTableManager
                 reviewCount: reviewCount,
                 easeFactor: easeFactor,
                 nextReview: nextReview,
+                rtkNumber: rtkNumber,
+                frequencyRank: frequencyRank,
+                pitchAccent: pitchAccent,
+                audioPath: audioPath,
+                animatedStrokeOrderPath: animatedStrokeOrderPath,
+                syncStatus: syncStatus,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

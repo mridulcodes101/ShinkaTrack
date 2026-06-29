@@ -43,6 +43,15 @@ class KanjiEntity {
   final double easeFactor;
   final DateTime? nextReview;
 
+  // Extensibility placeholders for future updates
+  final int? rtkNumber;
+  final int? frequencyRank;
+  final String? pitchAccent;
+  final String? audioPath;
+  final String? animatedStrokeOrderPath;
+  final String? syncStatus;
+  final DateTime? lastSyncedAt;
+
   const KanjiEntity({
     required this.id,
     required this.kanji,
@@ -65,6 +74,13 @@ class KanjiEntity {
     required this.reviewCount,
     required this.easeFactor,
     this.nextReview,
+    this.rtkNumber,
+    this.frequencyRank,
+    this.pitchAccent,
+    this.audioPath,
+    this.animatedStrokeOrderPath,
+    this.syncStatus,
+    this.lastSyncedAt,
   });
 
   // Compatibility getters to keep other UI/widgets clean and functional
@@ -99,6 +115,13 @@ class KanjiEntity {
     int? reviewCount,
     double? easeFactor,
     DateTime? nextReview,
+    int? rtkNumber,
+    int? frequencyRank,
+    String? pitchAccent,
+    String? audioPath,
+    String? animatedStrokeOrderPath,
+    String? syncStatus,
+    DateTime? lastSyncedAt,
   }) {
     return KanjiEntity(
       id: id ?? this.id,
@@ -122,6 +145,13 @@ class KanjiEntity {
       reviewCount: reviewCount ?? this.reviewCount,
       easeFactor: easeFactor ?? this.easeFactor,
       nextReview: nextReview ?? this.nextReview,
+      rtkNumber: rtkNumber ?? this.rtkNumber,
+      frequencyRank: frequencyRank ?? this.frequencyRank,
+      pitchAccent: pitchAccent ?? this.pitchAccent,
+      audioPath: audioPath ?? this.audioPath,
+      animatedStrokeOrderPath: animatedStrokeOrderPath ?? this.animatedStrokeOrderPath,
+      syncStatus: syncStatus ?? this.syncStatus,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
     );
   }
 }

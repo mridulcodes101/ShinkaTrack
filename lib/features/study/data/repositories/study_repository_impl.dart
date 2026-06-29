@@ -45,6 +45,13 @@ class StudyRepositoryImpl implements StudyRepository {
         reviewCount: k.reviewCount,
         easeFactor: k.easeFactor,
         nextReview: k.nextReview,
+        rtkNumber: k.rtkNumber,
+        frequencyRank: k.frequencyRank,
+        pitchAccent: k.pitchAccent,
+        audioPath: k.audioPath,
+        animatedStrokeOrderPath: k.animatedStrokeOrderPath,
+        syncStatus: k.syncStatus,
+        lastSyncedAt: k.lastSyncedAt,
       );
     }).toList();
   }
@@ -95,6 +102,13 @@ class StudyRepositoryImpl implements StudyRepository {
         reviewCount: Value(kanji.reviewCount),
         easeFactor: Value(kanji.easeFactor),
         nextReview: Value(kanji.nextReview),
+        rtkNumber: Value(kanji.rtkNumber),
+        frequencyRank: Value(kanji.frequencyRank),
+        pitchAccent: Value(kanji.pitchAccent),
+        audioPath: Value(kanji.audioPath),
+        animatedStrokeOrderPath: Value(kanji.animatedStrokeOrderPath),
+        syncStatus: Value(kanji.syncStatus),
+        lastSyncedAt: Value(kanji.lastSyncedAt),
       ),
       mode: InsertMode.insertOrReplace,
     );

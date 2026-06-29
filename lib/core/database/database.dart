@@ -33,6 +33,15 @@ class Kanjis extends Table {
   RealColumn get easeFactor => real().withDefault(const Constant(2.5))();
   DateTimeColumn get nextReview => dateTime().nullable()();
 
+  // Extensibility placeholders for future updates
+  IntColumn get rtkNumber => integer().nullable()();
+  IntColumn get frequencyRank => integer().nullable()();
+  TextColumn get pitchAccent => text().nullable()();
+  TextColumn get audioPath => text().nullable()();
+  TextColumn get animatedStrokeOrderPath => text().nullable()();
+  TextColumn get syncStatus => text().nullable()();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -198,7 +207,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -251,6 +260,16 @@ class AppDatabase extends _$AppDatabase {
             ),
           );
         }
+      }
+
+      if (from < 3) {
+        await m.addColumn(kanjis, kanjis.rtkNumber);
+        await m.addColumn(kanjis, kanjis.frequencyRank);
+        await m.addColumn(kanjis, kanjis.pitchAccent);
+        await m.addColumn(kanjis, kanjis.audioPath);
+        await m.addColumn(kanjis, kanjis.animatedStrokeOrderPath);
+        await m.addColumn(kanjis, kanjis.syncStatus);
+        await m.addColumn(kanjis, kanjis.lastSyncedAt);
       }
     },
   );
