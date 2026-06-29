@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -640,7 +639,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                       }
                     });
                   }
-                : () => _showKanjiDetailSheet(k),
+                : () => context.push('/kanji_details?id=${k.id}'),
             onLongPress: () {
               setState(() {
                 _selectionMode = true;
@@ -655,20 +654,23 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Large Kanji block
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [statusColor.withValues(alpha: 0.2), statusColor.withValues(alpha: 0.05)],
+                  Hero(
+                    tag: 'kanji_char_${k.id}',
+                    child: Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [statusColor.withValues(alpha: 0.2), statusColor.withValues(alpha: 0.05)],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      k.character,
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      alignment: Alignment.center,
+                      child: Text(
+                        k.character,
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, decoration: TextDecoration.none),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -825,222 +827,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
     );
   }
 
-  void _showKanjiDetailSheet(KanjiEntity k) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.5,
-          maxChildSize: 0.95,
-          expand: false,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: ListView(
-                controller: scrollController,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 24),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white24 : Colors.black12,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              PremiumDesignSystem.primaryBlue.withValues(alpha: 0.2),
-                              PremiumDesignSystem.primaryBlue.withValues(alpha: 0.05),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.4),
-                            width: 1.5,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          k.character,
-                          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              k.meaning,
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
-                            ),
-                            const SizedBox(height: 6),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    'JLPT N${k.jlptLevel}',
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: PremiumDesignSystem.primaryBlue),
-                                  ),
-                                ),
-                                if (k.gradeLevel != null) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange.withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      k.gradeLevel == 7 ? 'J. High' : 'Grade ${k.gradeLevel}',
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton.filledTonal(
-                        icon: const Icon(Icons.edit_outlined),
-                        onPressed: () {
-                          Navigator.pop(context);
-                          context.push('/add_kanji?id=${k.id}');
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 16),
-                  _buildDetailRow('Onyomi', k.onYomi.join(', ').isEmpty ? '-' : k.onYomi.join(', ')),
-                  _buildDetailRow('Kunyomi', k.kunYomi.join(', ').isEmpty ? '-' : k.kunYomi.join(', ')),
-                  _buildDetailRow('Radicals', k.radicals == '-' ? 'None' : k.radicals),
-                  _buildDetailRow('Stroke Count', k.strokeCount.toString()),
-                  _buildDetailRow('Unicode', k.unicode == '-' ? 'N/A' : k.unicode),
-                  if (k.notes.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Text('Notes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    const SizedBox(height: 6),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        k.notes,
-                        style: const TextStyle(fontSize: 14, height: 1.4),
-                      ),
-                    ),
-                  ],
-                  if (k.examples.isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    const Text('Example Words', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: k.examples.map((ex) {
-                        return Chip(
-                          label: Text(ex),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                  if (k.strokeOrderDiagramPath != null) ...[
-                    const SizedBox(height: 24),
-                    const Text('Stroke Order Diagram', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                    const SizedBox(height: 10),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.file(
-                        File(k.strokeOrderDiagramPath!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            height: 150,
-                            color: isDark ? Colors.white10 : Colors.black12,
-                            alignment: Alignment.center,
-                            child: const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.broken_image_outlined, color: Colors.grey),
-                                SizedBox(height: 6),
-                                Text('Diagram image not found', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 40),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.outline,
-                fontSize: 14,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // --- VOCAB TAB ---
 

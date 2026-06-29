@@ -11,6 +11,8 @@ import 'package:shinka_track_n3/features/study/presentation/screens/planner_setu
 
 import 'package:shinka_track_n3/features/study/presentation/screens/add_kanji_screen.dart';
 
+import 'package:shinka_track_n3/features/study/presentation/screens/kanji_details_screen.dart';
+
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 final goRouter = GoRouter(
@@ -23,6 +25,14 @@ final goRouter = GoRouter(
       builder: (context, state) {
         final editId = state.uri.queryParameters['id'];
         return AddKanjiScreen(editId: editId);
+      },
+    ),
+    GoRoute(
+      path: '/kanji_details',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id']!;
+        return KanjiDetailsScreen(kanjiId: id);
       },
     ),
     ShellRoute(
