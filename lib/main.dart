@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shinka_track_n3/core/navigation/router.dart';
 import 'package:shinka_track_n3/core/theme/app_theme.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
-import 'package:shinka_track_n3/core/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {

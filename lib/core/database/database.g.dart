@@ -17,32 +17,30 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _characterMeta = const VerificationMeta(
-    'character',
-  );
+  static const VerificationMeta _kanjiMeta = const VerificationMeta('kanji');
   @override
-  late final GeneratedColumn<String> character = GeneratedColumn<String>(
-    'character',
+  late final GeneratedColumn<String> kanji = GeneratedColumn<String>(
+    'kanji',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _onyomiMeta = const VerificationMeta('onyomi');
+  static const VerificationMeta _kunYomiMeta = const VerificationMeta(
+    'kunYomi',
+  );
   @override
-  late final GeneratedColumn<String> onyomi = GeneratedColumn<String>(
-    'onyomi',
+  late final GeneratedColumn<String> kunYomi = GeneratedColumn<String>(
+    'kun_yomi',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _kunyomiMeta = const VerificationMeta(
-    'kunyomi',
-  );
+  static const VerificationMeta _onYomiMeta = const VerificationMeta('onYomi');
   @override
-  late final GeneratedColumn<String> kunyomi = GeneratedColumn<String>(
-    'kunyomi',
+  late final GeneratedColumn<String> onYomi = GeneratedColumn<String>(
+    'on_yomi',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -59,24 +57,215 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  static const VerificationMeta _radicalsMeta = const VerificationMeta(
+    'radicals',
+  );
   @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
+  late final GeneratedColumn<String> radicals = GeneratedColumn<String>(
+    'radicals',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _strokeCountMeta = const VerificationMeta(
+    'strokeCount',
+  );
+  @override
+  late final GeneratedColumn<int> strokeCount = GeneratedColumn<int>(
+    'stroke_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _strokeOrderDiagramPathMeta =
+      const VerificationMeta('strokeOrderDiagramPath');
+  @override
+  late final GeneratedColumn<String> strokeOrderDiagramPath =
+      GeneratedColumn<String>(
+        'stroke_order_diagram_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _jlptLevelMeta = const VerificationMeta(
+    'jlptLevel',
+  );
+  @override
+  late final GeneratedColumn<int> jlptLevel = GeneratedColumn<int>(
+    'jlpt_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _gradeLevelMeta = const VerificationMeta(
+    'gradeLevel',
+  );
+  @override
+  late final GeneratedColumn<int> gradeLevel = GeneratedColumn<int>(
+    'grade_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unicodeMeta = const VerificationMeta(
+    'unicode',
+  );
+  @override
+  late final GeneratedColumn<String> unicode = GeneratedColumn<String>(
+    'unicode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant('unlearned'),
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _examplesMeta = const VerificationMeta(
+    'examples',
+  );
+  @override
+  late final GeneratedColumn<String> examples = GeneratedColumn<String>(
+    'examples',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _isLearnedMeta = const VerificationMeta(
+    'isLearned',
+  );
+  @override
+  late final GeneratedColumn<bool> isLearned = GeneratedColumn<bool>(
+    'is_learned',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_learned" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _lastReviewedMeta = const VerificationMeta(
+    'lastReviewed',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastReviewed = GeneratedColumn<DateTime>(
+    'last_reviewed',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reviewCountMeta = const VerificationMeta(
+    'reviewCount',
+  );
+  @override
+  late final GeneratedColumn<int> reviewCount = GeneratedColumn<int>(
+    'review_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _easeFactorMeta = const VerificationMeta(
+    'easeFactor',
+  );
+  @override
+  late final GeneratedColumn<double> easeFactor = GeneratedColumn<double>(
+    'ease_factor',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(2.5),
+  );
+  static const VerificationMeta _nextReviewMeta = const VerificationMeta(
+    'nextReview',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextReview = GeneratedColumn<DateTime>(
+    'next_review',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
   );
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    character,
-    onyomi,
-    kunyomi,
+    kanji,
+    kunYomi,
+    onYomi,
     meaning,
-    status,
+    radicals,
+    strokeCount,
+    strokeOrderDiagramPath,
+    jlptLevel,
+    gradeLevel,
+    unicode,
+    notes,
+    examples,
+    isLearned,
+    isFavorite,
+    createdAt,
+    updatedAt,
+    lastReviewed,
+    reviewCount,
+    easeFactor,
+    nextReview,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -95,29 +284,29 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('character')) {
+    if (data.containsKey('kanji')) {
       context.handle(
-        _characterMeta,
-        character.isAcceptableOrUnknown(data['character']!, _characterMeta),
+        _kanjiMeta,
+        kanji.isAcceptableOrUnknown(data['kanji']!, _kanjiMeta),
       );
     } else if (isInserting) {
-      context.missing(_characterMeta);
+      context.missing(_kanjiMeta);
     }
-    if (data.containsKey('onyomi')) {
+    if (data.containsKey('kun_yomi')) {
       context.handle(
-        _onyomiMeta,
-        onyomi.isAcceptableOrUnknown(data['onyomi']!, _onyomiMeta),
+        _kunYomiMeta,
+        kunYomi.isAcceptableOrUnknown(data['kun_yomi']!, _kunYomiMeta),
       );
     } else if (isInserting) {
-      context.missing(_onyomiMeta);
+      context.missing(_kunYomiMeta);
     }
-    if (data.containsKey('kunyomi')) {
+    if (data.containsKey('on_yomi')) {
       context.handle(
-        _kunyomiMeta,
-        kunyomi.isAcceptableOrUnknown(data['kunyomi']!, _kunyomiMeta),
+        _onYomiMeta,
+        onYomi.isAcceptableOrUnknown(data['on_yomi']!, _onYomiMeta),
       );
     } else if (isInserting) {
-      context.missing(_kunyomiMeta);
+      context.missing(_onYomiMeta);
     }
     if (data.containsKey('meaning')) {
       context.handle(
@@ -127,10 +316,124 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
     } else if (isInserting) {
       context.missing(_meaningMeta);
     }
-    if (data.containsKey('status')) {
+    if (data.containsKey('radicals')) {
       context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+        _radicalsMeta,
+        radicals.isAcceptableOrUnknown(data['radicals']!, _radicalsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_radicalsMeta);
+    }
+    if (data.containsKey('stroke_count')) {
+      context.handle(
+        _strokeCountMeta,
+        strokeCount.isAcceptableOrUnknown(
+          data['stroke_count']!,
+          _strokeCountMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_strokeCountMeta);
+    }
+    if (data.containsKey('stroke_order_diagram_path')) {
+      context.handle(
+        _strokeOrderDiagramPathMeta,
+        strokeOrderDiagramPath.isAcceptableOrUnknown(
+          data['stroke_order_diagram_path']!,
+          _strokeOrderDiagramPathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('jlpt_level')) {
+      context.handle(
+        _jlptLevelMeta,
+        jlptLevel.isAcceptableOrUnknown(data['jlpt_level']!, _jlptLevelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_jlptLevelMeta);
+    }
+    if (data.containsKey('grade_level')) {
+      context.handle(
+        _gradeLevelMeta,
+        gradeLevel.isAcceptableOrUnknown(data['grade_level']!, _gradeLevelMeta),
+      );
+    }
+    if (data.containsKey('unicode')) {
+      context.handle(
+        _unicodeMeta,
+        unicode.isAcceptableOrUnknown(data['unicode']!, _unicodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unicodeMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('examples')) {
+      context.handle(
+        _examplesMeta,
+        examples.isAcceptableOrUnknown(data['examples']!, _examplesMeta),
+      );
+    }
+    if (data.containsKey('is_learned')) {
+      context.handle(
+        _isLearnedMeta,
+        isLearned.isAcceptableOrUnknown(data['is_learned']!, _isLearnedMeta),
+      );
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('last_reviewed')) {
+      context.handle(
+        _lastReviewedMeta,
+        lastReviewed.isAcceptableOrUnknown(
+          data['last_reviewed']!,
+          _lastReviewedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('review_count')) {
+      context.handle(
+        _reviewCountMeta,
+        reviewCount.isAcceptableOrUnknown(
+          data['review_count']!,
+          _reviewCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ease_factor')) {
+      context.handle(
+        _easeFactorMeta,
+        easeFactor.isAcceptableOrUnknown(data['ease_factor']!, _easeFactorMeta),
+      );
+    }
+    if (data.containsKey('next_review')) {
+      context.handle(
+        _nextReviewMeta,
+        nextReview.isAcceptableOrUnknown(data['next_review']!, _nextReviewMeta),
       );
     }
     return context;
@@ -146,26 +449,86 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      character: attachedDatabase.typeMapping.read(
+      kanji: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}character'],
+        data['${effectivePrefix}kanji'],
       )!,
-      onyomi: attachedDatabase.typeMapping.read(
+      kunYomi: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}onyomi'],
+        data['${effectivePrefix}kun_yomi'],
       )!,
-      kunyomi: attachedDatabase.typeMapping.read(
+      onYomi: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}kunyomi'],
+        data['${effectivePrefix}on_yomi'],
       )!,
       meaning: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}meaning'],
       )!,
-      status: attachedDatabase.typeMapping.read(
+      radicals: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}status'],
+        data['${effectivePrefix}radicals'],
       )!,
+      strokeCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stroke_count'],
+      )!,
+      strokeOrderDiagramPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}stroke_order_diagram_path'],
+      ),
+      jlptLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jlpt_level'],
+      )!,
+      gradeLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}grade_level'],
+      ),
+      unicode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unicode'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
+      examples: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}examples'],
+      )!,
+      isLearned: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_learned'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      lastReviewed: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_reviewed'],
+      ),
+      reviewCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}review_count'],
+      )!,
+      easeFactor: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}ease_factor'],
+      )!,
+      nextReview: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_review'],
+      ),
     );
   }
 
@@ -177,39 +540,117 @@ class $KanjisTable extends Kanjis with TableInfo<$KanjisTable, Kanji> {
 
 class Kanji extends DataClass implements Insertable<Kanji> {
   final String id;
-  final String character;
-  final String onyomi;
-  final String kunyomi;
+  final String kanji;
+  final String kunYomi;
+  final String onYomi;
   final String meaning;
-  final String status;
+  final String radicals;
+  final int strokeCount;
+  final String? strokeOrderDiagramPath;
+  final int jlptLevel;
+  final int? gradeLevel;
+  final String unicode;
+  final String notes;
+  final String examples;
+  final bool isLearned;
+  final bool isFavorite;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? lastReviewed;
+  final int reviewCount;
+  final double easeFactor;
+  final DateTime? nextReview;
   const Kanji({
     required this.id,
-    required this.character,
-    required this.onyomi,
-    required this.kunyomi,
+    required this.kanji,
+    required this.kunYomi,
+    required this.onYomi,
     required this.meaning,
-    required this.status,
+    required this.radicals,
+    required this.strokeCount,
+    this.strokeOrderDiagramPath,
+    required this.jlptLevel,
+    this.gradeLevel,
+    required this.unicode,
+    required this.notes,
+    required this.examples,
+    required this.isLearned,
+    required this.isFavorite,
+    required this.createdAt,
+    required this.updatedAt,
+    this.lastReviewed,
+    required this.reviewCount,
+    required this.easeFactor,
+    this.nextReview,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['character'] = Variable<String>(character);
-    map['onyomi'] = Variable<String>(onyomi);
-    map['kunyomi'] = Variable<String>(kunyomi);
+    map['kanji'] = Variable<String>(kanji);
+    map['kun_yomi'] = Variable<String>(kunYomi);
+    map['on_yomi'] = Variable<String>(onYomi);
     map['meaning'] = Variable<String>(meaning);
-    map['status'] = Variable<String>(status);
+    map['radicals'] = Variable<String>(radicals);
+    map['stroke_count'] = Variable<int>(strokeCount);
+    if (!nullToAbsent || strokeOrderDiagramPath != null) {
+      map['stroke_order_diagram_path'] = Variable<String>(
+        strokeOrderDiagramPath,
+      );
+    }
+    map['jlpt_level'] = Variable<int>(jlptLevel);
+    if (!nullToAbsent || gradeLevel != null) {
+      map['grade_level'] = Variable<int>(gradeLevel);
+    }
+    map['unicode'] = Variable<String>(unicode);
+    map['notes'] = Variable<String>(notes);
+    map['examples'] = Variable<String>(examples);
+    map['is_learned'] = Variable<bool>(isLearned);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || lastReviewed != null) {
+      map['last_reviewed'] = Variable<DateTime>(lastReviewed);
+    }
+    map['review_count'] = Variable<int>(reviewCount);
+    map['ease_factor'] = Variable<double>(easeFactor);
+    if (!nullToAbsent || nextReview != null) {
+      map['next_review'] = Variable<DateTime>(nextReview);
+    }
     return map;
   }
 
   KanjisCompanion toCompanion(bool nullToAbsent) {
     return KanjisCompanion(
       id: Value(id),
-      character: Value(character),
-      onyomi: Value(onyomi),
-      kunyomi: Value(kunyomi),
+      kanji: Value(kanji),
+      kunYomi: Value(kunYomi),
+      onYomi: Value(onYomi),
       meaning: Value(meaning),
-      status: Value(status),
+      radicals: Value(radicals),
+      strokeCount: Value(strokeCount),
+      strokeOrderDiagramPath: strokeOrderDiagramPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(strokeOrderDiagramPath),
+      jlptLevel: Value(jlptLevel),
+      gradeLevel: gradeLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(gradeLevel),
+      unicode: Value(unicode),
+      notes: Value(notes),
+      examples: Value(examples),
+      isLearned: Value(isLearned),
+      isFavorite: Value(isFavorite),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      lastReviewed: lastReviewed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastReviewed),
+      reviewCount: Value(reviewCount),
+      easeFactor: Value(easeFactor),
+      nextReview: nextReview == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextReview),
     );
   }
 
@@ -220,11 +661,28 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Kanji(
       id: serializer.fromJson<String>(json['id']),
-      character: serializer.fromJson<String>(json['character']),
-      onyomi: serializer.fromJson<String>(json['onyomi']),
-      kunyomi: serializer.fromJson<String>(json['kunyomi']),
+      kanji: serializer.fromJson<String>(json['kanji']),
+      kunYomi: serializer.fromJson<String>(json['kunYomi']),
+      onYomi: serializer.fromJson<String>(json['onYomi']),
       meaning: serializer.fromJson<String>(json['meaning']),
-      status: serializer.fromJson<String>(json['status']),
+      radicals: serializer.fromJson<String>(json['radicals']),
+      strokeCount: serializer.fromJson<int>(json['strokeCount']),
+      strokeOrderDiagramPath: serializer.fromJson<String?>(
+        json['strokeOrderDiagramPath'],
+      ),
+      jlptLevel: serializer.fromJson<int>(json['jlptLevel']),
+      gradeLevel: serializer.fromJson<int?>(json['gradeLevel']),
+      unicode: serializer.fromJson<String>(json['unicode']),
+      notes: serializer.fromJson<String>(json['notes']),
+      examples: serializer.fromJson<String>(json['examples']),
+      isLearned: serializer.fromJson<bool>(json['isLearned']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      lastReviewed: serializer.fromJson<DateTime?>(json['lastReviewed']),
+      reviewCount: serializer.fromJson<int>(json['reviewCount']),
+      easeFactor: serializer.fromJson<double>(json['easeFactor']),
+      nextReview: serializer.fromJson<DateTime?>(json['nextReview']),
     );
   }
   @override
@@ -232,37 +690,117 @@ class Kanji extends DataClass implements Insertable<Kanji> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'character': serializer.toJson<String>(character),
-      'onyomi': serializer.toJson<String>(onyomi),
-      'kunyomi': serializer.toJson<String>(kunyomi),
+      'kanji': serializer.toJson<String>(kanji),
+      'kunYomi': serializer.toJson<String>(kunYomi),
+      'onYomi': serializer.toJson<String>(onYomi),
       'meaning': serializer.toJson<String>(meaning),
-      'status': serializer.toJson<String>(status),
+      'radicals': serializer.toJson<String>(radicals),
+      'strokeCount': serializer.toJson<int>(strokeCount),
+      'strokeOrderDiagramPath': serializer.toJson<String?>(
+        strokeOrderDiagramPath,
+      ),
+      'jlptLevel': serializer.toJson<int>(jlptLevel),
+      'gradeLevel': serializer.toJson<int?>(gradeLevel),
+      'unicode': serializer.toJson<String>(unicode),
+      'notes': serializer.toJson<String>(notes),
+      'examples': serializer.toJson<String>(examples),
+      'isLearned': serializer.toJson<bool>(isLearned),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'lastReviewed': serializer.toJson<DateTime?>(lastReviewed),
+      'reviewCount': serializer.toJson<int>(reviewCount),
+      'easeFactor': serializer.toJson<double>(easeFactor),
+      'nextReview': serializer.toJson<DateTime?>(nextReview),
     };
   }
 
   Kanji copyWith({
     String? id,
-    String? character,
-    String? onyomi,
-    String? kunyomi,
+    String? kanji,
+    String? kunYomi,
+    String? onYomi,
     String? meaning,
-    String? status,
+    String? radicals,
+    int? strokeCount,
+    Value<String?> strokeOrderDiagramPath = const Value.absent(),
+    int? jlptLevel,
+    Value<int?> gradeLevel = const Value.absent(),
+    String? unicode,
+    String? notes,
+    String? examples,
+    bool? isLearned,
+    bool? isFavorite,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> lastReviewed = const Value.absent(),
+    int? reviewCount,
+    double? easeFactor,
+    Value<DateTime?> nextReview = const Value.absent(),
   }) => Kanji(
     id: id ?? this.id,
-    character: character ?? this.character,
-    onyomi: onyomi ?? this.onyomi,
-    kunyomi: kunyomi ?? this.kunyomi,
+    kanji: kanji ?? this.kanji,
+    kunYomi: kunYomi ?? this.kunYomi,
+    onYomi: onYomi ?? this.onYomi,
     meaning: meaning ?? this.meaning,
-    status: status ?? this.status,
+    radicals: radicals ?? this.radicals,
+    strokeCount: strokeCount ?? this.strokeCount,
+    strokeOrderDiagramPath: strokeOrderDiagramPath.present
+        ? strokeOrderDiagramPath.value
+        : this.strokeOrderDiagramPath,
+    jlptLevel: jlptLevel ?? this.jlptLevel,
+    gradeLevel: gradeLevel.present ? gradeLevel.value : this.gradeLevel,
+    unicode: unicode ?? this.unicode,
+    notes: notes ?? this.notes,
+    examples: examples ?? this.examples,
+    isLearned: isLearned ?? this.isLearned,
+    isFavorite: isFavorite ?? this.isFavorite,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    lastReviewed: lastReviewed.present ? lastReviewed.value : this.lastReviewed,
+    reviewCount: reviewCount ?? this.reviewCount,
+    easeFactor: easeFactor ?? this.easeFactor,
+    nextReview: nextReview.present ? nextReview.value : this.nextReview,
   );
   Kanji copyWithCompanion(KanjisCompanion data) {
     return Kanji(
       id: data.id.present ? data.id.value : this.id,
-      character: data.character.present ? data.character.value : this.character,
-      onyomi: data.onyomi.present ? data.onyomi.value : this.onyomi,
-      kunyomi: data.kunyomi.present ? data.kunyomi.value : this.kunyomi,
+      kanji: data.kanji.present ? data.kanji.value : this.kanji,
+      kunYomi: data.kunYomi.present ? data.kunYomi.value : this.kunYomi,
+      onYomi: data.onYomi.present ? data.onYomi.value : this.onYomi,
       meaning: data.meaning.present ? data.meaning.value : this.meaning,
-      status: data.status.present ? data.status.value : this.status,
+      radicals: data.radicals.present ? data.radicals.value : this.radicals,
+      strokeCount: data.strokeCount.present
+          ? data.strokeCount.value
+          : this.strokeCount,
+      strokeOrderDiagramPath: data.strokeOrderDiagramPath.present
+          ? data.strokeOrderDiagramPath.value
+          : this.strokeOrderDiagramPath,
+      jlptLevel: data.jlptLevel.present ? data.jlptLevel.value : this.jlptLevel,
+      gradeLevel: data.gradeLevel.present
+          ? data.gradeLevel.value
+          : this.gradeLevel,
+      unicode: data.unicode.present ? data.unicode.value : this.unicode,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      examples: data.examples.present ? data.examples.value : this.examples,
+      isLearned: data.isLearned.present ? data.isLearned.value : this.isLearned,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      lastReviewed: data.lastReviewed.present
+          ? data.lastReviewed.value
+          : this.lastReviewed,
+      reviewCount: data.reviewCount.present
+          ? data.reviewCount.value
+          : this.reviewCount,
+      easeFactor: data.easeFactor.present
+          ? data.easeFactor.value
+          : this.easeFactor,
+      nextReview: data.nextReview.present
+          ? data.nextReview.value
+          : this.nextReview,
     );
   }
 
@@ -270,96 +808,260 @@ class Kanji extends DataClass implements Insertable<Kanji> {
   String toString() {
     return (StringBuffer('Kanji(')
           ..write('id: $id, ')
-          ..write('character: $character, ')
-          ..write('onyomi: $onyomi, ')
-          ..write('kunyomi: $kunyomi, ')
+          ..write('kanji: $kanji, ')
+          ..write('kunYomi: $kunYomi, ')
+          ..write('onYomi: $onYomi, ')
           ..write('meaning: $meaning, ')
-          ..write('status: $status')
+          ..write('radicals: $radicals, ')
+          ..write('strokeCount: $strokeCount, ')
+          ..write('strokeOrderDiagramPath: $strokeOrderDiagramPath, ')
+          ..write('jlptLevel: $jlptLevel, ')
+          ..write('gradeLevel: $gradeLevel, ')
+          ..write('unicode: $unicode, ')
+          ..write('notes: $notes, ')
+          ..write('examples: $examples, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lastReviewed: $lastReviewed, ')
+          ..write('reviewCount: $reviewCount, ')
+          ..write('easeFactor: $easeFactor, ')
+          ..write('nextReview: $nextReview')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, character, onyomi, kunyomi, meaning, status);
+  int get hashCode => Object.hashAll([
+    id,
+    kanji,
+    kunYomi,
+    onYomi,
+    meaning,
+    radicals,
+    strokeCount,
+    strokeOrderDiagramPath,
+    jlptLevel,
+    gradeLevel,
+    unicode,
+    notes,
+    examples,
+    isLearned,
+    isFavorite,
+    createdAt,
+    updatedAt,
+    lastReviewed,
+    reviewCount,
+    easeFactor,
+    nextReview,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Kanji &&
           other.id == this.id &&
-          other.character == this.character &&
-          other.onyomi == this.onyomi &&
-          other.kunyomi == this.kunyomi &&
+          other.kanji == this.kanji &&
+          other.kunYomi == this.kunYomi &&
+          other.onYomi == this.onYomi &&
           other.meaning == this.meaning &&
-          other.status == this.status);
+          other.radicals == this.radicals &&
+          other.strokeCount == this.strokeCount &&
+          other.strokeOrderDiagramPath == this.strokeOrderDiagramPath &&
+          other.jlptLevel == this.jlptLevel &&
+          other.gradeLevel == this.gradeLevel &&
+          other.unicode == this.unicode &&
+          other.notes == this.notes &&
+          other.examples == this.examples &&
+          other.isLearned == this.isLearned &&
+          other.isFavorite == this.isFavorite &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.lastReviewed == this.lastReviewed &&
+          other.reviewCount == this.reviewCount &&
+          other.easeFactor == this.easeFactor &&
+          other.nextReview == this.nextReview);
 }
 
 class KanjisCompanion extends UpdateCompanion<Kanji> {
   final Value<String> id;
-  final Value<String> character;
-  final Value<String> onyomi;
-  final Value<String> kunyomi;
+  final Value<String> kanji;
+  final Value<String> kunYomi;
+  final Value<String> onYomi;
   final Value<String> meaning;
-  final Value<String> status;
+  final Value<String> radicals;
+  final Value<int> strokeCount;
+  final Value<String?> strokeOrderDiagramPath;
+  final Value<int> jlptLevel;
+  final Value<int?> gradeLevel;
+  final Value<String> unicode;
+  final Value<String> notes;
+  final Value<String> examples;
+  final Value<bool> isLearned;
+  final Value<bool> isFavorite;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> lastReviewed;
+  final Value<int> reviewCount;
+  final Value<double> easeFactor;
+  final Value<DateTime?> nextReview;
   final Value<int> rowid;
   const KanjisCompanion({
     this.id = const Value.absent(),
-    this.character = const Value.absent(),
-    this.onyomi = const Value.absent(),
-    this.kunyomi = const Value.absent(),
+    this.kanji = const Value.absent(),
+    this.kunYomi = const Value.absent(),
+    this.onYomi = const Value.absent(),
     this.meaning = const Value.absent(),
-    this.status = const Value.absent(),
+    this.radicals = const Value.absent(),
+    this.strokeCount = const Value.absent(),
+    this.strokeOrderDiagramPath = const Value.absent(),
+    this.jlptLevel = const Value.absent(),
+    this.gradeLevel = const Value.absent(),
+    this.unicode = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.examples = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.lastReviewed = const Value.absent(),
+    this.reviewCount = const Value.absent(),
+    this.easeFactor = const Value.absent(),
+    this.nextReview = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   KanjisCompanion.insert({
     required String id,
-    required String character,
-    required String onyomi,
-    required String kunyomi,
+    required String kanji,
+    required String kunYomi,
+    required String onYomi,
     required String meaning,
-    this.status = const Value.absent(),
+    required String radicals,
+    required int strokeCount,
+    this.strokeOrderDiagramPath = const Value.absent(),
+    required int jlptLevel,
+    this.gradeLevel = const Value.absent(),
+    required String unicode,
+    this.notes = const Value.absent(),
+    this.examples = const Value.absent(),
+    this.isLearned = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.lastReviewed = const Value.absent(),
+    this.reviewCount = const Value.absent(),
+    this.easeFactor = const Value.absent(),
+    this.nextReview = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       character = Value(character),
-       onyomi = Value(onyomi),
-       kunyomi = Value(kunyomi),
-       meaning = Value(meaning);
+       kanji = Value(kanji),
+       kunYomi = Value(kunYomi),
+       onYomi = Value(onYomi),
+       meaning = Value(meaning),
+       radicals = Value(radicals),
+       strokeCount = Value(strokeCount),
+       jlptLevel = Value(jlptLevel),
+       unicode = Value(unicode),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
   static Insertable<Kanji> custom({
     Expression<String>? id,
-    Expression<String>? character,
-    Expression<String>? onyomi,
-    Expression<String>? kunyomi,
+    Expression<String>? kanji,
+    Expression<String>? kunYomi,
+    Expression<String>? onYomi,
     Expression<String>? meaning,
-    Expression<String>? status,
+    Expression<String>? radicals,
+    Expression<int>? strokeCount,
+    Expression<String>? strokeOrderDiagramPath,
+    Expression<int>? jlptLevel,
+    Expression<int>? gradeLevel,
+    Expression<String>? unicode,
+    Expression<String>? notes,
+    Expression<String>? examples,
+    Expression<bool>? isLearned,
+    Expression<bool>? isFavorite,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? lastReviewed,
+    Expression<int>? reviewCount,
+    Expression<double>? easeFactor,
+    Expression<DateTime>? nextReview,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (character != null) 'character': character,
-      if (onyomi != null) 'onyomi': onyomi,
-      if (kunyomi != null) 'kunyomi': kunyomi,
+      if (kanji != null) 'kanji': kanji,
+      if (kunYomi != null) 'kun_yomi': kunYomi,
+      if (onYomi != null) 'on_yomi': onYomi,
       if (meaning != null) 'meaning': meaning,
-      if (status != null) 'status': status,
+      if (radicals != null) 'radicals': radicals,
+      if (strokeCount != null) 'stroke_count': strokeCount,
+      if (strokeOrderDiagramPath != null)
+        'stroke_order_diagram_path': strokeOrderDiagramPath,
+      if (jlptLevel != null) 'jlpt_level': jlptLevel,
+      if (gradeLevel != null) 'grade_level': gradeLevel,
+      if (unicode != null) 'unicode': unicode,
+      if (notes != null) 'notes': notes,
+      if (examples != null) 'examples': examples,
+      if (isLearned != null) 'is_learned': isLearned,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (lastReviewed != null) 'last_reviewed': lastReviewed,
+      if (reviewCount != null) 'review_count': reviewCount,
+      if (easeFactor != null) 'ease_factor': easeFactor,
+      if (nextReview != null) 'next_review': nextReview,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   KanjisCompanion copyWith({
     Value<String>? id,
-    Value<String>? character,
-    Value<String>? onyomi,
-    Value<String>? kunyomi,
+    Value<String>? kanji,
+    Value<String>? kunYomi,
+    Value<String>? onYomi,
     Value<String>? meaning,
-    Value<String>? status,
+    Value<String>? radicals,
+    Value<int>? strokeCount,
+    Value<String?>? strokeOrderDiagramPath,
+    Value<int>? jlptLevel,
+    Value<int?>? gradeLevel,
+    Value<String>? unicode,
+    Value<String>? notes,
+    Value<String>? examples,
+    Value<bool>? isLearned,
+    Value<bool>? isFavorite,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? lastReviewed,
+    Value<int>? reviewCount,
+    Value<double>? easeFactor,
+    Value<DateTime?>? nextReview,
     Value<int>? rowid,
   }) {
     return KanjisCompanion(
       id: id ?? this.id,
-      character: character ?? this.character,
-      onyomi: onyomi ?? this.onyomi,
-      kunyomi: kunyomi ?? this.kunyomi,
+      kanji: kanji ?? this.kanji,
+      kunYomi: kunYomi ?? this.kunYomi,
+      onYomi: onYomi ?? this.onYomi,
       meaning: meaning ?? this.meaning,
-      status: status ?? this.status,
+      radicals: radicals ?? this.radicals,
+      strokeCount: strokeCount ?? this.strokeCount,
+      strokeOrderDiagramPath:
+          strokeOrderDiagramPath ?? this.strokeOrderDiagramPath,
+      jlptLevel: jlptLevel ?? this.jlptLevel,
+      gradeLevel: gradeLevel ?? this.gradeLevel,
+      unicode: unicode ?? this.unicode,
+      notes: notes ?? this.notes,
+      examples: examples ?? this.examples,
+      isLearned: isLearned ?? this.isLearned,
+      isFavorite: isFavorite ?? this.isFavorite,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      lastReviewed: lastReviewed ?? this.lastReviewed,
+      reviewCount: reviewCount ?? this.reviewCount,
+      easeFactor: easeFactor ?? this.easeFactor,
+      nextReview: nextReview ?? this.nextReview,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -370,20 +1072,67 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (character.present) {
-      map['character'] = Variable<String>(character.value);
+    if (kanji.present) {
+      map['kanji'] = Variable<String>(kanji.value);
     }
-    if (onyomi.present) {
-      map['onyomi'] = Variable<String>(onyomi.value);
+    if (kunYomi.present) {
+      map['kun_yomi'] = Variable<String>(kunYomi.value);
     }
-    if (kunyomi.present) {
-      map['kunyomi'] = Variable<String>(kunyomi.value);
+    if (onYomi.present) {
+      map['on_yomi'] = Variable<String>(onYomi.value);
     }
     if (meaning.present) {
       map['meaning'] = Variable<String>(meaning.value);
     }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
+    if (radicals.present) {
+      map['radicals'] = Variable<String>(radicals.value);
+    }
+    if (strokeCount.present) {
+      map['stroke_count'] = Variable<int>(strokeCount.value);
+    }
+    if (strokeOrderDiagramPath.present) {
+      map['stroke_order_diagram_path'] = Variable<String>(
+        strokeOrderDiagramPath.value,
+      );
+    }
+    if (jlptLevel.present) {
+      map['jlpt_level'] = Variable<int>(jlptLevel.value);
+    }
+    if (gradeLevel.present) {
+      map['grade_level'] = Variable<int>(gradeLevel.value);
+    }
+    if (unicode.present) {
+      map['unicode'] = Variable<String>(unicode.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (examples.present) {
+      map['examples'] = Variable<String>(examples.value);
+    }
+    if (isLearned.present) {
+      map['is_learned'] = Variable<bool>(isLearned.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (lastReviewed.present) {
+      map['last_reviewed'] = Variable<DateTime>(lastReviewed.value);
+    }
+    if (reviewCount.present) {
+      map['review_count'] = Variable<int>(reviewCount.value);
+    }
+    if (easeFactor.present) {
+      map['ease_factor'] = Variable<double>(easeFactor.value);
+    }
+    if (nextReview.present) {
+      map['next_review'] = Variable<DateTime>(nextReview.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -395,11 +1144,26 @@ class KanjisCompanion extends UpdateCompanion<Kanji> {
   String toString() {
     return (StringBuffer('KanjisCompanion(')
           ..write('id: $id, ')
-          ..write('character: $character, ')
-          ..write('onyomi: $onyomi, ')
-          ..write('kunyomi: $kunyomi, ')
+          ..write('kanji: $kanji, ')
+          ..write('kunYomi: $kunYomi, ')
+          ..write('onYomi: $onYomi, ')
           ..write('meaning: $meaning, ')
-          ..write('status: $status, ')
+          ..write('radicals: $radicals, ')
+          ..write('strokeCount: $strokeCount, ')
+          ..write('strokeOrderDiagramPath: $strokeOrderDiagramPath, ')
+          ..write('jlptLevel: $jlptLevel, ')
+          ..write('gradeLevel: $gradeLevel, ')
+          ..write('unicode: $unicode, ')
+          ..write('notes: $notes, ')
+          ..write('examples: $examples, ')
+          ..write('isLearned: $isLearned, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('lastReviewed: $lastReviewed, ')
+          ..write('reviewCount: $reviewCount, ')
+          ..write('easeFactor: $easeFactor, ')
+          ..write('nextReview: $nextReview, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5613,6 +6377,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserStatsTable userStats = $UserStatsTable(this);
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $WeeklyGoalsTable weeklyGoals = $WeeklyGoalsTable(this);
+  late final Index idxKanjisKanji = Index(
+    'idx_kanjis_kanji',
+    'CREATE INDEX idx_kanjis_kanji ON kanjis (kanji)',
+  );
+  late final Index idxKanjisLearned = Index(
+    'idx_kanjis_learned',
+    'CREATE INDEX idx_kanjis_learned ON kanjis (is_learned)',
+  );
+  late final Index idxKanjisFavorite = Index(
+    'idx_kanjis_favorite',
+    'CREATE INDEX idx_kanjis_favorite ON kanjis (is_favorite)',
+  );
+  late final Index idxKanjisNextReview = Index(
+    'idx_kanjis_next_review',
+    'CREATE INDEX idx_kanjis_next_review ON kanjis (next_review)',
+  );
   late final Index idxPlannerTasksDate = Index(
     'idx_planner_tasks_date',
     'CREATE INDEX idx_planner_tasks_date ON planner_tasks (date)',
@@ -5640,6 +6420,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userStats,
     achievements,
     weeklyGoals,
+    idxKanjisKanji,
+    idxKanjisLearned,
+    idxKanjisFavorite,
+    idxKanjisNextReview,
     idxPlannerTasksDate,
     idxReviewItemsNextReview,
   ];
@@ -5648,21 +6432,51 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$KanjisTableCreateCompanionBuilder =
     KanjisCompanion Function({
       required String id,
-      required String character,
-      required String onyomi,
-      required String kunyomi,
+      required String kanji,
+      required String kunYomi,
+      required String onYomi,
       required String meaning,
-      Value<String> status,
+      required String radicals,
+      required int strokeCount,
+      Value<String?> strokeOrderDiagramPath,
+      required int jlptLevel,
+      Value<int?> gradeLevel,
+      required String unicode,
+      Value<String> notes,
+      Value<String> examples,
+      Value<bool> isLearned,
+      Value<bool> isFavorite,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> lastReviewed,
+      Value<int> reviewCount,
+      Value<double> easeFactor,
+      Value<DateTime?> nextReview,
       Value<int> rowid,
     });
 typedef $$KanjisTableUpdateCompanionBuilder =
     KanjisCompanion Function({
       Value<String> id,
-      Value<String> character,
-      Value<String> onyomi,
-      Value<String> kunyomi,
+      Value<String> kanji,
+      Value<String> kunYomi,
+      Value<String> onYomi,
       Value<String> meaning,
-      Value<String> status,
+      Value<String> radicals,
+      Value<int> strokeCount,
+      Value<String?> strokeOrderDiagramPath,
+      Value<int> jlptLevel,
+      Value<int?> gradeLevel,
+      Value<String> unicode,
+      Value<String> notes,
+      Value<String> examples,
+      Value<bool> isLearned,
+      Value<bool> isFavorite,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> lastReviewed,
+      Value<int> reviewCount,
+      Value<double> easeFactor,
+      Value<DateTime?> nextReview,
       Value<int> rowid,
     });
 
@@ -5680,18 +6494,18 @@ class $$KanjisTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get character => $composableBuilder(
-    column: $table.character,
+  ColumnFilters<String> get kanji => $composableBuilder(
+    column: $table.kanji,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get onyomi => $composableBuilder(
-    column: $table.onyomi,
+  ColumnFilters<String> get kunYomi => $composableBuilder(
+    column: $table.kunYomi,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get kunyomi => $composableBuilder(
-    column: $table.kunyomi,
+  ColumnFilters<String> get onYomi => $composableBuilder(
+    column: $table.onYomi,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5700,8 +6514,83 @@ class $$KanjisTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnFilters<String> get radicals => $composableBuilder(
+    column: $table.radicals,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get strokeCount => $composableBuilder(
+    column: $table.strokeCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get strokeOrderDiagramPath => $composableBuilder(
+    column: $table.strokeOrderDiagramPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get jlptLevel => $composableBuilder(
+    column: $table.jlptLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gradeLevel => $composableBuilder(
+    column: $table.gradeLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unicode => $composableBuilder(
+    column: $table.unicode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get examples => $composableBuilder(
+    column: $table.examples,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isLearned => $composableBuilder(
+    column: $table.isLearned,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastReviewed => $composableBuilder(
+    column: $table.lastReviewed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reviewCount => $composableBuilder(
+    column: $table.reviewCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get easeFactor => $composableBuilder(
+    column: $table.easeFactor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextReview => $composableBuilder(
+    column: $table.nextReview,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -5720,18 +6609,18 @@ class $$KanjisTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get character => $composableBuilder(
-    column: $table.character,
+  ColumnOrderings<String> get kanji => $composableBuilder(
+    column: $table.kanji,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get onyomi => $composableBuilder(
-    column: $table.onyomi,
+  ColumnOrderings<String> get kunYomi => $composableBuilder(
+    column: $table.kunYomi,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get kunyomi => $composableBuilder(
-    column: $table.kunyomi,
+  ColumnOrderings<String> get onYomi => $composableBuilder(
+    column: $table.onYomi,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5740,8 +6629,83 @@ class $$KanjisTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnOrderings<String> get radicals => $composableBuilder(
+    column: $table.radicals,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get strokeCount => $composableBuilder(
+    column: $table.strokeCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get strokeOrderDiagramPath => $composableBuilder(
+    column: $table.strokeOrderDiagramPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get jlptLevel => $composableBuilder(
+    column: $table.jlptLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gradeLevel => $composableBuilder(
+    column: $table.gradeLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unicode => $composableBuilder(
+    column: $table.unicode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get examples => $composableBuilder(
+    column: $table.examples,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isLearned => $composableBuilder(
+    column: $table.isLearned,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastReviewed => $composableBuilder(
+    column: $table.lastReviewed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reviewCount => $composableBuilder(
+    column: $table.reviewCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get easeFactor => $composableBuilder(
+    column: $table.easeFactor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextReview => $composableBuilder(
+    column: $table.nextReview,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -5758,20 +6722,81 @@ class $$KanjisTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get character =>
-      $composableBuilder(column: $table.character, builder: (column) => column);
+  GeneratedColumn<String> get kanji =>
+      $composableBuilder(column: $table.kanji, builder: (column) => column);
 
-  GeneratedColumn<String> get onyomi =>
-      $composableBuilder(column: $table.onyomi, builder: (column) => column);
+  GeneratedColumn<String> get kunYomi =>
+      $composableBuilder(column: $table.kunYomi, builder: (column) => column);
 
-  GeneratedColumn<String> get kunyomi =>
-      $composableBuilder(column: $table.kunyomi, builder: (column) => column);
+  GeneratedColumn<String> get onYomi =>
+      $composableBuilder(column: $table.onYomi, builder: (column) => column);
 
   GeneratedColumn<String> get meaning =>
       $composableBuilder(column: $table.meaning, builder: (column) => column);
 
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<String> get radicals =>
+      $composableBuilder(column: $table.radicals, builder: (column) => column);
+
+  GeneratedColumn<int> get strokeCount => $composableBuilder(
+    column: $table.strokeCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get strokeOrderDiagramPath => $composableBuilder(
+    column: $table.strokeOrderDiagramPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get jlptLevel =>
+      $composableBuilder(column: $table.jlptLevel, builder: (column) => column);
+
+  GeneratedColumn<int> get gradeLevel => $composableBuilder(
+    column: $table.gradeLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get unicode =>
+      $composableBuilder(column: $table.unicode, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get examples =>
+      $composableBuilder(column: $table.examples, builder: (column) => column);
+
+  GeneratedColumn<bool> get isLearned =>
+      $composableBuilder(column: $table.isLearned, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastReviewed => $composableBuilder(
+    column: $table.lastReviewed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reviewCount => $composableBuilder(
+    column: $table.reviewCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get easeFactor => $composableBuilder(
+    column: $table.easeFactor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get nextReview => $composableBuilder(
+    column: $table.nextReview,
+    builder: (column) => column,
+  );
 }
 
 class $$KanjisTableTableManager
@@ -5803,37 +6828,97 @@ class $$KanjisTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> character = const Value.absent(),
-                Value<String> onyomi = const Value.absent(),
-                Value<String> kunyomi = const Value.absent(),
+                Value<String> kanji = const Value.absent(),
+                Value<String> kunYomi = const Value.absent(),
+                Value<String> onYomi = const Value.absent(),
                 Value<String> meaning = const Value.absent(),
-                Value<String> status = const Value.absent(),
+                Value<String> radicals = const Value.absent(),
+                Value<int> strokeCount = const Value.absent(),
+                Value<String?> strokeOrderDiagramPath = const Value.absent(),
+                Value<int> jlptLevel = const Value.absent(),
+                Value<int?> gradeLevel = const Value.absent(),
+                Value<String> unicode = const Value.absent(),
+                Value<String> notes = const Value.absent(),
+                Value<String> examples = const Value.absent(),
+                Value<bool> isLearned = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> lastReviewed = const Value.absent(),
+                Value<int> reviewCount = const Value.absent(),
+                Value<double> easeFactor = const Value.absent(),
+                Value<DateTime?> nextReview = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => KanjisCompanion(
                 id: id,
-                character: character,
-                onyomi: onyomi,
-                kunyomi: kunyomi,
+                kanji: kanji,
+                kunYomi: kunYomi,
+                onYomi: onYomi,
                 meaning: meaning,
-                status: status,
+                radicals: radicals,
+                strokeCount: strokeCount,
+                strokeOrderDiagramPath: strokeOrderDiagramPath,
+                jlptLevel: jlptLevel,
+                gradeLevel: gradeLevel,
+                unicode: unicode,
+                notes: notes,
+                examples: examples,
+                isLearned: isLearned,
+                isFavorite: isFavorite,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                lastReviewed: lastReviewed,
+                reviewCount: reviewCount,
+                easeFactor: easeFactor,
+                nextReview: nextReview,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
-                required String character,
-                required String onyomi,
-                required String kunyomi,
+                required String kanji,
+                required String kunYomi,
+                required String onYomi,
                 required String meaning,
-                Value<String> status = const Value.absent(),
+                required String radicals,
+                required int strokeCount,
+                Value<String?> strokeOrderDiagramPath = const Value.absent(),
+                required int jlptLevel,
+                Value<int?> gradeLevel = const Value.absent(),
+                required String unicode,
+                Value<String> notes = const Value.absent(),
+                Value<String> examples = const Value.absent(),
+                Value<bool> isLearned = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> lastReviewed = const Value.absent(),
+                Value<int> reviewCount = const Value.absent(),
+                Value<double> easeFactor = const Value.absent(),
+                Value<DateTime?> nextReview = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => KanjisCompanion.insert(
                 id: id,
-                character: character,
-                onyomi: onyomi,
-                kunyomi: kunyomi,
+                kanji: kanji,
+                kunYomi: kunYomi,
+                onYomi: onYomi,
                 meaning: meaning,
-                status: status,
+                radicals: radicals,
+                strokeCount: strokeCount,
+                strokeOrderDiagramPath: strokeOrderDiagramPath,
+                jlptLevel: jlptLevel,
+                gradeLevel: gradeLevel,
+                unicode: unicode,
+                notes: notes,
+                examples: examples,
+                isLearned: isLearned,
+                isFavorite: isFavorite,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                lastReviewed: lastReviewed,
+                reviewCount: reviewCount,
+                easeFactor: easeFactor,
+                nextReview: nextReview,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

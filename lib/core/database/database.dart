@@ -6,13 +6,32 @@ part 'database.g.dart';
 
 // --- TABLE DEFINITIONS ---
 
+@TableIndex(name: 'idx_kanjis_kanji', columns: {#kanji})
+@TableIndex(name: 'idx_kanjis_learned', columns: {#isLearned})
+@TableIndex(name: 'idx_kanjis_favorite', columns: {#isFavorite})
+@TableIndex(name: 'idx_kanjis_next_review', columns: {#nextReview})
 class Kanjis extends Table {
   TextColumn get id => text()();
-  TextColumn get character => text()();
-  TextColumn get onyomi => text()();
-  TextColumn get kunyomi => text()();
+  TextColumn get kanji => text()();
+  TextColumn get kunYomi => text()(); // JSON List<String>
+  TextColumn get onYomi => text()();  // JSON List<String>
   TextColumn get meaning => text()();
-  TextColumn get status => text().withDefault(const Constant('unlearned'))(); // unlearned, learning, mastered
+  TextColumn get radicals => text()();
+  IntColumn get strokeCount => integer()();
+  TextColumn get strokeOrderDiagramPath => text().nullable()();
+  IntColumn get jlptLevel => integer()();
+  IntColumn get gradeLevel => integer().nullable()();
+  TextColumn get unicode => text()();
+  TextColumn get notes => text().withDefault(const Constant(''))();
+  TextColumn get examples => text().withDefault(const Constant('[]'))(); // JSON List<String>
+  BoolColumn get isLearned => boolean().withDefault(const Constant(false))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get lastReviewed => dateTime().nullable()();
+  IntColumn get reviewCount => integer().withDefault(const Constant(0))();
+  RealColumn get easeFactor => real().withDefault(const Constant(2.5))();
+  DateTimeColumn get nextReview => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -179,7 +198,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -187,39 +206,56 @@ class AppDatabase extends _$AppDatabase {
       await m.createAll();
       await _seedDatabase();
     },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        final List<Map<String, dynamic>> oldKanjis = [];
+        try {
+          final rows = await customSelect('SELECT id, character, onyomi, kunyomi, meaning, status FROM kanjis;').get();
+          for (var r in rows) {
+            oldKanjis.add({
+              'id': r.read<String>('id'),
+              'character': r.read<String>('character'),
+              'onyomi': r.read<String>('onyomi'),
+              'kunyomi': r.read<String>('kunyomi'),
+              'meaning': r.read<String>('meaning'),
+              'status': r.read<String>('status'),
+            });
+          }
+        } catch (e) {
+          // Ignore if old table does not exist or structure mismatch
+        }
+
+        await m.drop(kanjis);
+        await m.create(kanjis);
+
+        for (var old in oldKanjis) {
+          final onyomiList = (old['onyomi'] as String).split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
+          final kunyomiList = (old['kunyomi'] as String).split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
+          final status = old['status'] as String;
+
+          await into(kanjis).insert(
+            KanjisCompanion.insert(
+              id: old['id'] as String,
+              kanji: old['character'] as String,
+              kunYomi: jsonEncode(kunyomiList),
+              onYomi: jsonEncode(onyomiList),
+              meaning: old['meaning'] as String,
+              radicals: '-',
+              strokeCount: 0,
+              jlptLevel: 3,
+              unicode: '',
+              isLearned: Value(status == 'mastered'),
+              reviewCount: Value(status == 'learning' ? 1 : (status == 'mastered' ? 5 : 0)),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+      }
+    },
   );
 
   Future<void> _seedDatabase() async {
-    // --- Kanji Seeds ---
-    final kanjiSeeds = [
-      {'id': 'k1', 'character': '結', 'onyomi': 'ケツ', 'kunyomi': 'むす.ぶ', 'meaning': 'Tie, bind, contract, join', 'status': 'unlearned'},
-      {'id': 'k2', 'character': '婚', 'onyomi': 'コン', 'kunyomi': 'ねい', 'meaning': 'Marriage', 'status': 'unlearned'},
-      {'id': 'k3', 'character': '紹', 'onyomi': 'ショウ', 'kunyomi': 'つな.ぐ', 'meaning': 'Introduce, inherit, help', 'status': 'unlearned'},
-      {'id': 'k4', 'character': '介', 'onyomi': 'カイ', 'kunyomi': 'たす.ける', 'meaning': 'Jammed in, shell, mediate', 'status': 'unlearned'},
-      {'id': 'k5', 'character': '独', 'onyomi': 'ドク', 'kunyomi': 'ひとり', 'meaning': 'Single, alone, Germany', 'status': 'unlearned'},
-      {'id': 'k6', 'character': '身', 'onyomi': 'シン', 'kunyomi': 'み', 'meaning': 'Body, somebody, oneself, entry', 'status': 'unlearned'},
-      {'id': 'k7', 'character': '貯', 'onyomi': 'チョ', 'kunyomi': 'た.める', 'meaning': 'Savings, store, lay up', 'status': 'unlearned'},
-      {'id': 'k8', 'character': '歳', 'onyomi': 'サイ, セイ', 'kunyomi': 'とし', 'meaning': 'Year-end, age, opportunity', 'status': 'unlearned'},
-      {'id': 'k9', 'character': '暮', 'onyomi': 'ボ', 'kunyomi': 'く.らす', 'meaning': 'Evening, live, livelihood, grow dark', 'status': 'unlearned'},
-      {'id': 'k10', 'character': '忙', 'onyomi': 'ボウ', 'kunyomi': 'いそが.しい', 'meaning': 'Busy, occupied, restless', 'status': 'unlearned'},
-      {'id': 'k11', 'character': '給', 'onyomi': 'キュウ', 'kunyomi': 'たま.う', 'meaning': 'Salary, supply, provide, allow', 'status': 'unlearned'},
-      {'id': 'k12', 'character': '実', 'onyomi': 'ジツ', 'kunyomi': 'みの.る', 'meaning': 'Reality, truth, fruit, nut', 'status': 'unlearned'},
-      {'id': 'k13', 'character': '相', 'onyomi': 'ソウ, ショウ', 'kunyomi': 'あい', 'meaning': 'Inter-, mutual, aspect, phase', 'status': 'unlearned'},
-      {'id': 'k14', 'character': '談', 'onyomi': 'ダン', 'kunyomi': 'かた.る', 'meaning': 'Discuss, talk', 'status': 'unlearned'},
-      {'id': 'k15', 'character': '適', 'onyomi': 'テキ', 'kunyomi': 'かな.う', 'meaning': 'Suitable, fit, capably', 'status': 'unlearned'},
-    ];
-
-    for (var seed in kanjiSeeds) {
-      await into(kanjis).insert(KanjisCompanion.insert(
-        id: seed['id'] as String,
-        character: seed['character'] as String,
-        onyomi: seed['onyomi'] as String,
-        kunyomi: seed['kunyomi'] as String,
-        meaning: seed['meaning'] as String,
-        status: Value(seed['status'] as String),
-      ));
-    }
-
     // --- Vocabulary Seeds ---
     final vocabSeeds = [
       {'id': 'v1', 'word': '諦める', 'reading': 'あきらめる', 'meaning': 'To give up, to abandon hope', 'status': 'unlearned'},
