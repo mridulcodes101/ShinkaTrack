@@ -19,29 +19,95 @@ class StudyRepositoryImpl implements StudyRepository {
   @override
   Future<List<KanjiEntity>> getKanjis() async {
     final list = await db.select(db.kanjis).get();
-    return list.map((k) => KanjiEntity(
-      id: k.id,
-      character: k.character,
-      onyomi: k.onyomi,
-      kunyomi: k.kunyomi,
-      meaning: k.meaning,
-      status: StudyStatus.fromString(k.status),
-    )).toList();
+    return list.map((k) {
+      final List<String> kunYomiList = List<String>.from(jsonDecode(k.kunYomi));
+      final List<String> onYomiList = List<String>.from(jsonDecode(k.onYomi));
+      final List<String> examplesList = List<String>.from(jsonDecode(k.examples));
+      return KanjiEntity(
+        id: k.id,
+        kanji: k.kanji,
+        kunYomi: kunYomiList,
+        onYomi: onYomiList,
+        meaning: k.meaning,
+        radicals: k.radicals,
+        strokeCount: k.strokeCount,
+        strokeOrderDiagramPath: k.strokeOrderDiagramPath,
+        jlptLevel: k.jlptLevel,
+        gradeLevel: k.gradeLevel,
+        unicode: k.unicode,
+        notes: k.notes,
+        examples: examplesList,
+        isLearned: k.isLearned,
+        isFavorite: k.isFavorite,
+        createdAt: k.createdAt,
+        updatedAt: k.updatedAt,
+        lastReviewed: k.lastReviewed,
+        reviewCount: k.reviewCount,
+        easeFactor: k.easeFactor,
+        nextReview: k.nextReview,
+      );
+    }).toList();
   }
 
   @override
   Future<void> updateKanjiStatus(String id, StudyStatus status) async {
     final existing = await (db.select(db.kanjis)..where((t) => t.id.equals(id))).getSingleOrNull();
-    final bool wasMastered = existing?.status == 'mastered';
+    final bool wasLearned = existing?.isLearned ?? false;
+    final bool isNowLearned = status == StudyStatus.mastered;
 
     await (db.update(db.kanjis)..where((t) => t.id.equals(id))).write(
-      KanjisCompanion(status: Value(status.toDbString())),
+      KanjisCompanion(
+        isLearned: Value(isNowLearned),
+        reviewCount: Value((existing?.reviewCount ?? 0) + 1),
+        lastReviewed: Value(DateTime.now()),
+        updatedAt: Value(DateTime.now()),
+      ),
     );
-    await autoScheduleReview('kanji', id, status == StudyStatus.mastered);
+    await autoScheduleReview('kanji', id, isNowLearned);
 
-    if (status == StudyStatus.mastered && !wasMastered) {
+    if (isNowLearned && !wasLearned) {
       await _onItemMastered(id, 'kanji');
     }
+  }
+
+  @override
+  Future<void> addKanji(KanjiEntity kanji) async {
+    await db.into(db.kanjis).insert(
+      KanjisCompanion.insert(
+        id: kanji.id,
+        kanji: kanji.kanji,
+        kunYomi: jsonEncode(kanji.kunYomi),
+        onYomi: jsonEncode(kanji.onYomi),
+        meaning: kanji.meaning,
+        radicals: kanji.radicals,
+        strokeCount: kanji.strokeCount,
+        strokeOrderDiagramPath: Value(kanji.strokeOrderDiagramPath),
+        jlptLevel: kanji.jlptLevel,
+        gradeLevel: Value(kanji.gradeLevel),
+        unicode: kanji.unicode,
+        notes: Value(kanji.notes),
+        examples: Value(jsonEncode(kanji.examples)),
+        isLearned: Value(kanji.isLearned),
+        isFavorite: Value(kanji.isFavorite),
+        createdAt: kanji.createdAt,
+        updatedAt: kanji.updatedAt,
+        lastReviewed: Value(kanji.lastReviewed),
+        reviewCount: Value(kanji.reviewCount),
+        easeFactor: Value(kanji.easeFactor),
+        nextReview: Value(kanji.nextReview),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
+  }
+
+  @override
+  Future<void> deleteKanji(String id) async {
+    // 1. Delete from Kanjis table
+    await (db.delete(db.kanjis)..where((t) => t.id.equals(id))).go();
+    // 2. Cascade delete from review items
+    await (db.delete(db.reviewItems)..where((t) => t.itemId.equals(id) & t.itemType.equals('kanji'))).go();
+    // 3. Cascade delete from planner tasks
+    await (db.delete(db.plannerTasks)..where((t) => t.itemId.equals(id) & t.itemType.equals('kanji'))).go();
   }
 
   @override
@@ -314,7 +380,13 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> resetAllProgress() async {
-    await db.update(db.kanjis).write(const KanjisCompanion(status: Value('unlearned')));
+    await db.update(db.kanjis).write(const KanjisCompanion(
+      isLearned: Value(false),
+      reviewCount: Value(0),
+      easeFactor: Value(2.5),
+      lastReviewed: Value(null),
+      nextReview: Value(null),
+    ));
     await db.update(db.vocabularies).write(const VocabulariesCompanion(status: Value('unlearned')));
     await db.update(db.grammars).write(const GrammarsCompanion(status: Value('unlearned')));
     await db.update(db.readings).write(const ReadingsCompanion(status: Value('unlearned'), notes: Value('')));
@@ -368,7 +440,7 @@ class StudyRepositoryImpl implements StudyRepository {
     final readingList = await db.select(db.readings).get();
     final listeningList = await db.select(db.listenings).get();
 
-    final unlearnedKanjis = kanjiList.where((k) => k.status != 'mastered').toList();
+    final unlearnedKanjis = kanjiList.where((k) => !k.isLearned).toList();
     final unlearnedVocabs = vocabList.where((v) => v.status != 'mastered').toList();
     final unlearnedGrammars = grammarList.where((g) => g.status != 'mastered').toList();
     final unlearnedReadings = readingList.where((r) => r.status != 'mastered').toList();
@@ -456,7 +528,7 @@ class StudyRepositoryImpl implements StudyRepository {
       } else {
         if (t.itemType == 'kanji') {
           final item = await (db.select(db.kanjis)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
-          title = 'Learn Kanji: ${item?.character ?? ""}';
+          title = 'Learn Kanji: ${item?.kanji ?? ""}';
           details = item?.meaning ?? '';
         } else if (t.itemType == 'vocab') {
           final item = await (db.select(db.vocabularies)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
@@ -508,7 +580,7 @@ class StudyRepositoryImpl implements StudyRepository {
     // 3. Update the corresponding study item status
     if (task.itemType == 'kanji') {
       await (db.update(db.kanjis)..where((x) => x.id.equals(task.itemId))).write(
-        KanjisCompanion(status: Value(newStatus.toDbString())),
+        KanjisCompanion(isLearned: Value(isCompleted)),
       );
     } else if (task.itemType == 'vocab') {
       await (db.update(db.vocabularies)..where((x) => x.id.equals(task.itemId))).write(
@@ -676,7 +748,7 @@ class StudyRepositoryImpl implements StudyRepository {
 
       if (r.itemType == 'kanji') {
         final item = await (db.select(db.kanjis)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
-        title = 'Review Kanji: ${item?.character ?? ""}';
+        title = 'Review Kanji: ${item?.kanji ?? ""}';
         details = 'Meaning: ${item?.meaning ?? ""}';
       } else if (r.itemType == 'vocab') {
         final item = await (db.select(db.vocabularies)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
@@ -889,7 +961,7 @@ class StudyRepositoryImpl implements StudyRepository {
     }
 
     // 1. First Step (master first lesson)
-    final masteredKanjis = await (db.select(db.kanjis)..where((x) => x.status.equals('mastered'))).get();
+    final masteredKanjis = await (db.select(db.kanjis)..where((x) => x.isLearned.equals(true))).get();
     final masteredVocabs = await (db.select(db.vocabularies)..where((x) => x.status.equals('mastered'))).get();
     final masteredGrammars = await (db.select(db.grammars)..where((x) => x.status.equals('mastered'))).get();
     final masteredReadings = await (db.select(db.readings)..where((x) => x.status.equals('mastered'))).get();
@@ -1001,7 +1073,12 @@ class StudyRepositoryImpl implements StudyRepository {
     final weeklyGoalsData = await db.select(db.weeklyGoals).get();
 
     final data = {
-      'kanjis': kanjisData.map((k) => {'id': k.id, 'status': k.status}).toList(),
+      'kanjis': kanjisData.map((k) => {
+        'id': k.id,
+        'isLearned': k.isLearned,
+        'reviewCount': k.reviewCount,
+        'status': k.isLearned ? 'mastered' : (k.reviewCount > 0 ? 'learning' : 'unlearned')
+      }).toList(),
       'vocabularies': vocabsData.map((v) => {'id': v.id, 'status': v.status}).toList(),
       'grammars': grammarsData.map((g) => {'id': g.id, 'status': g.status}).toList(),
       'readings': readingsData.map((r) => {'id': r.id, 'status': r.status, 'notes': r.notes}).toList(),
@@ -1062,8 +1139,13 @@ class StudyRepositoryImpl implements StudyRepository {
       // 1. Restore master items statuses
       if (data.containsKey('kanjis')) {
         for (var k in data['kanjis']) {
+          final isLearned = k['isLearned'] ?? (k['status'] == 'mastered');
+          final reviewCount = k['reviewCount'] ?? (k['status'] == 'learning' ? 1 : (k['status'] == 'mastered' ? 5 : 0));
           await (db.update(db.kanjis)..where((t) => t.id.equals(k['id']))).write(
-            KanjisCompanion(status: Value(k['status'])),
+            KanjisCompanion(
+              isLearned: Value(isLearned),
+              reviewCount: Value(reviewCount),
+            ),
           );
         }
       }

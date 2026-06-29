@@ -30,6 +30,16 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
     List<VocabularyEntity> vocabs,
     List<GrammarEntity> grammars,
   ) {
+    if (_selectedQuizType == 'kanji' && kanjis.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Your Kanji Collection is empty. Add Kanji in the Study tab first!'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     final Random random = Random();
     final List<QuizQuestion> generatedQuestions = [];
 
@@ -43,7 +53,18 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
     List<String> poolTypes = [];
     if (_selectedQuizType == 'all') {
-      poolTypes = ['kanji', 'vocab', 'grammar'];
+      if (kanjis.isNotEmpty) poolTypes.add('kanji');
+      if (vocabs.isNotEmpty) poolTypes.add('vocab');
+      if (grammars.isNotEmpty) poolTypes.add('grammar');
+      if (poolTypes.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No study items found in catalog.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
     } else {
       poolTypes = [_selectedQuizType];
     }

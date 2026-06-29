@@ -22,29 +22,106 @@ enum StudyStatus {
 
 class KanjiEntity {
   final String id;
-  final String character;
-  final String onyomi;
-  final String kunyomi;
+  final String kanji;
+  final List<String> kunYomi;
+  final List<String> onYomi;
   final String meaning;
-  final StudyStatus status;
+  final String radicals;
+  final int strokeCount;
+  final String? strokeOrderDiagramPath;
+  final int jlptLevel;
+  final int? gradeLevel;
+  final String unicode;
+  final String notes;
+  final List<String> examples;
+  final bool isLearned;
+  final bool isFavorite;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? lastReviewed;
+  final int reviewCount;
+  final double easeFactor;
+  final DateTime? nextReview;
 
   const KanjiEntity({
     required this.id,
-    required this.character,
-    required this.onyomi,
-    required this.kunyomi,
+    required this.kanji,
+    required this.kunYomi,
+    required this.onYomi,
     required this.meaning,
-    required this.status,
+    required this.radicals,
+    required this.strokeCount,
+    this.strokeOrderDiagramPath,
+    required this.jlptLevel,
+    this.gradeLevel,
+    required this.unicode,
+    required this.notes,
+    required this.examples,
+    required this.isLearned,
+    required this.isFavorite,
+    required this.createdAt,
+    required this.updatedAt,
+    this.lastReviewed,
+    required this.reviewCount,
+    required this.easeFactor,
+    this.nextReview,
   });
 
-  KanjiEntity copyWith({StudyStatus? status}) {
+  // Compatibility getters to keep other UI/widgets clean and functional
+  String get character => kanji;
+  String get onyomi => onYomi.isEmpty ? '-' : onYomi.join(', ');
+  String get kunyomi => kunYomi.isEmpty ? '-' : kunYomi.join(', ');
+  StudyStatus get status {
+    if (isLearned) return StudyStatus.mastered;
+    if (reviewCount > 0) return StudyStatus.learning;
+    return StudyStatus.unlearned;
+  }
+
+  KanjiEntity copyWith({
+    String? id,
+    String? kanji,
+    List<String>? kunYomi,
+    List<String>? onYomi,
+    String? meaning,
+    String? radicals,
+    int? strokeCount,
+    String? strokeOrderDiagramPath,
+    int? jlptLevel,
+    int? gradeLevel,
+    String? unicode,
+    String? notes,
+    List<String>? examples,
+    bool? isLearned,
+    bool? isFavorite,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    DateTime? lastReviewed,
+    int? reviewCount,
+    double? easeFactor,
+    DateTime? nextReview,
+  }) {
     return KanjiEntity(
-      id: id,
-      character: character,
-      onyomi: onyomi,
-      kunyomi: kunyomi,
-      meaning: meaning,
-      status: status ?? this.status,
+      id: id ?? this.id,
+      kanji: kanji ?? this.kanji,
+      kunYomi: kunYomi ?? this.kunYomi,
+      onYomi: onYomi ?? this.onYomi,
+      meaning: meaning ?? this.meaning,
+      radicals: radicals ?? this.radicals,
+      strokeCount: strokeCount ?? this.strokeCount,
+      strokeOrderDiagramPath: strokeOrderDiagramPath ?? this.strokeOrderDiagramPath,
+      jlptLevel: jlptLevel ?? this.jlptLevel,
+      gradeLevel: gradeLevel ?? this.gradeLevel,
+      unicode: unicode ?? this.unicode,
+      notes: notes ?? this.notes,
+      examples: examples ?? this.examples,
+      isLearned: isLearned ?? this.isLearned,
+      isFavorite: isFavorite ?? this.isFavorite,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      lastReviewed: lastReviewed ?? this.lastReviewed,
+      reviewCount: reviewCount ?? this.reviewCount,
+      easeFactor: easeFactor ?? this.easeFactor,
+      nextReview: nextReview ?? this.nextReview,
     );
   }
 }

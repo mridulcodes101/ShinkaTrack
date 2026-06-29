@@ -44,7 +44,10 @@ class KanjiListNotifier extends StateNotifier<AsyncValue<List<KanjiEntity>>> {
     final previousState = state;
     state.whenData((list) {
       state = AsyncValue.data(
-        list.map((k) => k.id == id ? k.copyWith(status: status) : k).toList(),
+        list.map((k) => k.id == id ? k.copyWith(
+          isLearned: status == StudyStatus.mastered,
+          reviewCount: status == StudyStatus.learning ? 1 : (status == StudyStatus.mastered ? 5 : 0),
+        ) : k).toList(),
       );
     });
 
@@ -52,6 +55,24 @@ class KanjiListNotifier extends StateNotifier<AsyncValue<List<KanjiEntity>>> {
       await _repository.updateKanjiStatus(id, status);
     } catch (e) {
       state = previousState; // Rollback
+    }
+  }
+
+  Future<void> addKanji(KanjiEntity kanji) async {
+    try {
+      await _repository.addKanji(kanji);
+      await loadKanjis();
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
+    }
+  }
+
+  Future<void> deleteKanji(String id) async {
+    try {
+      await _repository.deleteKanji(id);
+      await loadKanjis();
+    } catch (e, stack) {
+      state = AsyncValue.error(e, stack);
     }
   }
 }
