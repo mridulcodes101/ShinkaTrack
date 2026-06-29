@@ -547,3 +547,14 @@ final studyStatsProvider = FutureProvider<StudyStatsBundle>((ref) async {
     },
   );
 });
+
+final kanjiItemProvider = Provider.family<KanjiEntity?, String>((ref, id) {
+  final kanjisAsync = ref.watch(kanjiListProvider);
+  return kanjisAsync.maybeWhen(
+    data: (list) {
+      final index = list.indexWhere((k) => k.id == id);
+      return index == -1 ? null : list[index];
+    },
+    orElse: () => null,
+  );
+});

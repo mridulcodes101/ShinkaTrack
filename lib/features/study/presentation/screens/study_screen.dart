@@ -29,6 +29,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
   bool _filterRecentlyAdded = false;
   bool _filterRecentlyReviewed = false;
   String _sortOption = 'Recently Added'; // 'Alphabetically', 'Recently Added', 'Review Date', 'Stroke Count', 'JLPT'
+  int _kanjiLimit = 40;
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
+        _kanjiLimit = 40;
       });
     });
 
@@ -313,20 +315,25 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
             final isDark = Theme.of(context).brightness == Brightness.dark;
             final sheetBgColor = isDark ? PremiumDesignSystem.surfaceDark : Colors.white;
 
+            void updateFilter(VoidCallback cb) {
+              setState(() {
+                _kanjiLimit = 40;
+                setSheetState(cb);
+              });
+            }
+
             Widget buildFilterChip(String label, int val) {
               final isSelected = _selectedJlptFilters.contains(val);
               return FilterChip(
                 label: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 selected: isSelected,
                 onSelected: (selected) {
-                  setState(() {
-                    setSheetState(() {
-                      if (selected) {
-                        _selectedJlptFilters.add(val);
-                      } else {
-                        _selectedJlptFilters.remove(val);
-                      }
-                    });
+                  updateFilter(() {
+                    if (selected) {
+                      _selectedJlptFilters.add(val);
+                    } else {
+                      _selectedJlptFilters.remove(val);
+                    }
                   });
                 },
               );
@@ -374,16 +381,14 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                         TextButton(
                           onPressed: _hasActiveFilters()
                               ? () {
-                                  setState(() {
-                                    setSheetState(() {
-                                      _selectedJlptFilters.clear();
-                                      _filterFavorite = false;
-                                      _filterLearned = false;
-                                      _filterUnlearned = false;
-                                      _filterRecentlyAdded = false;
-                                      _filterRecentlyReviewed = false;
-                                      _sortOption = 'Recently Added';
-                                    });
+                                  updateFilter(() {
+                                    _selectedJlptFilters.clear();
+                                    _filterFavorite = false;
+                                    _filterLearned = false;
+                                    _filterUnlearned = false;
+                                    _filterRecentlyAdded = false;
+                                    _filterRecentlyReviewed = false;
+                                    _sortOption = 'Recently Added';
                                   });
                                 }
                               : null,
@@ -407,10 +412,8 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                           selected: isSelected,
                           onSelected: (selected) {
                             if (selected) {
-                              setState(() {
-                                setSheetState(() {
-                                  _sortOption = opt;
-                                });
+                              updateFilter(() {
+                                _sortOption = opt;
                               });
                             }
                           },
@@ -438,40 +441,30 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                     const Text('Status & Attributes', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     buildCheckbox('Favorites Only', _filterFavorite, (val) {
-                      setState(() {
-                        setSheetState(() {
-                          _filterFavorite = val ?? false;
-                        });
+                      updateFilter(() {
+                        _filterFavorite = val ?? false;
                       });
                     }),
                     buildCheckbox('Learned Only', _filterLearned, (val) {
-                      setState(() {
-                        setSheetState(() {
-                          _filterLearned = val ?? false;
-                          if (_filterLearned) _filterUnlearned = false; // Mutually exclusive
-                        });
+                      updateFilter(() {
+                        _filterLearned = val ?? false;
+                        if (_filterLearned) _filterUnlearned = false; // Mutually exclusive
                       });
                     }),
                     buildCheckbox('Not Learned Only', _filterUnlearned, (val) {
-                      setState(() {
-                        setSheetState(() {
-                          _filterUnlearned = val ?? false;
-                          if (_filterUnlearned) _filterLearned = false; // Mutually exclusive
-                        });
+                      updateFilter(() {
+                        _filterUnlearned = val ?? false;
+                        if (_filterUnlearned) _filterLearned = false; // Mutually exclusive
                       });
                     }),
                     buildCheckbox('Recently Added (< 7 days)', _filterRecentlyAdded, (val) {
-                      setState(() {
-                        setSheetState(() {
-                          _filterRecentlyAdded = val ?? false;
-                        });
+                      updateFilter(() {
+                        _filterRecentlyAdded = val ?? false;
                       });
                     }),
                     buildCheckbox('Recently Reviewed (< 7 days)', _filterRecentlyReviewed, (val) {
-                      setState(() {
-                        setSheetState(() {
-                          _filterRecentlyReviewed = val ?? false;
-                        });
+                      updateFilter(() {
+                        _filterRecentlyReviewed = val ?? false;
                       });
                     }),
                     const SizedBox(height: 24),
@@ -885,12 +878,81 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
             break;
         }
 
-        return _buildResponsiveGrid(
-          items: filteredList,
-          maxCrossAxisExtent: 300,
-          builder: (k) => _buildKanjiCard(k),
-        );
+        final filteredIds = filteredList.map((k) => k.id).toList();
+        return _buildOptimizedKanjiGrid(filteredIds);
       },
+    );
+  }
+
+  Widget _buildOptimizedKanjiGrid(List<String> ids) {
+    if (ids.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32.0),
+          child: Text('No items match search and filter criteria.'),
+        ),
+      );
+    }
+
+    final visibleIds = ids.take(_kanjiLimit).toList();
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 200) {
+          if (_kanjiLimit < ids.length) {
+            setState(() {
+              _kanjiLimit += 40;
+            });
+          }
+        }
+        return false;
+      },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+          if (width < 650) {
+            return ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              itemCount: visibleIds.length,
+              itemBuilder: (context, index) {
+                final id = visibleIds[index];
+                return Consumer(
+                  key: ValueKey('kanji_item_list_$id'),
+                  builder: (context, ref, child) {
+                    final k = ref.watch(kanjiItemProvider(id));
+                    if (k == null) return const SizedBox.shrink();
+                    return _buildKanjiCard(k);
+                  },
+                );
+              },
+            );
+          } else {
+            return GridView.builder(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(24),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 300,
+                childAspectRatio: 1.8,
+                crossAxisSpacing: 18,
+                mainAxisSpacing: 18,
+              ),
+              itemCount: visibleIds.length,
+              itemBuilder: (context, index) {
+                final id = visibleIds[index];
+                return Consumer(
+                  key: ValueKey('kanji_item_grid_$id'),
+                  builder: (context, ref, child) {
+                    final k = ref.watch(kanjiItemProvider(id));
+                    if (k == null) return const SizedBox.shrink();
+                    return _buildKanjiCard(k);
+                  },
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 
