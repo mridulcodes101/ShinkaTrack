@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,8 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
   final TextEditingController _searchController = TextEditingController();
   StudyStatus? _selectedStatusFilter;
   String _searchQuery = '';
+  bool _selectionMode = false;
+  final List<String> _selectedKanjiIds = [];
 
   @override
   void initState() {
@@ -73,7 +76,107 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
     return Scaffold(
       backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
       appBar: AppBar(
-        title: const Text('Study Catalog', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: _selectionMode && _tabController.index == 0
+            ? Text('${_selectedKanjiIds.length} Selected')
+            : const Text('Study Catalog', style: TextStyle(fontWeight: FontWeight.bold)),
+        leading: _selectionMode && _tabController.index == 0
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  setState(() {
+                    _selectionMode = false;
+                    _selectedKanjiIds.clear();
+                  });
+                },
+              )
+            : null,
+        actions: _selectionMode && _tabController.index == 0
+            ? [
+                IconButton(
+                  icon: const Icon(Icons.select_all),
+                  tooltip: 'Select All',
+                  onPressed: () {
+                    final allKanjis = ref.read(kanjiListProvider).value ?? [];
+                    setState(() {
+                      _selectedKanjiIds.clear();
+                      _selectedKanjiIds.addAll(allKanjis.map((k) => k.id));
+                    });
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.done_all, color: Colors.green),
+                  tooltip: 'Toggle Learned',
+                  onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    final allKanjis = ref.read(kanjiListProvider).value ?? [];
+                    final selectedKanjis = allKanjis.where((k) => _selectedKanjiIds.contains(k.id)).toList();
+                    final anyUnlearned = selectedKanjis.any((k) => !k.isLearned);
+                    final newStatus = anyUnlearned ? StudyStatus.mastered : StudyStatus.unlearned;
+
+                    for (var id in _selectedKanjiIds) {
+                      await ref.read(kanjiListProvider.notifier).updateStatus(id, newStatus);
+                    }
+
+                    setState(() {
+                      _selectionMode = false;
+                      _selectedKanjiIds.clear();
+                    });
+
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text('Selected Kanji marked as ${anyUnlearned ? "Learned" : "Unlearned"}.'),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_sweep, color: Colors.redAccent),
+                  tooltip: 'Delete Selected',
+                  onPressed: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        final isDark = Theme.of(context).brightness == Brightness.dark;
+                        return AlertDialog(
+                          backgroundColor: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
+                          title: const Text('Delete Selected?', style: TextStyle(fontWeight: FontWeight.bold)),
+                          content: Text('Are you sure you want to delete ${_selectedKanjiIds.length} selected Kanji? This will clear all scheduling and review data associated with them.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Delete All', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    if (confirm == true) {
+                      for (var id in _selectedKanjiIds) {
+                        await ref.read(kanjiListProvider.notifier).deleteKanji(id);
+                      }
+                      setState(() {
+                        _selectionMode = false;
+                        _selectedKanjiIds.clear();
+                      });
+                      if (!mounted) return;
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Selected Kanji deleted.'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ]
+            : null,
         bottom: TabBar(
           controller: _tabController,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
@@ -465,66 +568,476 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
 
   Widget _buildKanjiCard(KanjiEntity k) {
     final statusColor = _getStatusColor(k.status);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isSelected = _selectedKanjiIds.contains(k.id);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: GlassCard(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Container(
-              width: 54,
-              height: 54,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [statusColor.withValues(alpha: 0.2), statusColor.withValues(alpha: 0.05)],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                k.character,
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+    // Calculate learning progress (5 reviews usually master a card in study planner)
+    final double progress = (k.reviewCount / 5).clamp(0.0, 1.0);
+
+    return Dismissible(
+      key: Key('kanji_card_${k.id}_v2'),
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.blue.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        alignment: Alignment.centerLeft,
+        child: const Icon(Icons.edit, color: Colors.white),
+      ),
+      secondaryBackground: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        alignment: Alignment.centerRight,
+        child: const Icon(Icons.delete_outline, color: Colors.white),
+      ),
+      confirmDismiss: (direction) async {
+        if (_selectionMode) return false;
+        if (direction == DismissDirection.startToEnd) {
+          // Swipe right -> Edit
+          context.push('/add_kanji?id=${k.id}');
+          return false;
+        } else {
+          // Swipe left -> Delete
+          _confirmDeleteKanji(context, k);
+          return false;
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Card(
+          margin: EdgeInsets.zero,
+          elevation: isSelected ? 4 : 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: isSelected
+                  ? PremiumDesignSystem.primaryBlue
+                  : (isDark ? Colors.white10 : Colors.black12),
+              width: isSelected ? 2 : 1,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
+          ),
+          color: isSelected
+              ? (isDark ? const Color(0xFF1E1E38) : const Color(0xFFEEF2FF))
+              : (isDark ? PremiumDesignSystem.surfaceDark : Colors.white),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(20),
+            onTap: _selectionMode
+                ? () {
+                    setState(() {
+                      if (_selectedKanjiIds.contains(k.id)) {
+                        _selectedKanjiIds.remove(k.id);
+                        if (_selectedKanjiIds.isEmpty) {
+                          _selectionMode = false;
+                        }
+                      } else {
+                        _selectedKanjiIds.add(k.id);
+                      }
+                    });
+                  }
+                : () => _showKanjiDetailSheet(k),
+            onLongPress: () {
+              setState(() {
+                _selectionMode = true;
+                if (!_selectedKanjiIds.contains(k.id)) {
+                  _selectedKanjiIds.add(k.id);
+                }
+              });
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    k.meaning,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, letterSpacing: -0.2),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  // Large Kanji block
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [statusColor.withValues(alpha: 0.2), statusColor.withValues(alpha: 0.05)],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      k.character,
+                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'On: ${k.onyomi}',
-                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
-                  ),
-                  Text(
-                    'Kun: ${k.kunyomi}',
-                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
+                  const SizedBox(width: 14),
+                  // Content Column
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Meaning & Actions Row
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                k.meaning,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: -0.2),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (_selectionMode)
+                              Checkbox(
+                                value: isSelected,
+                                onChanged: (val) {
+                                  setState(() {
+                                    if (val == true) {
+                                      if (!_selectedKanjiIds.contains(k.id)) {
+                                        _selectedKanjiIds.add(k.id);
+                                      }
+                                    } else {
+                                      _selectedKanjiIds.remove(k.id);
+                                      if (_selectedKanjiIds.isEmpty) {
+                                        _selectionMode = false;
+                                      }
+                                    }
+                                  });
+                                },
+                              )
+                            else ...[
+                              // Star Toggle
+                              IconButton(
+                                constraints: const BoxConstraints(),
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                icon: Icon(
+                                  k.isFavorite ? Icons.star : Icons.star_border,
+                                  color: k.isFavorite ? PremiumDesignSystem.amberGold : Colors.grey,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  ref.read(kanjiListProvider.notifier).toggleFavorite(k.id);
+                                },
+                              ),
+                              // Checkmark Toggle
+                              IconButton(
+                                constraints: const BoxConstraints(),
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                icon: Icon(
+                                  k.isLearned ? Icons.check_circle : Icons.check_circle_outline,
+                                  color: k.isLearned ? PremiumDesignSystem.forestEmerald : Colors.grey,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  final newStatus = k.isLearned ? StudyStatus.unlearned : StudyStatus.mastered;
+                                  ref.read(kanjiListProvider.notifier).updateStatus(k.id, newStatus);
+                                },
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        // Badges Row
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'N${k.jlptLevel}',
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: PremiumDesignSystem.primaryBlue),
+                              ),
+                            ),
+                            if (k.gradeLevel != null) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  k.gradeLevel == 7 ? 'J. High' : 'G${k.gradeLevel}',
+                                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange),
+                                ),
+                              ),
+                            ],
+                            if (k.radicals != '-') ...[
+                              const SizedBox(width: 6),
+                              Text(
+                                'Radical: ${k.radicals}',
+                                style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        // Onyomi & Kunyomi info
+                        Text(
+                          'On: ${k.onyomi}',
+                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'Kun: ${k.kunyomi}',
+                          style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.outline),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 10),
+                        // Progress Indicator
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: progress,
+                                  backgroundColor: isDark ? Colors.white10 : Colors.black12,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    k.isLearned ? PremiumDesignSystem.forestEmerald : PremiumDesignSystem.primaryBlue,
+                                  ),
+                                  minHeight: 4,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${(progress * 100).toInt()}%',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.outline),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildCheckableButton(k.id, 'kanji', k.status),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                  onPressed: () => _confirmDeleteKanji(context, k),
-                  tooltip: 'Delete Kanji',
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  void _showKanjiDetailSheet(KanjiEntity k) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return DraggableScrollableSheet(
+          initialChildSize: 0.7,
+          minChildSize: 0.5,
+          maxChildSize: 0.95,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: ListView(
+                controller: scrollController,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 24),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white24 : Colors.black12,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              PremiumDesignSystem.primaryBlue.withValues(alpha: 0.2),
+                              PremiumDesignSystem.primaryBlue.withValues(alpha: 0.05),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.4),
+                            width: 1.5,
+                          ),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          k.character,
+                          style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              k.meaning,
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: -0.5),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    'JLPT N${k.jlptLevel}',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: PremiumDesignSystem.primaryBlue),
+                                  ),
+                                ),
+                                if (k.gradeLevel != null) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      k.gradeLevel == 7 ? 'J. High' : 'Grade ${k.gradeLevel}',
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        icon: const Icon(Icons.edit_outlined),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.push('/add_kanji?id=${k.id}');
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  _buildDetailRow('Onyomi', k.onYomi.join(', ').isEmpty ? '-' : k.onYomi.join(', ')),
+                  _buildDetailRow('Kunyomi', k.kunYomi.join(', ').isEmpty ? '-' : k.kunYomi.join(', ')),
+                  _buildDetailRow('Radicals', k.radicals == '-' ? 'None' : k.radicals),
+                  _buildDetailRow('Stroke Count', k.strokeCount.toString()),
+                  _buildDetailRow('Unicode', k.unicode == '-' ? 'N/A' : k.unicode),
+                  if (k.notes.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text('Notes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        k.notes,
+                        style: const TextStyle(fontSize: 14, height: 1.4),
+                      ),
+                    ),
+                  ],
+                  if (k.examples.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text('Example Words', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: k.examples.map((ex) {
+                        return Chip(
+                          label: Text(ex),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  if (k.strokeOrderDiagramPath != null) ...[
+                    const SizedBox(height: 24),
+                    const Text('Stroke Order Diagram', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    const SizedBox(height: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.file(
+                        File(k.strokeOrderDiagramPath!),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 150,
+                            color: isDark ? Colors.white10 : Colors.black12,
+                            alignment: Alignment.center,
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.broken_image_outlined, color: Colors.grey),
+                                SizedBox(height: 6),
+                                Text('Diagram image not found', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 40),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 110,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.outline,
+                fontSize: 14,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -56,6 +56,8 @@ class KanjiListNotifier extends StateNotifier<AsyncValue<List<KanjiEntity>>> {
     } catch (e) {
       state = previousState; // Rollback
     }
+  }
+
   Future<void> toggleFavorite(String id) async {
     final previousState = state;
     KanjiEntity? updatedKanji;

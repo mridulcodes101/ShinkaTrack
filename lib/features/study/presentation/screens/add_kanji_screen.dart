@@ -8,7 +8,8 @@ import 'package:shinka_track_n3/features/study/domain/entities/study_entities.da
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
 
 class AddKanjiScreen extends ConsumerStatefulWidget {
-  const AddKanjiScreen({super.key});
+  final String? editId;
+  const AddKanjiScreen({super.key, this.editId});
 
   @override
   ConsumerState<AddKanjiScreen> createState() => _AddKanjiScreenState();
@@ -33,6 +34,35 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
   File? _selectedImage;
 
   bool _isDuplicateError = false;
+  KanjiEntity? _existingKanji;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.editId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final kanjis = ref.read(kanjiListProvider).value ?? [];
+        final matched = kanjis.firstWhere((k) => k.id == widget.editId);
+        setState(() {
+          _existingKanji = matched;
+          _kanjiController.text = matched.kanji;
+          _meaningController.text = matched.meaning;
+          _onyomiController.text = matched.onYomi.join(', ');
+          _kunyomiController.text = matched.kunYomi.join(', ');
+          _radicalsController.text = matched.radicals == '-' ? '' : matched.radicals;
+          _strokeCountController.text = matched.strokeCount.toString();
+          _notesController.text = matched.notes;
+          _jlptLevel = matched.jlptLevel;
+          _gradeLevel = matched.gradeLevel;
+          _unicode = matched.unicode == '-' ? '' : matched.unicode;
+          _examples.addAll(matched.examples);
+          if (matched.strokeOrderDiagramPath != null) {
+            _selectedImage = File(matched.strokeOrderDiagramPath!);
+          }
+        });
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -49,6 +79,27 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
 
   // Check if form is dirty (has modifications)
   bool _isDirty() {
+    if (widget.editId != null && _existingKanji != null) {
+      final k = _existingKanji!;
+      final radicalsVal = _radicalsController.text.trim().isEmpty ? '-' : _radicalsController.text.trim();
+      final unicodeVal = _unicode.isEmpty ? '-' : _unicode;
+      final onyomiList = _onyomiController.text.split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
+      final kunyomiList = _kunyomiController.text.split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
+
+      return _kanjiController.text.trim() != k.kanji ||
+          _meaningController.text.trim() != k.meaning ||
+          _notesController.text.trim() != k.notes ||
+          radicalsVal != k.radicals ||
+          _strokeCountController.text.trim() != k.strokeCount.toString() ||
+          _jlptLevel != k.jlptLevel ||
+          _gradeLevel != k.gradeLevel ||
+          unicodeVal != k.unicode ||
+          _selectedImage?.path != k.strokeOrderDiagramPath ||
+          !_listsEqual(onyomiList, k.onYomi) ||
+          !_listsEqual(kunyomiList, k.kunYomi) ||
+          !_listsEqual(_examples, k.examples);
+    }
+
     return _kanjiController.text.isNotEmpty ||
         _meaningController.text.isNotEmpty ||
         _onyomiController.text.isNotEmpty ||
@@ -58,6 +109,14 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
         _notesController.text.isNotEmpty ||
         _examples.isNotEmpty ||
         _selectedImage != null;
+  }
+
+  bool _listsEqual(List<String> a, List<String> b) {
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 
   // Confirm discard when backing out
@@ -186,6 +245,9 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
 
   // Validate duplicate against current DB collection
   bool _checkDuplicate(String char) {
+    if (widget.editId != null && _existingKanji != null && _existingKanji!.kanji == char) {
+      return false;
+    }
     final kanjiState = ref.read(kanjiListProvider);
     final kanjis = kanjiState.value ?? [];
     return kanjis.any((k) => k.character == char);
@@ -211,7 +273,7 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
       final kunyomiList = _kunyomiController.text.split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
 
       final newKanji = KanjiEntity(
-        id: 'custom_kanji_${DateTime.now().millisecondsSinceEpoch}',
+        id: widget.editId ?? 'custom_kanji_${DateTime.now().millisecondsSinceEpoch}',
         kanji: char,
         kunYomi: kunyomiList,
         onYomi: onyomiList,
@@ -224,12 +286,14 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
         unicode: _unicode.isEmpty ? '-' : _unicode,
         notes: _notesController.text.trim(),
         examples: _examples,
-        isLearned: false,
-        isFavorite: false,
-        createdAt: DateTime.now(),
+        isLearned: _existingKanji?.isLearned ?? false,
+        isFavorite: _existingKanji?.isFavorite ?? false,
+        createdAt: _existingKanji?.createdAt ?? DateTime.now(),
         updatedAt: DateTime.now(),
-        reviewCount: 0,
-        easeFactor: 2.5,
+        lastReviewed: _existingKanji?.lastReviewed,
+        reviewCount: _existingKanji?.reviewCount ?? 0,
+        easeFactor: _existingKanji?.easeFactor ?? 2.5,
+        nextReview: _existingKanji?.nextReview,
       );
 
       ref.read(kanjiListProvider.notifier).addKanji(newKanji);
