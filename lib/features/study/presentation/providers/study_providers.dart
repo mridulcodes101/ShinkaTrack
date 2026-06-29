@@ -56,6 +56,29 @@ class KanjiListNotifier extends StateNotifier<AsyncValue<List<KanjiEntity>>> {
     } catch (e) {
       state = previousState; // Rollback
     }
+  Future<void> toggleFavorite(String id) async {
+    final previousState = state;
+    KanjiEntity? updatedKanji;
+
+    state.whenData((list) {
+      state = AsyncValue.data(
+        list.map((k) {
+          if (k.id == id) {
+            updatedKanji = k.copyWith(isFavorite: !k.isFavorite);
+            return updatedKanji!;
+          }
+          return k;
+        }).toList(),
+      );
+    });
+
+    if (updatedKanji != null) {
+      try {
+        await _repository.addKanji(updatedKanji!);
+      } catch (e) {
+        state = previousState; // Rollback
+      }
+    }
   }
 
   Future<void> addKanji(KanjiEntity kanji) async {

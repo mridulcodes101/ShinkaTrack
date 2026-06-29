@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shinka_track_n3/core/theme/design_system.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/study_entities.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
@@ -150,7 +151,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
       ),
       floatingActionButton: _tabController.index == 0
           ? FloatingActionButton.extended(
-              onPressed: () => _showAddKanjiDialog(context),
+              onPressed: () => context.push('/add_kanji'),
               backgroundColor: PremiumDesignSystem.primaryBlue,
               label: const Text('Add Kanji', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
               icon: const Icon(Icons.add, color: Colors.white),
@@ -392,7 +393,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                 const SizedBox(height: 36),
                 // Large primary floating-like button
                 ElevatedButton.icon(
-                  onPressed: () => _showAddKanjiDialog(context),
+                  onPressed: () => context.push('/add_kanji'),
                   icon: const Icon(Icons.add, size: 20),
                   label: const Text(
                     'Add First Kanji',
@@ -1162,201 +1163,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
     }
   }
 
-  void _showAddKanjiDialog(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
-    String character = '';
-    String meaning = '';
-    String onyomi = '';
-    String kunyomi = '';
-    String radicals = '';
-    int strokeCount = 0;
-    int jlptLevel = 3;
-    String unicode = '';
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return AlertDialog(
-          backgroundColor: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Row(
-            children: [
-              Icon(Icons.add_card, color: PremiumDesignSystem.primaryBlue),
-              SizedBox(width: 10),
-              Text('Add Custom Kanji', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            ],
-          ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    autofocus: true,
-                    maxLength: 3,
-                    style: const TextStyle(fontSize: 18),
-                    decoration: const InputDecoration(
-                      labelText: 'Kanji Character *',
-                      hintText: 'e.g. 愛',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return 'Character is required';
-                      }
-                      return null;
-                    },
-                    onSaved: (val) => character = val!.trim(),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Meaning *',
-                      hintText: 'e.g. Love, affection',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return 'Meaning is required';
-                      }
-                      return null;
-                    },
-                    onSaved: (val) => meaning = val!.trim(),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Onyomi (Chinese reading)',
-                      hintText: 'e.g. アイ (comma-separated)',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSaved: (val) => onyomi = val?.trim() ?? '',
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Kunyomi (Japanese reading)',
-                      hintText: 'e.g. いと.しい (comma-separated)',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSaved: (val) => kunyomi = val?.trim() ?? '',
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Radicals',
-                      hintText: 'e.g. 心 (heart)',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSaved: (val) => radicals = val?.trim() ?? '',
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'Stroke Count *',
-                      hintText: 'e.g. 13',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return 'Stroke count is required';
-                      }
-                      if (int.tryParse(val.trim()) == null) {
-                        return 'Enter a valid number';
-                      }
-                      return null;
-                    },
-                    onSaved: (val) => strokeCount = int.parse(val!.trim()),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<int>(
-                    initialValue: 3,
-                    decoration: const InputDecoration(
-                      labelText: 'JLPT Level',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 5, child: Text('N5')),
-                      DropdownMenuItem(value: 4, child: Text('N4')),
-                      DropdownMenuItem(value: 3, child: Text('N3')),
-                      DropdownMenuItem(value: 2, child: Text('N2')),
-                      DropdownMenuItem(value: 1, child: Text('N1')),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) jlptLevel = val;
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: 'Unicode',
-                      hintText: 'e.g. U+611B',
-                      border: OutlineInputBorder(),
-                    ),
-                    onSaved: (val) => unicode = val?.trim() ?? '',
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  formKey.currentState!.save();
-                  final onyomiList = onyomi.split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
-                  final kunyomiList = kunyomi.split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
-
-                  final newKanji = KanjiEntity(
-                    id: 'custom_kanji_${DateTime.now().millisecondsSinceEpoch}',
-                    kanji: character,
-                    kunYomi: kunyomiList,
-                    onYomi: onyomiList,
-                    meaning: meaning,
-                    radicals: radicals.isEmpty ? '-' : radicals,
-                    strokeCount: strokeCount,
-                    strokeOrderDiagramPath: null,
-                    jlptLevel: jlptLevel,
-                    gradeLevel: null,
-                    unicode: unicode.isEmpty ? '-' : unicode,
-                    notes: '',
-                    examples: const [],
-                    isLearned: false,
-                    isFavorite: false,
-                    createdAt: DateTime.now(),
-                    updatedAt: DateTime.now(),
-                    reviewCount: 0,
-                    easeFactor: 2.5,
-                  );
-                  ref.read(kanjiListProvider.notifier).addKanji(newKanji);
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('"$character" added to your library!'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: PremiumDesignSystem.primaryBlue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: const Text('Add'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   void _confirmDeleteKanji(BuildContext context, KanjiEntity k) {
     showDialog(
