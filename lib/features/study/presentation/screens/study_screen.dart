@@ -21,6 +21,15 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
   bool _selectionMode = false;
   final List<String> _selectedKanjiIds = [];
 
+  // Advanced Filters & Sort State
+  final List<int> _selectedJlptFilters = []; // empty = all
+  bool _filterFavorite = false;
+  bool _filterLearned = false;
+  bool _filterUnlearned = false;
+  bool _filterRecentlyAdded = false;
+  bool _filterRecentlyReviewed = false;
+  String _sortOption = 'Recently Added'; // 'Alphabetically', 'Recently Added', 'Review Date', 'Stroke Count', 'JLPT'
+
   @override
   void initState() {
     super.initState();
@@ -197,25 +206,46 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
             child: Column(
               children: [
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search catalog...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () => _searchController.clear(),
-                          )
-                        : null,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search catalog...',
+                          prefixIcon: const Icon(Icons.search, size: 20),
+                          suffixIcon: _searchQuery.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear, size: 18),
+                                  onPressed: () => _searchController.clear(),
+                                )
+                              : null,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
                     ),
-                    filled: true,
-                    fillColor: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
+                    if (_tabController.index == 0) ...[
+                      const SizedBox(width: 10),
+                      IconButton.filledTonal(
+                        icon: Icon(
+                          Icons.filter_list_rounded,
+                          color: _hasActiveFilters() ? PremiumDesignSystem.primaryBlue : null,
+                        ),
+                        onPressed: _showSearchFiltersPanel,
+                        tooltip: 'Filter & Sort Options',
+                        style: IconButton.styleFrom(
+                          padding: const EdgeInsets.all(12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 10),
                 SingleChildScrollView(
@@ -259,6 +289,212 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
               icon: const Icon(Icons.add, color: Colors.white),
             )
           : null,
+    );
+  }
+
+  bool _hasActiveFilters() {
+    return _selectedJlptFilters.isNotEmpty ||
+        _filterFavorite ||
+        _filterLearned ||
+        _filterUnlearned ||
+        _filterRecentlyAdded ||
+        _filterRecentlyReviewed ||
+        _sortOption != 'Recently Added';
+  }
+
+  void _showSearchFiltersPanel() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+            final sheetBgColor = isDark ? PremiumDesignSystem.surfaceDark : Colors.white;
+
+            Widget buildFilterChip(String label, int val) {
+              final isSelected = _selectedJlptFilters.contains(val);
+              return FilterChip(
+                label: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                selected: isSelected,
+                onSelected: (selected) {
+                  setState(() {
+                    setSheetState(() {
+                      if (selected) {
+                        _selectedJlptFilters.add(val);
+                      } else {
+                        _selectedJlptFilters.remove(val);
+                      }
+                    });
+                  });
+                },
+              );
+            }
+
+            Widget buildCheckbox(String label, bool value, ValueChanged<bool?> onChanged) {
+              return CheckboxListTile(
+                title: Text(label, style: const TextStyle(fontSize: 14)),
+                value: value,
+                onChanged: onChanged,
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+              );
+            }
+
+            return Container(
+              decoration: BoxDecoration(
+                color: sheetBgColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.white24 : Colors.black12,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Filter & Sort Kanji',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        TextButton(
+                          onPressed: _hasActiveFilters()
+                              ? () {
+                                  setState(() {
+                                    setSheetState(() {
+                                      _selectedJlptFilters.clear();
+                                      _filterFavorite = false;
+                                      _filterLearned = false;
+                                      _filterUnlearned = false;
+                                      _filterRecentlyAdded = false;
+                                      _filterRecentlyReviewed = false;
+                                      _sortOption = 'Recently Added';
+                                    });
+                                  });
+                                }
+                              : null,
+                          child: const Text('Reset All'),
+                        ),
+                      ],
+                    ),
+                    const Divider(),
+                    const SizedBox(height: 12),
+
+                    // Sort By Section
+                    const Text('Sort By', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: ['Recently Added', 'Alphabetically', 'Review Date', 'Stroke Count', 'JLPT'].map((opt) {
+                        final isSelected = _sortOption == opt;
+                        return ChoiceChip(
+                          label: Text(opt, style: const TextStyle(fontSize: 12)),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() {
+                                setSheetState(() {
+                                  _sortOption = opt;
+                                });
+                              });
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // JLPT Section
+                    const Text('JLPT Level', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        buildFilterChip('N1', 1),
+                        buildFilterChip('N2', 2),
+                        buildFilterChip('N3', 3),
+                        buildFilterChip('N4', 4),
+                        buildFilterChip('N5', 5),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Status Section
+                    const Text('Status & Attributes', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    buildCheckbox('Favorites Only', _filterFavorite, (val) {
+                      setState(() {
+                        setSheetState(() {
+                          _filterFavorite = val ?? false;
+                        });
+                      });
+                    }),
+                    buildCheckbox('Learned Only', _filterLearned, (val) {
+                      setState(() {
+                        setSheetState(() {
+                          _filterLearned = val ?? false;
+                          if (_filterLearned) _filterUnlearned = false; // Mutually exclusive
+                        });
+                      });
+                    }),
+                    buildCheckbox('Not Learned Only', _filterUnlearned, (val) {
+                      setState(() {
+                        setSheetState(() {
+                          _filterUnlearned = val ?? false;
+                          if (_filterUnlearned) _filterLearned = false; // Mutually exclusive
+                        });
+                      });
+                    }),
+                    buildCheckbox('Recently Added (< 7 days)', _filterRecentlyAdded, (val) {
+                      setState(() {
+                        setSheetState(() {
+                          _filterRecentlyAdded = val ?? false;
+                        });
+                      });
+                    }),
+                    buildCheckbox('Recently Reviewed (< 7 days)', _filterRecentlyReviewed, (val) {
+                      setState(() {
+                        setSheetState(() {
+                          _filterRecentlyReviewed = val ?? false;
+                        });
+                      });
+                    }),
+                    const SizedBox(height: 24),
+
+                    // Apply Button
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: PremiumDesignSystem.primaryBlue,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Apply Filters', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -548,13 +784,106 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
         }
 
         final filteredList = list.where((k) {
-          final matchesSearch = k.character.contains(_searchQuery) ||
-              k.onyomi.toLowerCase().contains(_searchQuery) ||
-              k.kunyomi.toLowerCase().contains(_searchQuery) ||
-              k.meaning.toLowerCase().contains(_searchQuery);
-          final matchesFilter = _selectedStatusFilter == null || k.status == _selectedStatusFilter;
-          return matchesSearch && matchesFilter;
+          // 1. Advanced Search Query Matching (Kanji, Meaning, Kunyomi, Onyomi, Radicals, JLPT, Grade, Notes, Examples)
+          bool matchesSearch = true;
+          if (_searchQuery.isNotEmpty) {
+            final query = _searchQuery.toLowerCase();
+            final matchesKanji = k.character.contains(query);
+            final matchesMeaning = k.meaning.toLowerCase().contains(query);
+            final matchesOnyomi = k.onyomi.toLowerCase().contains(query);
+            final matchesKunyomi = k.kunyomi.toLowerCase().contains(query);
+            final matchesRadicals = k.radicals.toLowerCase().contains(query);
+            final matchesJlpt = 'n${k.jlptLevel}'.contains(query) || k.jlptLevel.toString() == query;
+            final matchesGrade = k.gradeLevel != null &&
+                ('grade ${k.gradeLevel}'.contains(query) || k.gradeLevel.toString() == query);
+            final matchesNotes = k.notes.toLowerCase().contains(query);
+            final matchesExamples = k.examples.any((ex) => ex.toLowerCase().contains(query));
+
+            matchesSearch = matchesKanji ||
+                matchesMeaning ||
+                matchesOnyomi ||
+                matchesKunyomi ||
+                matchesRadicals ||
+                matchesJlpt ||
+                matchesGrade ||
+                matchesNotes ||
+                matchesExamples;
+          }
+
+          // 2. Interactive Filters
+          // JLPT Levels
+          bool matchesJlptFilter = true;
+          if (_selectedJlptFilters.isNotEmpty) {
+            matchesJlptFilter = _selectedJlptFilters.contains(k.jlptLevel);
+          }
+
+          // Favorites
+          bool matchesFavFilter = true;
+          if (_filterFavorite) {
+            matchesFavFilter = k.isFavorite;
+          }
+
+          // Learned
+          bool matchesLearnedFilter = true;
+          if (_filterLearned) {
+            matchesLearnedFilter = k.isLearned;
+          }
+
+          // Not Learned
+          bool matchesUnlearnedFilter = true;
+          if (_filterUnlearned) {
+            matchesUnlearnedFilter = !k.isLearned;
+          }
+
+          // Recently Added (created within last 7 days)
+          bool matchesRecentAdd = true;
+          if (_filterRecentlyAdded) {
+            matchesRecentAdd = DateTime.now().difference(k.createdAt).inDays <= 7;
+          }
+
+          // Recently Reviewed (reviewed within last 7 days)
+          bool matchesRecentReview = true;
+          if (_filterRecentlyReviewed) {
+            matchesRecentReview = k.lastReviewed != null &&
+                DateTime.now().difference(k.lastReviewed!).inDays <= 7;
+          }
+
+          // Status bar chips (All, Unlearned, Learning, Mastered)
+          final matchesStatusTab = _selectedStatusFilter == null || k.status == _selectedStatusFilter;
+
+          return matchesSearch &&
+              matchesJlptFilter &&
+              matchesFavFilter &&
+              matchesLearnedFilter &&
+              matchesUnlearnedFilter &&
+              matchesRecentAdd &&
+              matchesRecentReview &&
+              matchesStatusTab;
         }).toList();
+
+        // 3. Sort options execution
+        switch (_sortOption) {
+          case 'Alphabetically':
+            filteredList.sort((a, b) => a.meaning.toLowerCase().compareTo(b.meaning.toLowerCase()));
+            break;
+          case 'Recently Added':
+            filteredList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+            break;
+          case 'Review Date':
+            filteredList.sort((a, b) {
+              if (a.nextReview == null && b.nextReview == null) return 0;
+              if (a.nextReview == null) return 1;
+              if (b.nextReview == null) return -1;
+              return a.nextReview!.compareTo(b.nextReview!);
+            });
+            break;
+          case 'Stroke Count':
+            filteredList.sort((a, b) => a.strokeCount.compareTo(b.strokeCount));
+            break;
+          case 'JLPT':
+            filteredList.sort((a, b) => a.jlptLevel.compareTo(b.jlptLevel));
+            break;
+        }
 
         return _buildResponsiveGrid(
           items: filteredList,
