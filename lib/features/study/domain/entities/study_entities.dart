@@ -34,14 +34,10 @@ class KanjiEntity {
   final String unicode;
   final String notes;
   final List<String> examples;
-  final bool isLearned;
-  final bool isFavorite;
+  final List<String> exampleSentences;
+  final List<String> tags;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final DateTime? lastReviewed;
-  final int reviewCount;
-  final double easeFactor;
-  final DateTime? nextReview;
 
   // Extensibility placeholders for future updates
   final int? rtkNumber;
@@ -51,6 +47,16 @@ class KanjiEntity {
   final String? animatedStrokeOrderPath;
   final String? syncStatus;
   final DateTime? lastSyncedAt;
+
+  // User collection details
+  final bool isAdded;
+  final bool isLearned;
+  final bool isFavorite;
+  final int reviewCount;
+  final double easeFactor;
+  final DateTime? nextReview;
+  final DateTime? lastReviewed;
+  final String customNotes;
 
   const KanjiEntity({
     required this.id,
@@ -66,14 +72,10 @@ class KanjiEntity {
     required this.unicode,
     required this.notes,
     required this.examples,
-    required this.isLearned,
-    required this.isFavorite,
+    this.exampleSentences = const [],
+    this.tags = const [],
     required this.createdAt,
     required this.updatedAt,
-    this.lastReviewed,
-    required this.reviewCount,
-    required this.easeFactor,
-    this.nextReview,
     this.rtkNumber,
     this.frequencyRank,
     this.pitchAccent,
@@ -81,6 +83,14 @@ class KanjiEntity {
     this.animatedStrokeOrderPath,
     this.syncStatus,
     this.lastSyncedAt,
+    this.isAdded = false,
+    this.isLearned = false,
+    this.isFavorite = false,
+    this.reviewCount = 0,
+    this.easeFactor = 2.5,
+    this.nextReview,
+    this.lastReviewed,
+    this.customNotes = '',
   });
 
   // Compatibility getters to keep other UI/widgets clean and functional
@@ -88,6 +98,7 @@ class KanjiEntity {
   String get onyomi => onYomi.isEmpty ? '-' : onYomi.join(', ');
   String get kunyomi => kunYomi.isEmpty ? '-' : kunYomi.join(', ');
   StudyStatus get status {
+    if (!isAdded) return StudyStatus.unlearned;
     if (isLearned) return StudyStatus.mastered;
     if (reviewCount > 0) return StudyStatus.learning;
     return StudyStatus.unlearned;
@@ -107,14 +118,10 @@ class KanjiEntity {
     String? unicode,
     String? notes,
     List<String>? examples,
-    bool? isLearned,
-    bool? isFavorite,
+    List<String>? exampleSentences,
+    List<String>? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
-    DateTime? lastReviewed,
-    int? reviewCount,
-    double? easeFactor,
-    DateTime? nextReview,
     int? rtkNumber,
     int? frequencyRank,
     String? pitchAccent,
@@ -122,6 +129,14 @@ class KanjiEntity {
     String? animatedStrokeOrderPath,
     String? syncStatus,
     DateTime? lastSyncedAt,
+    bool? isAdded,
+    bool? isLearned,
+    bool? isFavorite,
+    int? reviewCount,
+    double? easeFactor,
+    DateTime? nextReview,
+    DateTime? lastReviewed,
+    String? customNotes,
   }) {
     return KanjiEntity(
       id: id ?? this.id,
@@ -137,14 +152,10 @@ class KanjiEntity {
       unicode: unicode ?? this.unicode,
       notes: notes ?? this.notes,
       examples: examples ?? this.examples,
-      isLearned: isLearned ?? this.isLearned,
-      isFavorite: isFavorite ?? this.isFavorite,
+      exampleSentences: exampleSentences ?? this.exampleSentences,
+      tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      lastReviewed: lastReviewed ?? this.lastReviewed,
-      reviewCount: reviewCount ?? this.reviewCount,
-      easeFactor: easeFactor ?? this.easeFactor,
-      nextReview: nextReview ?? this.nextReview,
       rtkNumber: rtkNumber ?? this.rtkNumber,
       frequencyRank: frequencyRank ?? this.frequencyRank,
       pitchAccent: pitchAccent ?? this.pitchAccent,
@@ -152,6 +163,14 @@ class KanjiEntity {
       animatedStrokeOrderPath: animatedStrokeOrderPath ?? this.animatedStrokeOrderPath,
       syncStatus: syncStatus ?? this.syncStatus,
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
+      isAdded: isAdded ?? this.isAdded,
+      isLearned: isLearned ?? this.isLearned,
+      isFavorite: isFavorite ?? this.isFavorite,
+      reviewCount: reviewCount ?? this.reviewCount,
+      easeFactor: easeFactor ?? this.easeFactor,
+      nextReview: nextReview ?? this.nextReview,
+      lastReviewed: lastReviewed ?? this.lastReviewed,
+      customNotes: customNotes ?? this.customNotes,
     );
   }
 }

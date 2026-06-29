@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shinka_track_n3/core/theme/design_system.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/study_entities.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
+import 'package:go_router/go_router.dart';
 
 class AddKanjiScreen extends ConsumerStatefulWidget {
   final String? editId;
@@ -310,6 +311,31 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isAdmin = ref.watch(adminModeProvider);
+
+    if (!isAdmin) {
+      return Scaffold(
+        backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
+        appBar: AppBar(
+          title: const Text('Access Denied'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock_outline, size: 64, color: Colors.redAccent),
+              const SizedBox(height: 16),
+              const Text('This portal is restricted to Administrators only.', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.go('/'),
+                child: const Text('Back to Home'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return PopScope(
       canPop: false,

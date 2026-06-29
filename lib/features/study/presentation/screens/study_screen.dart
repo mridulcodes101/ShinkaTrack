@@ -284,13 +284,51 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
         ],
       ),
       floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () => context.push('/add_kanji'),
-              backgroundColor: PremiumDesignSystem.primaryBlue,
-              label: const Text('Add Kanji', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-              icon: const Icon(Icons.add, color: Colors.white),
-            )
+          ? (ref.watch(adminModeProvider)
+              ? FloatingActionButton.extended(
+                  onPressed: () => context.push('/add_kanji'),
+                  backgroundColor: PremiumDesignSystem.primaryBlue,
+                  label: const Text('Add Master Kanji', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                )
+              : FloatingActionButton.extended(
+                  onPressed: _addSelectedToCollection,
+                  backgroundColor: PremiumDesignSystem.primaryBlue,
+                  label: const Text('Add to My Collection', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                  icon: const Icon(Icons.bookmark_add, color: Colors.white),
+                ))
           : null,
+    );
+  }
+
+  void _addSelectedToCollection() async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (_selectedKanjiIds.isEmpty) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Long-press any Kanji cards below to select and add them to your collection!'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    int count = 0;
+    for (var id in _selectedKanjiIds) {
+      await ref.read(kanjiListProvider.notifier).addToCollection(id);
+      count++;
+    }
+
+    setState(() {
+      _selectionMode = false;
+      _selectedKanjiIds.clear();
+    });
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('Added $count Kanji to My Collection!'),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 

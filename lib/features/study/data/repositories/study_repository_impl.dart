@@ -18,58 +18,91 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<List<KanjiEntity>> getKanjis() async {
-    final list = await db.select(db.kanjis).get();
-    return list.map((k) {
-      final List<String> kunYomiList = List<String>.from(jsonDecode(k.kunYomi));
-      final List<String> onYomiList = List<String>.from(jsonDecode(k.onYomi));
-      final List<String> examplesList = List<String>.from(jsonDecode(k.examples));
+    final query = db.select(db.masterKanjis).join([
+      leftOuterJoin(db.userKanjis, db.userKanjis.masterKanjiId.equalsExp(db.masterKanjis.id)),
+    ]);
+    final rows = await query.get();
+    return rows.map((row) {
+      final m = row.readTable(db.masterKanjis);
+      final u = row.readTableOrNull(db.userKanjis);
+
+      final List<String> kunYomiList = List<String>.from(jsonDecode(m.kunYomi));
+      final List<String> onYomiList = List<String>.from(jsonDecode(m.onYomi));
+      final List<String> examplesList = List<String>.from(jsonDecode(m.exampleWords));
+      final List<String> sentencesList = List<String>.from(jsonDecode(m.exampleSentences));
+      final List<String> tagsList = List<String>.from(jsonDecode(m.tags));
+
       return KanjiEntity(
-        id: k.id,
-        kanji: k.kanji,
+        id: m.id,
+        kanji: m.kanji,
         kunYomi: kunYomiList,
         onYomi: onYomiList,
-        meaning: k.meaning,
-        radicals: k.radicals,
-        strokeCount: k.strokeCount,
-        strokeOrderDiagramPath: k.strokeOrderDiagramPath,
-        jlptLevel: k.jlptLevel,
-        gradeLevel: k.gradeLevel,
-        unicode: k.unicode,
-        notes: k.notes,
+        meaning: m.meaning,
+        radicals: m.radicals,
+        strokeCount: m.strokeCount,
+        strokeOrderDiagramPath: m.strokeOrderDiagram,
+        jlptLevel: m.jlptLevel,
+        gradeLevel: m.gradeLevel,
+        unicode: m.unicode,
+        notes: m.notes,
         examples: examplesList,
-        isLearned: k.isLearned,
-        isFavorite: k.isFavorite,
-        createdAt: k.createdAt,
-        updatedAt: k.updatedAt,
-        lastReviewed: k.lastReviewed,
-        reviewCount: k.reviewCount,
-        easeFactor: k.easeFactor,
-        nextReview: k.nextReview,
-        rtkNumber: k.rtkNumber,
-        frequencyRank: k.frequencyRank,
-        pitchAccent: k.pitchAccent,
-        audioPath: k.audioPath,
-        animatedStrokeOrderPath: k.animatedStrokeOrderPath,
-        syncStatus: k.syncStatus,
-        lastSyncedAt: k.lastSyncedAt,
+        exampleSentences: sentencesList,
+        tags: tagsList,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        rtkNumber: m.rtkNumber,
+        frequencyRank: m.frequencyRank,
+        pitchAccent: m.pitchAccent,
+        audioPath: m.audioPath,
+        animatedStrokeOrderPath: m.animatedStrokeOrderPath,
+        syncStatus: m.syncStatus,
+        lastSyncedAt: m.lastSyncedAt,
+        // User progress
+        isAdded: u?.isAdded ?? false,
+        isLearned: u?.isLearned ?? false,
+        isFavorite: u?.isFavorite ?? false,
+        reviewCount: u?.reviewCount ?? 0,
+        easeFactor: u?.easeFactor ?? 2.5,
+        nextReview: u?.nextReview,
+        lastReviewed: u?.lastReviewed,
+        customNotes: u?.customNotes ?? '',
       );
     }).toList();
   }
 
   @override
   Future<void> updateKanjiStatus(String id, StudyStatus status) async {
-    final existing = await (db.select(db.kanjis)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final existing = await (db.select(db.userKanjis)..where((t) => t.masterKanjiId.equals(id))).getSingleOrNull();
     final bool wasLearned = existing?.isLearned ?? false;
     final bool isNowLearned = status == StudyStatus.mastered;
 
-    await (db.update(db.kanjis)..where((t) => t.id.equals(id))).write(
-      KanjisCompanion(
-        isLearned: Value(isNowLearned),
-        reviewCount: Value((existing?.reviewCount ?? 0) + 1),
-        lastReviewed: Value(DateTime.now()),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+    if (existing != null) {
+      await (db.update(db.userKanjis)..where((t) => t.masterKanjiId.equals(id))).write(
+        UserKanjisCompanion(
+          isLearned: Value(isNowLearned),
+          isAdded: const Value(true),
+          reviewCount: Value((existing.reviewCount) + 1),
+          lastReviewed: Value(DateTime.now()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    } else {
+      await db.into(db.userKanjis).insert(
+        UserKanjisCompanion.insert(
+          id: id,
+          masterKanjiId: id,
+          isAdded: const Value(true),
+          isLearned: Value(isNowLearned),
+          isFavorite: const Value(false),
+          reviewCount: const Value(1),
+          easeFactor: const Value(2.5),
+          lastReviewed: Value(DateTime.now()),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    }
+
     await autoScheduleReview('kanji', id, isNowLearned);
 
     if (isNowLearned && !wasLearned) {
@@ -79,29 +112,25 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> addKanji(KanjiEntity kanji) async {
-    await db.into(db.kanjis).insert(
-      KanjisCompanion.insert(
+    await db.into(db.masterKanjis).insert(
+      MasterKanjisCompanion.insert(
         id: kanji.id,
         kanji: kanji.kanji,
-        kunYomi: jsonEncode(kanji.kunYomi),
-        onYomi: jsonEncode(kanji.onYomi),
-        meaning: kanji.meaning,
-        radicals: kanji.radicals,
-        strokeCount: kanji.strokeCount,
-        strokeOrderDiagramPath: Value(kanji.strokeOrderDiagramPath),
+        unicode: kanji.unicode,
         jlptLevel: kanji.jlptLevel,
         gradeLevel: Value(kanji.gradeLevel),
-        unicode: kanji.unicode,
+        meaning: kanji.meaning,
+        kunYomi: jsonEncode(kanji.kunYomi),
+        onYomi: jsonEncode(kanji.onYomi),
+        strokeCount: kanji.strokeCount,
+        radicals: kanji.radicals,
+        strokeOrderDiagram: Value(kanji.strokeOrderDiagramPath),
+        exampleWords: Value(jsonEncode(kanji.examples)),
+        exampleSentences: Value(jsonEncode(kanji.exampleSentences)),
         notes: Value(kanji.notes),
-        examples: Value(jsonEncode(kanji.examples)),
-        isLearned: Value(kanji.isLearned),
-        isFavorite: Value(kanji.isFavorite),
+        tags: Value(jsonEncode(kanji.tags)),
         createdAt: kanji.createdAt,
         updatedAt: kanji.updatedAt,
-        lastReviewed: Value(kanji.lastReviewed),
-        reviewCount: Value(kanji.reviewCount),
-        easeFactor: Value(kanji.easeFactor),
-        nextReview: Value(kanji.nextReview),
         rtkNumber: Value(kanji.rtkNumber),
         frequencyRank: Value(kanji.frequencyRank),
         pitchAccent: Value(kanji.pitchAccent),
@@ -112,16 +141,88 @@ class StudyRepositoryImpl implements StudyRepository {
       ),
       mode: InsertMode.insertOrReplace,
     );
+
+    final bool isAddedToColl = kanji.isAdded || kanji.isFavorite || kanji.isLearned || kanji.reviewCount > 0;
+    if (isAddedToColl) {
+      final existingUser = await (db.select(db.userKanjis)..where((t) => t.masterKanjiId.equals(kanji.id))).getSingleOrNull();
+      if (existingUser != null) {
+        await (db.update(db.userKanjis)..where((t) => t.masterKanjiId.equals(kanji.id))).write(
+          UserKanjisCompanion(
+            isAdded: Value(kanji.isAdded),
+            isLearned: Value(kanji.isLearned),
+            isFavorite: Value(kanji.isFavorite),
+            reviewCount: Value(kanji.reviewCount),
+            easeFactor: Value(kanji.easeFactor),
+            nextReview: Value(kanji.nextReview),
+            lastReviewed: Value(kanji.lastReviewed),
+            customNotes: Value(kanji.customNotes),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+      } else {
+        await db.into(db.userKanjis).insert(
+          UserKanjisCompanion.insert(
+            id: kanji.id,
+            masterKanjiId: kanji.id,
+            isAdded: Value(kanji.isAdded),
+            isLearned: Value(kanji.isLearned),
+            isFavorite: Value(kanji.isFavorite),
+            reviewCount: Value(kanji.reviewCount),
+            easeFactor: Value(kanji.easeFactor),
+            nextReview: Value(kanji.nextReview),
+            lastReviewed: Value(kanji.lastReviewed),
+            customNotes: Value(kanji.customNotes),
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+        );
+      }
+    }
   }
 
   @override
   Future<void> deleteKanji(String id) async {
-    // 1. Delete from Kanjis table
-    await (db.delete(db.kanjis)..where((t) => t.id.equals(id))).go();
-    // 2. Cascade delete from review items
+    await (db.delete(db.masterKanjis)..where((t) => t.id.equals(id))).go();
     await (db.delete(db.reviewItems)..where((t) => t.itemId.equals(id) & t.itemType.equals('kanji'))).go();
-    // 3. Cascade delete from planner tasks
     await (db.delete(db.plannerTasks)..where((t) => t.itemId.equals(id) & t.itemType.equals('kanji'))).go();
+  }
+
+  @override
+  Future<void> addToCollection(String masterKanjiId) async {
+    final existing = await (db.select(db.userKanjis)..where((t) => t.masterKanjiId.equals(masterKanjiId))).getSingleOrNull();
+    if (existing == null) {
+      await db.into(db.userKanjis).insert(
+        UserKanjisCompanion.insert(
+          id: masterKanjiId,
+          masterKanjiId: masterKanjiId,
+          isAdded: const Value(true),
+          isLearned: const Value(false),
+          isFavorite: const Value(false),
+          reviewCount: const Value(0),
+          easeFactor: const Value(2.5),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+      await autoScheduleReview('kanji', masterKanjiId, false);
+    }
+  }
+
+  @override
+  Future<void> removeFromCollection(String masterKanjiId) async {
+    await (db.delete(db.userKanjis)..where((t) => t.masterKanjiId.equals(masterKanjiId))).go();
+    await (db.delete(db.reviewItems)..where((t) => t.itemId.equals(masterKanjiId) & t.itemType.equals('kanji'))).go();
+    await (db.delete(db.plannerTasks)..where((t) => t.itemId.equals(masterKanjiId) & t.itemType.equals('kanji'))).go();
+  }
+
+  @override
+  Future<void> updateCustomNotes(String masterKanjiId, String notes) async {
+    await (db.update(db.userKanjis)..where((t) => t.masterKanjiId.equals(masterKanjiId))).write(
+      UserKanjisCompanion(
+        customNotes: Value(notes),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   @override
@@ -394,13 +495,7 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> resetAllProgress() async {
-    await db.update(db.kanjis).write(const KanjisCompanion(
-      isLearned: Value(false),
-      reviewCount: Value(0),
-      easeFactor: Value(2.5),
-      lastReviewed: Value(null),
-      nextReview: Value(null),
-    ));
+    await db.delete(db.userKanjis).go();
     await db.update(db.vocabularies).write(const VocabulariesCompanion(status: Value('unlearned')));
     await db.update(db.grammars).write(const GrammarsCompanion(status: Value('unlearned')));
     await db.update(db.readings).write(const ReadingsCompanion(status: Value('unlearned'), notes: Value('')));
@@ -448,13 +543,13 @@ class StudyRepositoryImpl implements StudyRepository {
     await db.delete(db.plannerTasks).go();
 
     // Fetch all items that are not mastered
-    final kanjiList = await db.select(db.kanjis).get();
+    final kanjiList = await getKanjis();
     final vocabList = await db.select(db.vocabularies).get();
     final grammarList = await db.select(db.grammars).get();
     final readingList = await db.select(db.readings).get();
     final listeningList = await db.select(db.listenings).get();
 
-    final unlearnedKanjis = kanjiList.where((k) => !k.isLearned).toList();
+    final unlearnedKanjis = kanjiList.where((k) => k.isAdded && !k.isLearned).toList();
     final unlearnedVocabs = vocabList.where((v) => v.status != 'mastered').toList();
     final unlearnedGrammars = grammarList.where((g) => g.status != 'mastered').toList();
     final unlearnedReadings = readingList.where((r) => r.status != 'mastered').toList();
@@ -541,7 +636,7 @@ class StudyRepositoryImpl implements StudyRepository {
         details = 'Weekly wrap-up: review all items studied this week.';
       } else {
         if (t.itemType == 'kanji') {
-          final item = await (db.select(db.kanjis)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
+          final item = await (db.select(db.masterKanjis)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
           title = 'Learn Kanji: ${item?.kanji ?? ""}';
           details = item?.meaning ?? '';
         } else if (t.itemType == 'vocab') {
@@ -593,9 +688,7 @@ class StudyRepositoryImpl implements StudyRepository {
 
     // 3. Update the corresponding study item status
     if (task.itemType == 'kanji') {
-      await (db.update(db.kanjis)..where((x) => x.id.equals(task.itemId))).write(
-        KanjisCompanion(isLearned: Value(isCompleted)),
-      );
+      await updateKanjiStatus(task.itemId, isCompleted ? StudyStatus.mastered : StudyStatus.learning);
     } else if (task.itemType == 'vocab') {
       await (db.update(db.vocabularies)..where((x) => x.id.equals(task.itemId))).write(
         VocabulariesCompanion(status: Value(newStatus.toDbString())),
@@ -761,7 +854,7 @@ class StudyRepositoryImpl implements StudyRepository {
       String details = '';
 
       if (r.itemType == 'kanji') {
-        final item = await (db.select(db.kanjis)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
+        final item = await (db.select(db.masterKanjis)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
         title = 'Review Kanji: ${item?.kanji ?? ""}';
         details = 'Meaning: ${item?.meaning ?? ""}';
       } else if (r.itemType == 'vocab') {
@@ -975,7 +1068,7 @@ class StudyRepositoryImpl implements StudyRepository {
     }
 
     // 1. First Step (master first lesson)
-    final masteredKanjis = await (db.select(db.kanjis)..where((x) => x.isLearned.equals(true))).get();
+    final masteredKanjis = await (db.select(db.userKanjis)..where((x) => x.isLearned.equals(true))).get();
     final masteredVocabs = await (db.select(db.vocabularies)..where((x) => x.status.equals('mastered'))).get();
     final masteredGrammars = await (db.select(db.grammars)..where((x) => x.status.equals('mastered'))).get();
     final masteredReadings = await (db.select(db.readings)..where((x) => x.status.equals('mastered'))).get();
@@ -1074,7 +1167,7 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<String> exportBackupJson() async {
-    final kanjisData = await db.select(db.kanjis).get();
+    final kanjisData = await db.select(db.userKanjis).get();
     final vocabsData = await db.select(db.vocabularies).get();
     final grammarsData = await db.select(db.grammars).get();
     final readingsData = await db.select(db.readings).get();
@@ -1088,7 +1181,7 @@ class StudyRepositoryImpl implements StudyRepository {
 
     final data = {
       'kanjis': kanjisData.map((k) => {
-        'id': k.id,
+        'id': k.masterKanjiId,
         'isLearned': k.isLearned,
         'reviewCount': k.reviewCount,
         'status': k.isLearned ? 'mastered' : (k.reviewCount > 0 ? 'learning' : 'unlearned')
@@ -1155,12 +1248,28 @@ class StudyRepositoryImpl implements StudyRepository {
         for (var k in data['kanjis']) {
           final isLearned = k['isLearned'] ?? (k['status'] == 'mastered');
           final reviewCount = k['reviewCount'] ?? (k['status'] == 'learning' ? 1 : (k['status'] == 'mastered' ? 5 : 0));
-          await (db.update(db.kanjis)..where((t) => t.id.equals(k['id']))).write(
-            KanjisCompanion(
-              isLearned: Value(isLearned),
-              reviewCount: Value(reviewCount),
-            ),
-          );
+          final existing = await (db.select(db.userKanjis)..where((t) => t.masterKanjiId.equals(k['id']))).getSingleOrNull();
+          if (existing != null) {
+            await (db.update(db.userKanjis)..where((t) => t.masterKanjiId.equals(k['id']))).write(
+              UserKanjisCompanion(
+                isLearned: Value(isLearned),
+                reviewCount: Value(reviewCount),
+              ),
+            );
+          } else {
+            await db.into(db.userKanjis).insert(
+              UserKanjisCompanion.insert(
+                id: k['id'],
+                masterKanjiId: k['id'],
+                isAdded: const Value(true),
+                isLearned: Value(isLearned),
+                isFavorite: const Value(false),
+                reviewCount: Value(reviewCount),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            );
+          }
         }
       }
       if (data.containsKey('vocabularies')) {

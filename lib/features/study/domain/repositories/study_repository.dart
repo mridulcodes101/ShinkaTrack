@@ -9,6 +9,9 @@ abstract class StudyRepository {
   Future<void> updateKanjiStatus(String id, StudyStatus status);
   Future<void> addKanji(KanjiEntity kanji);
   Future<void> deleteKanji(String id);
+  Future<void> addToCollection(String masterKanjiId);
+  Future<void> removeFromCollection(String masterKanjiId);
+  Future<void> updateCustomNotes(String masterKanjiId, String notes);
 
   // Vocabulary catalog
   Future<List<VocabularyEntity>> getVocabularies();

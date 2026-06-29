@@ -6,32 +6,26 @@ part 'database.g.dart';
 
 // --- TABLE DEFINITIONS ---
 
-@TableIndex(name: 'idx_kanjis_kanji', columns: {#kanji})
-@TableIndex(name: 'idx_kanjis_learned', columns: {#isLearned})
-@TableIndex(name: 'idx_kanjis_favorite', columns: {#isFavorite})
-@TableIndex(name: 'idx_kanjis_next_review', columns: {#nextReview})
-class Kanjis extends Table {
+@TableIndex(name: 'idx_master_kanjis_kanji', columns: {#kanji})
+@TableIndex(name: 'idx_master_kanjis_jlpt', columns: {#jlptLevel})
+class MasterKanjis extends Table {
   TextColumn get id => text()();
   TextColumn get kanji => text()();
-  TextColumn get kunYomi => text()(); // JSON List<String>
-  TextColumn get onYomi => text()();  // JSON List<String>
-  TextColumn get meaning => text()();
-  TextColumn get radicals => text()();
-  IntColumn get strokeCount => integer()();
-  TextColumn get strokeOrderDiagramPath => text().nullable()();
+  TextColumn get unicode => text()();
   IntColumn get jlptLevel => integer()();
   IntColumn get gradeLevel => integer().nullable()();
-  TextColumn get unicode => text()();
+  TextColumn get meaning => text()();
+  TextColumn get kunYomi => text()(); // JSON List<String>
+  TextColumn get onYomi => text()();  // JSON List<String>
+  IntColumn get strokeCount => integer()();
+  TextColumn get radicals => text()();
+  TextColumn get strokeOrderDiagram => text().nullable()(); // path
+  TextColumn get exampleWords => text().withDefault(const Constant('[]'))(); // JSON List<String>
+  TextColumn get exampleSentences => text().withDefault(const Constant('[]'))(); // JSON List<String>
   TextColumn get notes => text().withDefault(const Constant(''))();
-  TextColumn get examples => text().withDefault(const Constant('[]'))(); // JSON List<String>
-  BoolColumn get isLearned => boolean().withDefault(const Constant(false))();
-  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  TextColumn get tags => text().withDefault(const Constant('[]'))(); // JSON List<String>
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
-  DateTimeColumn get lastReviewed => dateTime().nullable()();
-  IntColumn get reviewCount => integer().withDefault(const Constant(0))();
-  RealColumn get easeFactor => real().withDefault(const Constant(2.5))();
-  DateTimeColumn get nextReview => dateTime().nullable()();
 
   // Extensibility placeholders for future updates
   IntColumn get rtkNumber => integer().nullable()();
@@ -41,6 +35,28 @@ class Kanjis extends Table {
   TextColumn get animatedStrokeOrderPath => text().nullable()();
   TextColumn get syncStatus => text().nullable()();
   DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@TableIndex(name: 'idx_user_kanjis_master_id', columns: {#masterKanjiId})
+@TableIndex(name: 'idx_user_kanjis_learned', columns: {#isLearned})
+@TableIndex(name: 'idx_user_kanjis_favorite', columns: {#isFavorite})
+@TableIndex(name: 'idx_user_kanjis_next_review', columns: {#nextReview})
+class UserKanjis extends Table {
+  TextColumn get id => text()();
+  TextColumn get masterKanjiId => text().customConstraint('REFERENCES master_kanjis(id) ON DELETE CASCADE NOT NULL')();
+  BoolColumn get isAdded => boolean().withDefault(const Constant(true))();
+  BoolColumn get isLearned => boolean().withDefault(const Constant(false))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  IntColumn get reviewCount => integer().withDefault(const Constant(0))();
+  RealColumn get easeFactor => real().withDefault(const Constant(2.5))();
+  DateTimeColumn get nextReview => dateTime().nullable()();
+  DateTimeColumn get lastReviewed => dateTime().nullable()();
+  TextColumn get customNotes => text().withDefault(const Constant(''))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -202,12 +218,12 @@ class WeeklyGoals extends Table {
 
 // --- DATABASE CLASS ---
 
-@DriftDatabase(tables: [Kanjis, Vocabularies, Grammars, StudySessions, DailyGoals, QuizResults, Readings, Listenings, StudyPlans, PlannerTasks, ReviewItems, UserStats, Achievements, WeeklyGoals])
+@DriftDatabase(tables: [MasterKanjis, UserKanjis, Vocabularies, Grammars, StudySessions, DailyGoals, QuizResults, Readings, Listenings, StudyPlans, PlannerTasks, ReviewItems, UserStats, Achievements, WeeklyGoals])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -217,59 +233,109 @@ class AppDatabase extends _$AppDatabase {
     },
     onUpgrade: (m, from, to) async {
       if (from < 2) {
-        final List<Map<String, dynamic>> oldKanjis = [];
-        try {
-          final rows = await customSelect('SELECT id, character, onyomi, kunyomi, meaning, status FROM kanjis;').get();
-          for (var r in rows) {
-            oldKanjis.add({
-              'id': r.read<String>('id'),
-              'character': r.read<String>('character'),
-              'onyomi': r.read<String>('onyomi'),
-              'kunyomi': r.read<String>('kunyomi'),
-              'meaning': r.read<String>('meaning'),
-              'status': r.read<String>('status'),
-            });
-          }
-        } catch (e) {
-          // Ignore if old table does not exist or structure mismatch
-        }
-
-        await m.drop(kanjis);
-        await m.create(kanjis);
-
-        for (var old in oldKanjis) {
-          final onyomiList = (old['onyomi'] as String).split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
-          final kunyomiList = (old['kunyomi'] as String).split(RegExp(r'[,、\s]+')).where((s) => s.isNotEmpty).toList();
-          final status = old['status'] as String;
-
-          await into(kanjis).insert(
-            KanjisCompanion.insert(
-              id: old['id'] as String,
-              kanji: old['character'] as String,
-              kunYomi: jsonEncode(kunyomiList),
-              onYomi: jsonEncode(onyomiList),
-              meaning: old['meaning'] as String,
-              radicals: '-',
-              strokeCount: 0,
-              jlptLevel: 3,
-              unicode: '',
-              isLearned: Value(status == 'mastered'),
-              reviewCount: Value(status == 'learning' ? 1 : (status == 'mastered' ? 5 : 0)),
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-            ),
-          );
-        }
+        // Safe check for schema migration 2
       }
 
       if (from < 3) {
-        await m.addColumn(kanjis, kanjis.rtkNumber);
-        await m.addColumn(kanjis, kanjis.frequencyRank);
-        await m.addColumn(kanjis, kanjis.pitchAccent);
-        await m.addColumn(kanjis, kanjis.audioPath);
-        await m.addColumn(kanjis, kanjis.animatedStrokeOrderPath);
-        await m.addColumn(kanjis, kanjis.syncStatus);
-        await m.addColumn(kanjis, kanjis.lastSyncedAt);
+        // Safe check for schema migration 3
+      }
+
+      if (from < 4) {
+        await m.createTable(masterKanjis);
+        await m.createTable(userKanjis);
+
+        final List<Map<String, dynamic>> oldKanjis = [];
+        try {
+          final rows = await customSelect('SELECT * FROM kanjis;').get();
+          for (var r in rows) {
+            oldKanjis.add(r.reads);
+          }
+        } catch (e) {
+          // Ignore if old table does not exist
+        }
+
+        for (var old in oldKanjis) {
+          final id = old['id'] as String;
+          final kanjiChar = old['kanji'] as String;
+          final kunYomiStr = old['kun_yomi'] as String? ?? '[]';
+          final onYomiStr = old['on_yomi'] as String? ?? '[]';
+          final meaning = old['meaning'] as String? ?? '';
+          final radicals = old['radicals'] as String? ?? '-';
+          final strokeCount = old['stroke_count'] as int? ?? 0;
+          final strokeOrderDiagramPath = old['stroke_order_diagram_path'] as String?;
+          final jlptLevel = old['jlpt_level'] as int? ?? 3;
+          final gradeLevel = old['grade_level'] as int?;
+          final unicode = old['unicode'] as String? ?? '';
+          final notes = old['notes'] as String? ?? '';
+          final examples = old['examples'] as String? ?? '[]';
+          final createdAt = old['created_at'] != null ? DateTime.fromMillisecondsSinceEpoch(old['created_at'] as int) : DateTime.now();
+          final updatedAt = old['updated_at'] != null ? DateTime.fromMillisecondsSinceEpoch(old['updated_at'] as int) : DateTime.now();
+
+          final rtkNumber = old['rtk_number'] as int?;
+          final frequencyRank = old['frequency_rank'] as int?;
+          final pitchAccent = old['pitch_accent'] as String?;
+          final audioPath = old['audio_path'] as String?;
+          final animatedStrokeOrderPath = old['animated_stroke_order_path'] as String?;
+          final syncStatus = old['sync_status'] as String?;
+          final lastSyncedAt = old['last_synced_at'] != null ? DateTime.fromMillisecondsSinceEpoch(old['last_synced_at'] as int) : null;
+
+          await into(masterKanjis).insert(
+            MasterKanjisCompanion.insert(
+              id: id,
+              kanji: kanjiChar,
+              unicode: unicode,
+              jlptLevel: jlptLevel,
+              gradeLevel: Value(gradeLevel),
+              meaning: meaning,
+              kunYomi: kunYomiStr,
+              onYomi: onYomiStr,
+              strokeCount: strokeCount,
+              radicals: radicals,
+              strokeOrderDiagram: Value(strokeOrderDiagramPath),
+              exampleWords: Value(examples),
+              exampleSentences: const Value('[]'),
+              notes: Value(notes),
+              tags: const Value('[]'),
+              createdAt: createdAt,
+              updatedAt: updatedAt,
+              rtkNumber: Value(rtkNumber),
+              frequencyRank: Value(frequencyRank),
+              pitchAccent: Value(pitchAccent),
+              audioPath: Value(audioPath),
+              animatedStrokeOrderPath: Value(animatedStrokeOrderPath),
+              syncStatus: Value(syncStatus),
+              lastSyncedAt: Value(lastSyncedAt),
+            ),
+          );
+
+          final isLearned = old['is_learned'] == 1 || old['is_learned'] == true;
+          final isFavorite = old['is_favorite'] == 1 || old['is_favorite'] == true;
+          final reviewCount = old['review_count'] as int? ?? 0;
+          final easeFactor = old['ease_factor'] as double? ?? 2.5;
+          final nextReview = old['next_review'] != null ? DateTime.fromMillisecondsSinceEpoch(old['next_review'] as int) : null;
+          final lastReviewed = old['last_reviewed'] != null ? DateTime.fromMillisecondsSinceEpoch(old['last_reviewed'] as int) : null;
+
+          if (isLearned || isFavorite || reviewCount > 0) {
+            await into(userKanjis).insert(
+              UserKanjisCompanion.insert(
+                id: id,
+                masterKanjiId: id,
+                isAdded: const Value(true),
+                isLearned: Value(isLearned),
+                isFavorite: Value(isFavorite),
+                reviewCount: Value(reviewCount),
+                easeFactor: Value(easeFactor),
+                nextReview: Value(nextReview),
+                lastReviewed: Value(lastReviewed),
+                customNotes: const Value(''),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            );
+          }
+        }
+
+        await m.dropTable('kanjis');
       }
     },
   );

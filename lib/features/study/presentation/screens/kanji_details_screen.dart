@@ -15,6 +15,15 @@ class KanjiDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
+  final _notesTextController = TextEditingController();
+  bool _isEditingNotes = false;
+
+  @override
+  void dispose() {
+    _notesTextController.dispose();
+    super.dispose();
+  }
+
   // Helpers to map SRS learning stages based on review count
   String _getSrsStage(int reviews) {
     if (reviews == 0) return 'Unstarted';
@@ -113,8 +122,70 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
     final srsStage = _getSrsStage(k.reviewCount);
     final srsColor = _getSrsStageColor(srsStage);
 
+    if (!_isEditingNotes && _notesTextController.text != k.customNotes) {
+      _notesTextController.text = k.customNotes;
+    }
+
     return Scaffold(
       backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
+          border: Border(top: BorderSide(color: isDark ? Colors.white10 : Colors.black12)),
+        ),
+        child: k.isAdded
+            ? OutlinedButton.icon(
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Remove from Collection?'),
+                      content: const Text('Are you sure you want to remove this Kanji from your personal collection? This will clear all review history and custom notes.'),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Remove', style: TextStyle(color: Colors.redAccent)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    await ref.read(kanjiListProvider.notifier).removeFromCollection(k.id);
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Removed from collection.'), behavior: SnackBarBehavior.floating),
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.bookmark_remove, color: Colors.redAccent),
+                label: const Text('Remove from My Collection', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  side: const BorderSide(color: Colors.redAccent),
+                ),
+              )
+            : ElevatedButton.icon(
+                onPressed: () async {
+                  await ref.read(kanjiListProvider.notifier).addToCollection(k.id);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Added to My Collection!'), behavior: SnackBarBehavior.floating),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.bookmark_add, color: Colors.white),
+                label: const Text('Add to My Collection', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: PremiumDesignSystem.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+              ),
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -133,16 +204,18 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
                   ref.read(kanjiListProvider.notifier).toggleFavorite(k.id);
                 },
               ),
-              IconButton(
-                icon: const Icon(Icons.edit_outlined, color: Colors.white),
-                tooltip: 'Edit',
-                onPressed: () => context.push('/add_kanji?id=${k.id}'),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.white),
-                tooltip: 'Delete',
-                onPressed: () => _confirmDeleteKanji(context, k),
-              ),
+              if (ref.watch(adminModeProvider)) ...[
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, color: Colors.white),
+                  tooltip: 'Edit',
+                  onPressed: () => context.push('/add_kanji?id=${k.id}'),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.white),
+                  tooltip: 'Delete',
+                  onPressed: () => _confirmDeleteKanji(context, k),
+                ),
+              ],
             ],
             flexibleSpace: FlexibleSpaceBar(
               stretchModes: const [
@@ -210,16 +283,18 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.12),
+                            color: k.isAdded ? statusColor.withValues(alpha: 0.12) : Colors.grey.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
+                            border: Border.all(color: k.isAdded ? statusColor.withValues(alpha: 0.4) : Colors.grey.withValues(alpha: 0.4), width: 1.5),
                           ),
                           child: Text(
-                            k.isLearned ? 'Learned' : 'Study List',
+                            k.isAdded
+                                ? (k.isLearned ? 'Learned' : 'Study List')
+                                : 'Not in Collection',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: statusColor,
+                              color: k.isAdded ? statusColor : Colors.grey,
                             ),
                           ),
                         ),
@@ -241,7 +316,7 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
                         _buildQuickInfoCard('Stroke Count', '${k.strokeCount}', Icons.edit_road, Colors.teal, isDark),
                         _buildQuickInfoCard('Radical', k.radicals == '-' ? 'None' : k.radicals, Icons.category, Colors.indigo, isDark),
                         _buildQuickInfoCard('Unicode', k.unicode == '-' ? 'N/A' : k.unicode, Icons.code, Colors.pink, isDark),
-                        _buildQuickInfoCard('SRS Stage', srsStage, Icons.rocket_launch, srsColor, isDark),
+                        _buildQuickInfoCard('SRS Stage', k.isAdded ? srsStage : 'Unstarted', Icons.rocket_launch, k.isAdded ? srsColor : Colors.grey, isDark),
                       ],
                     ),
                     const SizedBox(height: 28),
@@ -272,34 +347,80 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
                     ),
                     const SizedBox(height: 28),
 
-                    // SRS Statistics details
-                    _buildSectionHeader('Study Statistics', Icons.analytics_outlined),
-                    const SizedBox(height: 12),
-                    Card(
-                      elevation: 0,
-                      color: isDark ? const Color(0xFF1E1E2F) : Colors.black.withValues(alpha: 0.02),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                    // SRS Statistics details (Only if added to collection)
+                    if (k.isAdded) ...[
+                      _buildSectionHeader('Study Statistics', Icons.analytics_outlined),
+                      const SizedBox(height: 12),
+                      Card(
+                        elevation: 0,
+                        color: isDark ? const Color(0xFF1E1E2F) : Colors.black.withValues(alpha: 0.02),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              _buildStatRow('Total Reviews Done', '${k.reviewCount}', isDark),
+                              const Divider(),
+                              _buildStatRow('Ease Factor (Multiplier)', '${k.easeFactor.toStringAsFixed(2)}x', isDark),
+                              const Divider(),
+                              _buildStatRow('Next Scheduled Review', k.nextReview == null ? 'Not Scheduled' : _formatDate(k.nextReview!), isDark),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                      const SizedBox(height: 28),
+
+                      // User private study notes
+                      _buildSectionHeader('My Custom Study Notes', Icons.rate_review_outlined),
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF1E1E2F) : Colors.black.withValues(alpha: 0.02),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                        ),
                         child: Column(
                           children: [
-                            _buildStatRow('Total Reviews Done', '${k.reviewCount}', isDark),
-                            const Divider(),
-                            _buildStatRow('Ease Factor (Multiplier)', '${k.easeFactor.toStringAsFixed(2)}x', isDark),
-                            const Divider(),
-                            _buildStatRow('Next Scheduled Review', k.nextReview == null ? 'Not Scheduled' : _formatDate(k.nextReview!), isDark),
+                            TextField(
+                              controller: _notesTextController,
+                              maxLines: 3,
+                              onChanged: (val) {
+                                _isEditingNotes = true;
+                              },
+                              decoration: const InputDecoration(
+                                hintText: 'Add private study notes, mnemonics, or comments here...',
+                                border: InputBorder.none,
+                              ),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: TextButton(
+                                onPressed: () {
+                                  ref.read(kanjiListProvider.notifier).updateCustomNotes(k.id, _notesTextController.text.trim());
+                                  setState(() {
+                                    _isEditingNotes = false;
+                                  });
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Notes updated successfully!'), behavior: SnackBarBehavior.floating),
+                                  );
+                                },
+                                child: const Text('Save Note'),
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 28),
+                      const SizedBox(height: 28),
+                    ],
 
-                    // Notes Section
+                    // Master Notes Section
                     if (k.notes.isNotEmpty) ...[
-                      _buildSectionHeader('Personal Notes', Icons.description_outlined),
+                      _buildSectionHeader('Dictionary Notes', Icons.description_outlined),
                       const SizedBox(height: 12),
                       Container(
                         width: double.infinity,
@@ -317,7 +438,7 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
                       const SizedBox(height: 28),
                     ],
 
-                    // Examples Section
+                    // Example Words Section
                     if (k.examples.isNotEmpty) ...[
                       _buildSectionHeader('Example Words', Icons.import_contacts_outlined),
                       const SizedBox(height: 12),
@@ -330,6 +451,40 @@ class _KanjiDetailsScreenState extends ConsumerState<KanjiDetailsScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             backgroundColor: isDark ? Colors.white10 : Colors.black12.withValues(alpha: 0.05),
                             side: BorderSide(color: isDark ? Colors.white10 : Colors.black12),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 28),
+                    ],
+
+                    // Example Sentences Section
+                    if (k.exampleSentences.isNotEmpty) ...[
+                      _buildSectionHeader('Example Sentences', Icons.chat_bubble_outline),
+                      const SizedBox(height: 12),
+                      Column(
+                        children: k.exampleSentences.map((sentence) {
+                          final parts = sentence.split('|');
+                          final jp = parts[0].trim();
+                          final en = parts.length > 1 ? parts[1].trim() : '';
+                          return Container(
+                            width: double.infinity,
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E1E2F) : Colors.black.withValues(alpha: 0.01),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: isDark ? Colors.white10 : Colors.black12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(jp, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, height: 1.4)),
+                                if (en.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(en, style: TextStyle(fontSize: 13, color: isDark ? Colors.white70 : Colors.black87)),
+                                ],
+                              ],
+                            ),
                           );
                         }).toList(),
                       ),

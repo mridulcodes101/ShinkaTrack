@@ -100,7 +100,59 @@ class KanjiListNotifier extends StateNotifier<AsyncValue<List<KanjiEntity>>> {
       state = AsyncValue.error(e, stack);
     }
   }
+
+  Future<void> addToCollection(String id) async {
+    final previousState = state;
+    state.whenData((list) {
+      state = AsyncValue.data(
+        list.map((k) => k.id == id ? k.copyWith(isAdded: true) : k).toList(),
+      );
+    });
+
+    try {
+      await _repository.addToCollection(id);
+    } catch (e) {
+      state = previousState; // Rollback
+    }
+  }
+
+  Future<void> removeFromCollection(String id) async {
+    final previousState = state;
+    state.whenData((list) {
+      state = AsyncValue.data(
+        list.map((k) => k.id == id ? k.copyWith(
+          isAdded: false,
+          isLearned: false,
+          isFavorite: false,
+          reviewCount: 0,
+        ) : k).toList(),
+      );
+    });
+
+    try {
+      await _repository.removeFromCollection(id);
+    } catch (e) {
+      state = previousState; // Rollback
+    }
+  }
+
+  Future<void> updateCustomNotes(String id, String notes) async {
+    final previousState = state;
+    state.whenData((list) {
+      state = AsyncValue.data(
+        list.map((k) => k.id == id ? k.copyWith(customNotes: notes) : k).toList(),
+      );
+    });
+
+    try {
+      await _repository.updateCustomNotes(id, notes);
+    } catch (e) {
+      state = previousState; // Rollback
+    }
+  }
 }
+
+final adminModeProvider = StateProvider<bool>((ref) => false);
 
 final kanjiListProvider = StateNotifierProvider<KanjiListNotifier, AsyncValue<List<KanjiEntity>>>((ref) {
   final repo = ref.watch(repositoryProvider);
