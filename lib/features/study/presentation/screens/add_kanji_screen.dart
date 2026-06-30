@@ -325,7 +325,7 @@ class _AddKanjiScreenState extends ConsumerState<AddKanjiScreen> {
             children: [
               const Icon(Icons.lock_outline, size: 64, color: Colors.redAccent),
               const SizedBox(height: 16),
-              const Text('This portal is restricted to Administrators only.', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const Text('This portal is restricted to administrators.', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => context.go('/'),

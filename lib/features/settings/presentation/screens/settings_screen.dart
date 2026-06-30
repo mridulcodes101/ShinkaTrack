@@ -9,6 +9,8 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shinka_track_n3/core/services/admin_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -18,6 +20,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  int _versionTapCount = 0;
   // Notifications state
   int _studyHour = 19;
   int _studyMinute = 0;
@@ -592,12 +595,56 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Version', style: TextStyle(fontWeight: FontWeight.w600)),
-                          Text('1.0.0 (Production Stable)', style: TextStyle(color: Colors.grey)),
-                        ],
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          final isUnlocked = ref.read(developerModeUnlockedProvider);
+                          if (isUnlocked) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Developer Mode already unlocked!'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          setState(() {
+                            _versionTapCount++;
+                          });
+
+                          if (_versionTapCount >= 7) {
+                            _versionTapCount = 0;
+                            await ref.read(adminServiceProvider).unlockDeveloperMode();
+                            ref.read(developerModeUnlockedProvider.notifier).state = true;
+
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Developer Mode Unlocked'),
+                                  behavior: SnackBarBehavior.floating,
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } else if (_versionTapCount > 2) {
+                            final remaining = 7 - _versionTapCount;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('You are now $remaining steps away from being a developer.'),
+                                duration: const Duration(milliseconds: 500),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Version', style: TextStyle(fontWeight: FontWeight.w600)),
+                            Text('1.0.0 (Production Stable)', style: TextStyle(color: Colors.grey)),
+                          ],
+                        ),
                       ),
                       const Divider(height: 24),
                       const Text(
@@ -617,6 +664,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => showLicensePage(context: context),
                       ),
+                      if (ref.watch(developerModeUnlockedProvider)) ...[
+                        const Divider(height: 24),
+                        ListTile(
+                          leading: const Icon(Icons.developer_mode, color: Colors.blue),
+                          title: const Text('Developer Options', style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: const Text('Admin portal database and backup tools'),
+                          trailing: const Icon(Icons.chevron_right, color: Colors.blue),
+                          onTap: () => context.push('/developer_options'),
+                        ),
+                      ],
                     ],
                   ),
                 ),

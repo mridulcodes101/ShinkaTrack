@@ -4,6 +4,7 @@ import 'package:shinka_track_n3/core/navigation/router.dart';
 import 'package:shinka_track_n3/core/theme/app_theme.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shinka_track_n3/core/services/admin_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +20,7 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
         themeModeProvider.overrideWith((ref) => initialThemeMode),
         themeColorProvider.overrideWith((ref) => initialThemeColor),
         fontSizeProvider.overrideWith((ref) => initialFontSize),

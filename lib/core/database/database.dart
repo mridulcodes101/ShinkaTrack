@@ -225,6 +225,26 @@ class AppDatabase extends _$AppDatabase {
   @override
   int get schemaVersion => 4;
 
+  Future<void> resetMasterDatabase() async {
+    await transaction(() async {
+      await delete(masterKanjis).go();
+      await delete(userKanjis).go();
+      await delete(vocabularies).go();
+      await delete(grammars).go();
+      await delete(readings).go();
+      await delete(listenings).go();
+      await delete(studySessions).go();
+      await delete(dailyGoals).go();
+      await delete(quizResults).go();
+      await delete(studyPlans).go();
+      await delete(plannerTasks).go();
+      await delete(reviewItems).go();
+      await delete(weeklyGoals).go();
+
+      await _seedDatabase();
+    });
+  }
+
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
@@ -248,7 +268,7 @@ class AppDatabase extends _$AppDatabase {
         try {
           final rows = await customSelect('SELECT * FROM kanjis;').get();
           for (var r in rows) {
-            oldKanjis.add(r.reads);
+            oldKanjis.add(r.data);
           }
         } catch (e) {
           // Ignore if old table does not exist
@@ -335,7 +355,7 @@ class AppDatabase extends _$AppDatabase {
           }
         }
 
-        await m.dropTable('kanjis');
+        await customStatement('DROP TABLE IF EXISTS kanjis;');
       }
     },
   );

@@ -69,81 +69,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     return Scaffold(
       backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
       appBar: AppBar(
-        title: GestureDetector(
-          onLongPress: () async {
-            final scaffoldMessenger = ScaffoldMessenger.of(context);
-            final goRouterState = GoRouter.of(context);
-            final textController = TextEditingController();
-
-            final confirm = await showDialog<bool>(
-              context: context,
-              builder: (context) {
-                final isDark = Theme.of(context).brightness == Brightness.dark;
-                return AlertDialog(
-                  backgroundColor: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
-                  title: const Text('Admin Access Portal', style: TextStyle(fontWeight: FontWeight.bold)),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Enter passcode to activate Shinka developer/admin tools:', style: TextStyle(fontSize: 14)),
-                      const SizedBox(height: 16),
-                      TextField(
-                        controller: textController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          hintText: 'Passcode',
-                          filled: true,
-                          fillColor: isDark ? Colors.white10 : Colors.black12,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: PremiumDesignSystem.primaryBlue,
-                        foregroundColor: Colors.white,
-                      ),
-                      onPressed: () {
-                        if (textController.text == 'admin') {
-                          Navigator.pop(context, true);
-                        } else {
-                          scaffoldMessenger.showSnackBar(
-                            const SnackBar(content: Text('Invalid passcode.')),
-                          );
-                          Navigator.pop(context, false);
-                        }
-                      },
-                      child: const Text('Access'),
-                    ),
-                  ],
-                );
-              },
-            );
-
-            if (confirm == true) {
-              ref.read(adminModeProvider.notifier).state = true;
-              scaffoldMessenger.showSnackBar(
-                const SnackBar(
-                  content: Text('Admin Mode activated! Accessing developer panel...'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-              goRouterState.push('/admin');
-            }
-          },
-          child: const Text(
-            '進化 SHINKA',
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              letterSpacing: 3,
-              fontSize: 20,
-            ),
+        title: const Text(
+          '進化 SHINKA',
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            letterSpacing: 3,
+            fontSize: 20,
           ),
         ),
       ),

@@ -13,6 +13,7 @@ import 'package:shinka_track_n3/features/study/presentation/screens/add_kanji_sc
 
 import 'package:shinka_track_n3/features/study/presentation/screens/kanji_details_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
+import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -20,6 +21,11 @@ final goRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/developer_options',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const DeveloperOptionsScreen(),
+    ),
     GoRoute(
       path: '/add_kanji',
       parentNavigatorKey: _rootNavigatorKey,

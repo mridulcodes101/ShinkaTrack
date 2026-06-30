@@ -76,4 +76,5 @@ abstract class StudyRepository {
   Future<void> updateActivePlanHours(double hours);
   Future<String> exportBackupJson();
   Future<void> importBackupJson(String jsonStr);
+  Future<void> resetMasterDatabase();
 }

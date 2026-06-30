@@ -1379,4 +1379,9 @@ class StudyRepositoryImpl implements StudyRepository {
       }
     });
   }
+
+  @override
+  Future<void> resetMasterDatabase() async {
+    await db.resetMasterDatabase();
+  }
 }
