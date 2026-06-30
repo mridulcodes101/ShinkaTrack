@@ -14,6 +14,7 @@ import 'package:shinka_track_n3/features/study/presentation/screens/add_kanji_sc
 import 'package:shinka_track_n3/features/study/presentation/screens/kanji_details_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
 import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
+import 'package:shinka_track_n3/features/study/presentation/screens/review_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -21,6 +22,11 @@ final goRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/settings',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SettingsScreen(),
+    ),
     GoRoute(
       path: '/developer_options',
       parentNavigatorKey: _rootNavigatorKey,
@@ -64,24 +70,16 @@ final goRouter = GoRouter(
           builder: (context, state) => const StudyScreen(),
         ),
         GoRoute(
-          path: '/timer',
-          builder: (context, state) => const TimerScreen(),
-        ),
-        GoRoute(
-          path: '/quiz',
-          builder: (context, state) => const QuizScreen(),
-        ),
-        GoRoute(
-          path: '/analytics',
-          builder: (context, state) => const AnalyticsScreen(),
-        ),
-        GoRoute(
-          path: '/settings',
-          builder: (context, state) => const SettingsScreen(),
+          path: '/review',
+          builder: (context, state) => const ReviewScreen(),
         ),
         GoRoute(
           path: '/planner',
           builder: (context, state) => const PlannerSetupScreen(),
+        ),
+        GoRoute(
+          path: '/analytics',
+          builder: (context, state) => const AnalyticsScreen(),
         ),
       ],
     ),

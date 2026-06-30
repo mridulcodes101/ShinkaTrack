@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shinka_track_n3/core/theme/design_system.dart';
+import 'package:shinka_track_n3/core/design/design_tokens.dart';
+import 'package:shinka_track_n3/core/navigation/responsive_layout.dart';
+import 'package:shinka_track_n3/core/widgets/app_card.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/study_entities.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
 
@@ -21,6 +24,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
   bool _selectionMode = false;
   final List<String> _selectedKanjiIds = [];
 
+  // SPEC-002 Learn Hub state fields
+  bool _showHub = true;
+  bool _filterCollectionOnly = false;
+
   // Advanced Filters & Sort State
   final List<int> _selectedJlptFilters = []; // empty = all
   bool _filterFavorite = false;
@@ -30,6 +37,36 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
   bool _filterRecentlyReviewed = false;
   String _sortOption = 'Recently Added'; // 'Alphabetically', 'Recently Added', 'Review Date', 'Stroke Count', 'JLPT'
   int _kanjiLimit = 40;
+
+  void _updateFab() {
+    if (!mounted) return;
+    if (_showHub) {
+      ref.read(activeFabProvider.notifier).state = FabConfig(
+        label: 'Add to Collection',
+        icon: Icons.bookmark_add,
+        onPressed: () => context.push('/add_kanji'),
+      );
+    } else {
+      if (_tabController.index == 0) {
+        final isAdmin = ref.read(adminModeProvider);
+        if (isAdmin) {
+          ref.read(activeFabProvider.notifier).state = FabConfig(
+            label: 'Add Master Kanji',
+            icon: Icons.add,
+            onPressed: () => context.push('/add_kanji'),
+          );
+        } else {
+          ref.read(activeFabProvider.notifier).state = FabConfig(
+            label: 'Add to My Collection',
+            icon: Icons.bookmark_add,
+            onPressed: _addSelectedToCollection,
+          );
+        }
+      } else {
+        ref.read(activeFabProvider.notifier).state = null;
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -44,6 +81,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
 
     // Synchronize initial tab from studyTabProvider
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateFab();
       final initialTab = ref.read(studyTabProvider);
       if (initialTab >= 0 && initialTab < 5) {
         _tabController.index = initialTab;
@@ -53,6 +91,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
     _tabController.addListener(() {
       if (!mounted) return;
       setState(() {});
+      _updateFab();
       if (!_tabController.indexIsChanging) {
         ref.read(studyTabProvider.notifier).state = _tabController.index;
       }
@@ -61,9 +100,269 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
 
   @override
   void dispose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final label = ref.read(activeFabProvider)?.label;
+      if (label == 'Add to Collection' || label == 'Add Master Kanji' || label == 'Add to My Collection') {
+        ref.read(activeFabProvider.notifier).state = null;
+      }
+    });
     _searchController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  Widget _buildLearnHub(
+    bool isDark,
+    AsyncValue<List<KanjiEntity>> kanjiAsync,
+    AsyncValue<List<VocabularyEntity>> vocabAsync,
+    AsyncValue<List<GrammarEntity>> grammarAsync,
+    AsyncValue<List<ReadingEntity>> readingAsync,
+    AsyncValue<List<ListeningEntity>> listeningAsync,
+  ) {
+    final kanji = kanjiAsync.value ?? [];
+    final vocab = vocabAsync.value ?? [];
+    final grammar = grammarAsync.value ?? [];
+    final reading = readingAsync.value ?? [];
+    final listening = listeningAsync.value ?? [];
+
+    return Scaffold(
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
+      appBar: AppBar(
+        title: const Text('Learn Hub', style: TextStyle(fontWeight: FontWeight.bold)),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            children: [
+              _buildHubCard(
+                title: 'Kanji',
+                description: 'Master Chinese characters used in Japanese writing.',
+                icon: Icons.abc_rounded,
+                learned: kanji.where((k) => k.isLearned).length,
+                total: kanji.length,
+                due: kanji.where((k) => k.isAdded && !k.isLearned).length,
+                onContinue: () {
+                  setState(() {
+                    _filterCollectionOnly = true;
+                    _showHub = false;
+                    _tabController.index = 0;
+                    _updateFab();
+                  });
+                },
+                onBrowse: () {
+                  setState(() {
+                    _filterCollectionOnly = false;
+                    _showHub = false;
+                    _tabController.index = 0;
+                    _updateFab();
+                  });
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _buildHubCard(
+                title: 'Vocabulary',
+                description: 'Build your core word bank with translations and readings.',
+                icon: Icons.translate,
+                learned: vocab.where((v) => v.status == StudyStatus.mastered).length,
+                total: vocab.length,
+                due: vocab.where((v) => v.status == StudyStatus.learning).length,
+                onContinue: () {
+                  setState(() {
+                    _filterCollectionOnly = true;
+                    _showHub = false;
+                    _tabController.index = 1;
+                    _updateFab();
+                  });
+                },
+                onBrowse: () {
+                  setState(() {
+                    _filterCollectionOnly = false;
+                    _showHub = false;
+                    _tabController.index = 1;
+                    _updateFab();
+                  });
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _buildHubCard(
+                title: 'Grammar',
+                description: 'Understand sentence structure rules and particle usage.',
+                icon: Icons.bookmark_outline,
+                learned: grammar.where((g) => g.status == StudyStatus.mastered).length,
+                total: grammar.length,
+                due: grammar.where((g) => g.status == StudyStatus.learning).length,
+                onContinue: () {
+                  setState(() {
+                    _filterCollectionOnly = true;
+                    _showHub = false;
+                    _tabController.index = 2;
+                    _updateFab();
+                  });
+                },
+                onBrowse: () {
+                  setState(() {
+                    _filterCollectionOnly = false;
+                    _showHub = false;
+                    _tabController.index = 2;
+                    _updateFab();
+                  });
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _buildHubCard(
+                title: 'Reading',
+                description: 'Practice comprehension on real N3 passages.',
+                icon: Icons.menu_book,
+                learned: reading.where((r) => r.status == StudyStatus.mastered).length,
+                total: reading.length,
+                due: reading.where((r) => r.status == StudyStatus.learning).length,
+                onContinue: () {
+                  setState(() {
+                    _filterCollectionOnly = true;
+                    _showHub = false;
+                    _tabController.index = 3;
+                    _updateFab();
+                  });
+                },
+                onBrowse: () {
+                  setState(() {
+                    _filterCollectionOnly = false;
+                    _showHub = false;
+                    _tabController.index = 3;
+                    _updateFab();
+                  });
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              _buildHubCard(
+                title: 'Listening',
+                description: 'Train your ear with audio prompts and scripts.',
+                icon: Icons.headset,
+                learned: listening.where((l) => l.status == StudyStatus.mastered).length,
+                total: listening.length,
+                due: listening.where((l) => l.status == StudyStatus.learning).length,
+                onContinue: () {
+                  setState(() {
+                    _filterCollectionOnly = true;
+                    _showHub = false;
+                    _tabController.index = 4;
+                    _updateFab();
+                  });
+                },
+                onBrowse: () {
+                  setState(() {
+                    _filterCollectionOnly = false;
+                    _showHub = false;
+                    _tabController.index = 4;
+                    _updateFab();
+                  });
+                },
+              ),
+              const SizedBox(height: AppSpacing.xl),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHubCard({
+    required String title,
+    required String description,
+    required IconData icon,
+    required int learned,
+    required int total,
+    required int due,
+    required VoidCallback onContinue,
+    required VoidCallback onBrowse,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final progress = total == 0 ? 0.0 : (learned / total);
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: AppSpacing.xxs),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          AppSpacing.gapMD,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('$learned / $total learned', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+              if (due > 0)
+                Text('$due reviews due', style: const TextStyle(fontSize: 12, color: Colors.orange, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          ClipRRect(
+            borderRadius: AppRadius.radiusSM,
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: isDark ? Colors.white10 : Colors.black12,
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+            ),
+          ),
+          AppSpacing.gapMD,
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onBrowse,
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Browse Library'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: onContinue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Continue'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -83,12 +382,16 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
 
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
+    if (_showHub) {
+      return _buildLearnHub(isDark, kanjiAsync, vocabAsync, grammarAsync, readingAsync, listeningAsync);
+    }
+
     return Scaffold(
-      backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
         title: _selectionMode && _tabController.index == 0
             ? Text('${_selectedKanjiIds.length} Selected')
-            : const Text('Study Catalog', style: TextStyle(fontWeight: FontWeight.bold)),
+            : Text('${_filterCollectionOnly ? "My Collection" : "Master Library"} - ${_tabController.index == 0 ? "Kanji" : _tabController.index == 1 ? "Vocab" : _tabController.index == 2 ? "Grammar" : _tabController.index == 3 ? "Reading" : "Listening"}', style: const TextStyle(fontWeight: FontWeight.bold)),
         leading: _selectionMode && _tabController.index == 0
             ? IconButton(
                 icon: const Icon(Icons.close),
@@ -99,7 +402,15 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                   });
                 },
               )
-            : null,
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  setState(() {
+                    _showHub = true;
+                    _updateFab();
+                  });
+                },
+              ),
         actions: _selectionMode && _tabController.index == 0
             ? [
                 IconButton(
@@ -815,6 +1126,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
         }
 
         final filteredList = list.where((k) {
+          if (_filterCollectionOnly && !k.isAdded) return false;
           // 1. Advanced Search Query Matching (Kanji, Meaning, Kunyomi, Onyomi, Radicals, JLPT, Grade, Notes, Examples)
           bool matchesSearch = true;
           if (_searchQuery.isNotEmpty) {
@@ -1266,6 +1578,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
       error: (err, stack) => const Center(child: Text('Error loading Vocabulary')),
       data: (list) {
         final filteredList = list.where((v) {
+          if (_filterCollectionOnly && v.status == StudyStatus.unlearned) return false;
           final matchesSearch = v.word.contains(_searchQuery) ||
               v.reading.toLowerCase().contains(_searchQuery) ||
               v.meaning.toLowerCase().contains(_searchQuery);
@@ -1351,6 +1664,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
       error: (err, stack) => const Center(child: Text('Error loading Grammar')),
       data: (list) {
         final filteredList = list.where((g) {
+          if (_filterCollectionOnly && g.status == StudyStatus.unlearned) return false;
           final matchesSearch = g.title.toLowerCase().contains(_searchQuery) ||
               g.explanation.toLowerCase().contains(_searchQuery) ||
               g.structure.toLowerCase().contains(_searchQuery);
@@ -1472,6 +1786,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
       error: (err, stack) => const Center(child: Text('Error loading Readings')),
       data: (list) {
         final filteredList = list.where((r) {
+          if (_filterCollectionOnly && r.status == StudyStatus.unlearned) return false;
           final matchesSearch = r.title.toLowerCase().contains(_searchQuery) ||
               r.passage.toLowerCase().contains(_searchQuery) ||
               r.question.toLowerCase().contains(_searchQuery);
@@ -1577,6 +1892,7 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
       error: (err, stack) => const Center(child: Text('Error loading Listenings')),
       data: (list) {
         final filteredList = list.where((l) {
+          if (_filterCollectionOnly && l.status == StudyStatus.unlearned) return false;
           final matchesSearch = l.title.toLowerCase().contains(_searchQuery) ||
               l.audioScript.toLowerCase().contains(_searchQuery) ||
               l.question.toLowerCase().contains(_searchQuery);

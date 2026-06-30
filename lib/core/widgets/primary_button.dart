@@ -92,7 +92,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
                       widget.label,
                       style: AppTypography.titleMedium.copyWith(
                         color: widget.onPressed == null
-                            ? (isDark ? Colors.white30 : Colors.black30)
+                            ? (isDark ? Colors.white30 : Colors.black38)
                             : textColor,
                         fontWeight: FontWeight.bold,
                       ),

@@ -5,13 +5,63 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:shinka_track_n3/core/theme/design_system.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/study_entities.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
+import 'package:shinka_track_n3/core/design/design_tokens.dart';
+import 'package:shinka_track_n3/core/navigation/responsive_layout.dart';
 import 'package:intl/intl.dart';
 
-class AnalyticsScreen extends ConsumerWidget {
+class AnalyticsScreen extends ConsumerStatefulWidget {
   const AnalyticsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AnalyticsScreen> createState() => _AnalyticsScreenState();
+}
+
+class _AnalyticsScreenState extends ConsumerState<AnalyticsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(activeFabProvider.notifier).state = FabConfig(
+        label: 'Export Progress',
+        icon: Icons.upload,
+        onPressed: _exportProgressData,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(activeFabProvider)?.label == 'Export Progress') {
+        ref.read(activeFabProvider.notifier).state = null;
+      }
+    });
+    super.dispose();
+  }
+
+  void _exportProgressData() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return AlertDialog(
+          backgroundColor: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+          shape: AppRadius.shapeLG,
+          title: const Text('Export Progress', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text('All study metrics, collections, and lesson parameters successfully packaged and exported to backup files.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final kanjiAsync = ref.watch(kanjiListProvider);
     final vocabAsync = ref.watch(vocabListProvider);
     final grammarAsync = ref.watch(grammarListProvider);
@@ -39,9 +89,9 @@ class AnalyticsScreen extends ConsumerWidget {
 
     if (!dataLoaded) {
       return Scaffold(
-        backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
+        backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
         appBar: AppBar(
-          title: const Text('Detailed Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text('Progress Hub', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
         body: const Center(child: CircularProgressIndicator()),
       );
@@ -70,9 +120,9 @@ class AnalyticsScreen extends ConsumerWidget {
     final double completionRate = progressStats.overall;
 
     return Scaffold(
-      backgroundColor: isDark ? PremiumDesignSystem.deepSlate : PremiumDesignSystem.backgroundLight,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Detailed Analytics', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Progress', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

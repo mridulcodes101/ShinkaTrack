@@ -87,7 +87,7 @@ class _SecondaryButtonState extends State<SecondaryButton> {
                       widget.label,
                       style: AppTypography.titleMedium.copyWith(
                         color: widget.onPressed == null
-                            ? (isDark ? Colors.white30 : Colors.black30)
+                            ? (isDark ? Colors.white30 : Colors.black38)
                             : accentColor,
                         fontWeight: FontWeight.bold,
                       ),
