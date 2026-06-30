@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:shinka_track_n3/core/design/design_tokens.dart';
 
 /// PremiumDesignSystem holds structural design tokens and high-end
 /// glassmorphic/gradient widgets for a paid-app UI feel.
@@ -7,36 +8,36 @@ class PremiumDesignSystem {
   PremiumDesignSystem._();
 
   // Premium HSL-Tailored Color Palette
-  static const Color primaryBlue = Color(0xFF4F46E5);    // Indigo
-  static const Color secondaryPink = Color(0xFFEC4899);  // Sakura Pink
-  static const Color forestEmerald = Color(0xFF10B981);  // Forest Green
-  static const Color amberGold = Color(0xFFF59E0B);      // Gold Accent
-  static const Color deepSlate = Color(0xFF0F172A);      // Dark slate background
-  static const Color surfaceDark = Color(0xFF1E293B);    // Slate surface
-  static const Color backgroundLight = Color(0xFFF8FAFC); // Crisp light background
-  static const Color surfaceLight = Color(0xFFFFFFFF);   // Crisp light surface
+  static const Color primaryBlue = AppColors.samuraiIndigo;    // Indigo
+  static const Color secondaryPink = AppColors.sakuraPink;  // Sakura Pink
+  static const Color forestEmerald = AppColors.forestGreen;  // Forest Green
+  static const Color amberGold = AppColors.kinpakuGold;      // Gold Accent
+  static const Color deepSlate = AppColors.backgroundDark;      // Dark slate background
+  static const Color surfaceDark = AppColors.surfaceDark;    // Slate surface
+  static const Color backgroundLight = AppColors.backgroundLight; // Crisp light background
+  static const Color surfaceLight = AppColors.surfaceLight;   // Crisp light surface
 
   // Premium Gradients
   static const Gradient primaryGradient = LinearGradient(
-    colors: [primaryBlue, Color(0xFF818CF8)],
+    colors: [primaryBlue, AppColors.samuraiIndigoLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const Gradient sakuraGradient = LinearGradient(
-    colors: [secondaryPink, Color(0xFFF472B6)],
+    colors: [secondaryPink, AppColors.sakuraPinkLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const Gradient forestGradient = LinearGradient(
-    colors: [forestEmerald, Color(0xFF34D399)],
+    colors: [forestEmerald, AppColors.forestGreenLight],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const Gradient orbGradient = RadialGradient(
-    colors: [Color(0xFF818CF8), Colors.transparent],
+    colors: [AppColors.samuraiIndigoLight, Colors.transparent],
     radius: 0.8,
   );
 
