@@ -43,6 +43,7 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
   // Action: Setup Admin Password
   void _setupPassword() async {
     if (_setupFormKey.currentState!.validate()) {
+      final messenger = ScaffoldMessenger.of(context);
       final service = ref.read(adminServiceProvider);
       await service.createPassword(_passwordController.text);
       ref.read(adminModeProvider.notifier).state = true;
@@ -50,7 +51,7 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
         _passwordController.clear();
         _confirmPasswordController.clear();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('Admin password created successfully! Admin session unlocked.'),
           behavior: SnackBarBehavior.floating,
@@ -98,6 +99,7 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
 
   // Action: Reset Database
   void _resetMasterDatabase() async {
+    final messenger = ScaffoldMessenger.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -125,7 +127,6 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
     );
 
     if (confirm == true) {
-      final scaffold = ScaffoldMessenger.of(context);
       try {
         await ref.read(repositoryProvider).resetMasterDatabase();
         // Reload providers
@@ -136,7 +137,7 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
         await ref.read(listeningListProvider.notifier).loadListenings();
 
         _logoutAdmin();
-        scaffold.showSnackBar(
+        messenger.showSnackBar(
           const SnackBar(
             content: Text('Database reset and re-seeded successfully! Admin session closed.'),
             behavior: SnackBarBehavior.floating,
@@ -144,13 +145,14 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
           ),
         );
       } catch (e) {
-        scaffold.showSnackBar(SnackBar(content: Text('Reset failed: $e')));
+        messenger.showSnackBar(SnackBar(content: Text('Reset failed: $e')));
       }
     }
   }
 
   // Action: Reset user collection progress only
   void _resetProgress() async {
+    final messenger = ScaffoldMessenger.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -172,14 +174,13 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
     );
 
     if (confirm == true) {
-      final scaffold = ScaffoldMessenger.of(context);
       try {
         await ref.read(repositoryProvider).resetAllProgress();
         // Reload all lists
         await ref.read(kanjiListProvider.notifier).loadKanjis();
-        scaffold.showSnackBar(const SnackBar(content: Text('User collection progress successfully reset!')));
+        messenger.showSnackBar(const SnackBar(content: Text('User collection progress successfully reset!')));
       } catch (e) {
-        scaffold.showSnackBar(SnackBar(content: Text('Reset failed: $e')));
+        messenger.showSnackBar(SnackBar(content: Text('Reset failed: $e')));
       }
     }
   }
@@ -541,7 +542,7 @@ class _DeveloperOptionsScreenState extends ConsumerState<DeveloperOptionsScreen>
             const SizedBox(height: 28),
 
             // Master Databases Section
-            _buildSectionHeader('Master Databases', Icons.database),
+            _buildSectionHeader('Master Databases', Icons.storage),
             const SizedBox(height: 12),
             _buildDatabaseOptionRow(
               title: 'Kanji Database',
