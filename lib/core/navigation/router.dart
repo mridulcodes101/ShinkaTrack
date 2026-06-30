@@ -10,8 +10,9 @@ import 'package:shinka_track_n3/features/settings/presentation/screens/settings_
 import 'package:shinka_track_n3/features/study/presentation/screens/planner_setup_screen.dart';
 
 import 'package:shinka_track_n3/features/study/presentation/screens/add_kanji_screen.dart';
-
-import 'package:shinka_track_n3/features/study/presentation/screens/kanji_details_screen.dart';
+import 'package:shinka_track_n3/features/kanji/presentation/screens/master_library_screen.dart';
+import 'package:shinka_track_n3/features/kanji/presentation/screens/user_collection_screen.dart';
+import 'package:shinka_track_n3/features/kanji/presentation/screens/kanji_details_screen.dart' as new_kanji;
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
 import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/review_screen.dart';
@@ -50,8 +51,18 @@ final goRouter = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final id = state.uri.queryParameters['id']!;
-        return KanjiDetailsScreen(kanjiId: id);
+        return new_kanji.KanjiDetailsScreen(kanjiId: id);
       },
+    ),
+    GoRoute(
+      path: '/kanji/library',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const MasterLibraryScreen(),
+    ),
+    GoRoute(
+      path: '/kanji/collection',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const UserCollectionScreen(),
     ),
     ShellRoute(
       builder: (context, state, child) {

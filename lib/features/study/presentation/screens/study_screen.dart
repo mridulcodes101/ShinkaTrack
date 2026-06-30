@@ -145,20 +145,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                 total: kanji.length,
                 due: kanji.where((k) => k.isAdded && !k.isLearned).length,
                 onContinue: () {
-                  setState(() {
-                    _filterCollectionOnly = true;
-                    _showHub = false;
-                    _tabController.index = 0;
-                    _updateFab();
-                  });
+                  context.push('/kanji/collection');
                 },
                 onBrowse: () {
-                  setState(() {
-                    _filterCollectionOnly = false;
-                    _showHub = false;
-                    _tabController.index = 0;
-                    _updateFab();
-                  });
+                  context.push('/kanji/library');
                 },
               ),
               const SizedBox(height: AppSpacing.lg),
