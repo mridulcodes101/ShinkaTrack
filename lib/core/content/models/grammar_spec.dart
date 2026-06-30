@@ -71,6 +71,7 @@ class GrammarSpec {
   final List<String> tags;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String status; // Published, Draft, Archived
 
   // Versioning standard fields
   final int schemaVersion;
@@ -103,6 +104,7 @@ class GrammarSpec {
     required this.tags,
     required this.createdAt,
     required this.updatedAt,
+    this.status = 'Published',
     required this.schemaVersion,
     required this.contentVersion,
     required this.lastUpdated,
@@ -131,6 +133,7 @@ class GrammarSpec {
       tags: _parseList(json['tags']),
       createdAt: _parseDate(json['createdAt'] ?? json['created_at'] ?? json['created']),
       updatedAt: _parseDate(json['updatedAt'] ?? json['updated_at'] ?? json['updated']),
+      status: json['status']?.toString() ?? 'Published',
       schemaVersion: _parseInt(json['schemaVersion'] ?? json['schema_version'] ?? 1),
       contentVersion: _parseInt(json['contentVersion'] ?? json['content_version'] ?? 1),
       lastUpdated: _parseDate(json['lastUpdated'] ?? json['last_updated'] ?? json['updated_at'] ?? json['updated']),
@@ -166,6 +169,7 @@ class GrammarSpec {
       tags: _parseList(getVal('tags')),
       createdAt: _parseDate(getVal('createdAt') ?? getVal('created')),
       updatedAt: _parseDate(getVal('updatedAt') ?? getVal('updated')),
+      status: getVal('status')?.toString() ?? 'Published',
       schemaVersion: _parseInt(getVal('schemaVersion')) == 0 ? 1 : _parseInt(getVal('schemaVersion')),
       contentVersion: _parseInt(getVal('contentVersion')) == 0 ? 1 : _parseInt(getVal('contentVersion')),
       lastUpdated: _parseDate(getVal('lastUpdated') ?? getVal('updated')),
@@ -195,6 +199,7 @@ class GrammarSpec {
       'tags': tags,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'status': status,
       'schemaVersion': schemaVersion,
       'contentVersion': contentVersion,
       'lastUpdated': lastUpdated.toIso8601String(),

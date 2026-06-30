@@ -79,6 +79,7 @@ class MasterVocabularies extends Table {
   TextColumn get notes => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn get status => text().withDefault(const Constant('Published'))(); // Published, Draft, Archived
 
   @override
   Set<Column> get primaryKey => {id};
@@ -116,6 +117,7 @@ class MasterGrammars extends Table {
   TextColumn get notes => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn get status => text().withDefault(const Constant('Published'))(); // Published, Draft, Archived
 
   @override
   Set<Column> get primaryKey => {id};
@@ -183,6 +185,7 @@ class MasterReadings extends Table {
   TextColumn get explanation => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn get status => text().withDefault(const Constant('Published'))(); // Published, Draft, Archived
 
   @override
   Set<Column> get primaryKey => {id};
@@ -217,6 +220,7 @@ class MasterListenings extends Table {
   TextColumn get explanation => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn get status => text().withDefault(const Constant('Published'))(); // Published, Draft, Archived
 
   @override
   Set<Column> get primaryKey => {id};
@@ -386,9 +390,10 @@ class WeeklyGoals extends Table {
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
+  AppDatabase.forTesting(QueryExecutor executor) : super(executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   Future<void> resetMasterDatabase() async {
     await transaction(() async {
@@ -736,6 +741,13 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('DROP TABLE IF EXISTS grammars;');
         await customStatement('DROP TABLE IF EXISTS readings;');
         await customStatement('DROP TABLE IF EXISTS listenings;');
+      }
+
+      if (from < 6) {
+        await m.addColumn(masterVocabularies, masterVocabularies.status);
+        await m.addColumn(masterGrammars, masterGrammars.status);
+        await m.addColumn(masterReadings, masterReadings.status);
+        await m.addColumn(masterListenings, masterListenings.status);
       }
     },
   );

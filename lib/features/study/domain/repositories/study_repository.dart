@@ -2,6 +2,11 @@ import 'package:shinka_track_n3/features/study/domain/entities/study_entities.da
 import 'package:shinka_track_n3/features/study/domain/entities/study_planner_entities.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/review_entities.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/gamification_entities.dart';
+import 'package:shinka_track_n3/core/content/models/kanji_spec.dart';
+import 'package:shinka_track_n3/core/content/models/vocabulary_spec.dart';
+import 'package:shinka_track_n3/core/content/models/grammar_spec.dart';
+import 'package:shinka_track_n3/core/content/models/reading_spec.dart';
+import 'package:shinka_track_n3/core/content/models/listening_spec.dart';
 
 abstract class StudyRepository {
   // Kanji catalog
@@ -78,4 +83,35 @@ abstract class StudyRepository {
   Future<void> importBackupJson(String jsonStr);
   Future<void> resetMasterDatabase();
   Future<List<dynamic>> globalSearch(String query);
+
+  // CMS and Master Database Management
+  Future<List<KanjiSpec>> getMasterKanjisSpec();
+  Future<void> saveMasterKanjiSpec(KanjiSpec spec);
+  Future<void> deleteMasterKanjiSpec(String id, {bool permanent = false});
+
+  Future<List<VocabularySpec>> getMasterVocabulariesSpec();
+  Future<void> saveMasterVocabularySpec(VocabularySpec spec);
+  Future<void> deleteMasterVocabularySpec(String id, {bool permanent = false});
+
+  Future<List<GrammarSpec>> getMasterGrammarsSpec();
+  Future<void> saveMasterGrammarSpec(GrammarSpec spec);
+  Future<void> deleteMasterGrammarSpec(String id, {bool permanent = false});
+
+  Future<List<ReadingSpec>> getMasterReadingsSpec();
+  Future<void> saveMasterReadingSpec(ReadingSpec spec);
+  Future<void> deleteMasterReadingSpec(String id, {bool permanent = false});
+
+  Future<List<ListeningSpec>> getMasterListeningsSpec();
+  Future<void> saveMasterListeningSpec(ListeningSpec spec);
+  Future<void> deleteMasterListeningSpec(String id, {bool permanent = false});
+
+  Future<Map<String, dynamic>> getDatabaseStatistics();
+  Future<void> bulkImportMaster({
+    required List<KanjiSpec> kanjis,
+    required List<VocabularySpec> vocabularies,
+    required List<GrammarSpec> grammars,
+    required List<ReadingSpec> readings,
+    required List<ListeningSpec> listenings,
+    required String conflictStrategy,
+  });
 }

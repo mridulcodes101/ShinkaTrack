@@ -9,6 +9,12 @@ import 'package:shinka_track_n3/features/study/domain/entities/gamification_enti
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shinka_track_n3/features/study/domain/repositories/study_repository.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shinka_track_n3/core/content/models/kanji_spec.dart';
+import 'package:shinka_track_n3/core/content/models/vocabulary_spec.dart';
+import 'package:shinka_track_n3/core/content/models/grammar_spec.dart';
+import 'package:shinka_track_n3/core/content/models/reading_spec.dart';
+import 'package:shinka_track_n3/core/content/models/listening_spec.dart';
+import 'package:shinka_track_n3/core/content/validation/content_validator.dart';
 
 class StudyRepositoryImpl implements StudyRepository {
   final AppDatabase db;
@@ -1650,5 +1656,514 @@ class StudyRepositoryImpl implements StudyRepository {
     }).toList();
 
     return [...kanjisList, ...vocabsList, ...grammarsList];
+  }
+
+  List<String> _parseJsonList(String? jsonStr) {
+    if (jsonStr == null || jsonStr.trim().isEmpty) return [];
+    try {
+      final decoded = jsonDecode(jsonStr);
+      if (decoded is List) {
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  List<GrammarExampleSpec> _parseGrammarExamples(String? jsonStr) {
+    if (jsonStr == null || jsonStr.trim().isEmpty) return [];
+    try {
+      final decoded = jsonDecode(jsonStr);
+      if (decoded is List) {
+        return decoded.map((e) => GrammarExampleSpec.fromJson(Map<String, dynamic>.from(e))).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  List<GrammarMistakeSpec> _parseGrammarMistakes(String? jsonStr) {
+    if (jsonStr == null || jsonStr.trim().isEmpty) return [];
+    try {
+      final decoded = jsonDecode(jsonStr);
+      if (decoded is List) {
+        return decoded.map((e) => GrammarMistakeSpec.fromJson(Map<String, dynamic>.from(e))).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  // --- CMS CRUD IMPLEMENTATIONS ---
+
+  @override
+  Future<List<KanjiSpec>> getMasterKanjisSpec() async {
+    final rows = await db.select(db.masterKanjis).get();
+    return rows.map((m) {
+      return KanjiSpec(
+        id: m.id,
+        character: m.kanji,
+        unicode: m.unicode,
+        meaning: m.meaning,
+        onyomi: _parseJsonList(m.onYomi),
+        kunyomi: _parseJsonList(m.kunYomi),
+        jlptLevel: m.jlptLevel,
+        gradeLevel: m.gradeLevel ?? 0,
+        strokeCount: m.strokeCount,
+        radicals: m.radicals,
+        primaryRadical: m.radicals.isNotEmpty ? m.radicals[0] : '',
+        frequencyRank: m.frequencyRank ?? 0,
+        joyoStatus: m.status ?? 'Published',
+        exampleWords: _parseJsonList(m.exampleWords),
+        exampleSentences: _parseJsonList(m.exampleSentences),
+        relatedKanji: [],
+        tags: _parseJsonList(m.tags),
+        difficulty: 1.0,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        status: m.status ?? 'Published',
+        schemaVersion: 1,
+        contentVersion: 1,
+        lastUpdated: m.updatedAt,
+        mnemonic: m.notes,
+        personalNotes: m.notes,
+        svgStrokeOrder: m.strokeOrderDiagram,
+        audio: m.audioPath,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> saveMasterKanjiSpec(KanjiSpec spec) async {
+    final companion = MasterKanjisCompanion(
+      id: Value(spec.id),
+      kanji: Value(spec.character),
+      unicode: Value(spec.unicode),
+      jlptLevel: Value(spec.jlptLevel),
+      gradeLevel: Value(spec.gradeLevel),
+      meaning: Value(spec.meaning),
+      kunYomi: Value(jsonEncode(spec.kunyomi)),
+      onYomi: Value(jsonEncode(spec.onyomi)),
+      strokeCount: Value(spec.strokeCount),
+      radicals: Value(spec.radicals),
+      exampleWords: Value(jsonEncode(spec.exampleWords)),
+      exampleSentences: Value(jsonEncode(spec.exampleSentences)),
+      tags: Value(jsonEncode(spec.tags)),
+      notes: Value(spec.personalNotes ?? ''),
+      createdAt: Value(spec.createdAt),
+      updatedAt: Value(DateTime.now()),
+      status: Value(spec.status),
+      frequencyRank: Value(spec.frequencyRank),
+      audioPath: Value(spec.audio),
+      strokeOrderDiagram: Value(spec.svgStrokeOrder),
+    );
+    await db.into(db.masterKanjis).insert(companion, mode: InsertMode.insertOrReplace);
+  }
+
+  @override
+  Future<void> deleteMasterKanjiSpec(String id, {bool permanent = false}) async {
+    if (permanent) {
+      await (db.delete(db.masterKanjis)..where((t) => t.id.equals(id))).go();
+    } else {
+      await (db.update(db.masterKanjis)..where((t) => t.id.equals(id))).write(
+        const MasterKanjisCompanion(status: Value('Archived')),
+      );
+    }
+  }
+
+  @override
+  Future<List<VocabularySpec>> getMasterVocabulariesSpec() async {
+    final rows = await db.select(db.masterVocabularies).get();
+    return rows.map((m) {
+      return VocabularySpec(
+        id: m.id,
+        word: m.word,
+        kana: m.kana,
+        meaning: m.meaning,
+        jlpt: m.jlptLevel ?? 3,
+        partOfSpeech: m.partOfSpeech ?? '',
+        frequency: m.frequency ?? 0,
+        kanjiUsed: _parseJsonList(m.relatedKanji),
+        relatedGrammar: [],
+        synonyms: _parseJsonList(m.synonyms),
+        antonyms: _parseJsonList(m.antonyms),
+        exampleSentences: _parseJsonList(m.exampleSentences),
+        tags: _parseJsonList(m.tags),
+        difficulty: 1.0,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        status: m.status ?? 'Published',
+        schemaVersion: 1,
+        contentVersion: 1,
+        lastUpdated: m.updatedAt,
+        personalNotes: m.notes,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> saveMasterVocabularySpec(VocabularySpec spec) async {
+    final companion = MasterVocabulariesCompanion(
+      id: Value(spec.id),
+      word: Value(spec.word),
+      kana: Value(spec.kana),
+      meaning: Value(spec.meaning),
+      jlptLevel: Value(spec.jlpt),
+      partOfSpeech: Value(spec.partOfSpeech),
+      frequency: Value(spec.frequency),
+      relatedKanji: Value(jsonEncode(spec.kanjiUsed)),
+      exampleSentences: Value(jsonEncode(spec.exampleSentences)),
+      synonyms: Value(jsonEncode(spec.synonyms)),
+      antonyms: Value(jsonEncode(spec.antonyms)),
+      tags: Value(jsonEncode(spec.tags)),
+      notes: Value(spec.personalNotes ?? ''),
+      createdAt: Value(spec.createdAt),
+      updatedAt: Value(DateTime.now()),
+      status: Value(spec.status),
+    );
+    await db.into(db.masterVocabularies).insert(companion, mode: InsertMode.insertOrReplace);
+  }
+
+  @override
+  Future<void> deleteMasterVocabularySpec(String id, {bool permanent = false}) async {
+    if (permanent) {
+      await (db.delete(db.masterVocabularies)..where((t) => t.id.equals(id))).go();
+    } else {
+      await (db.update(db.masterVocabularies)..where((t) => t.id.equals(id))).write(
+        const MasterVocabulariesCompanion(status: Value('Archived')),
+      );
+    }
+  }
+
+  @override
+  Future<List<GrammarSpec>> getMasterGrammarsSpec() async {
+    final rows = await db.select(db.masterGrammars).get();
+    return rows.map((m) {
+      return GrammarSpec(
+        id: m.id,
+        grammarPattern: m.pattern,
+        meaning: m.meaning,
+        formation: m.formation ?? '',
+        usage: m.usage ?? '',
+        nuance: m.notes ?? '',
+        formalLevel: '',
+        jlpt: m.jlptLevel ?? 3,
+        examples: _parseGrammarExamples(m.examples),
+        commonMistakes: _parseGrammarMistakes(m.commonMistakes),
+        relatedGrammar: _parseJsonList(m.relatedGrammar),
+        relatedVocabulary: [],
+        relatedKanji: [],
+        difficulty: 1.0,
+        tags: _parseJsonList(m.tags),
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        status: m.status ?? 'Published',
+        schemaVersion: 1,
+        contentVersion: 1,
+        lastUpdated: m.updatedAt,
+        memoryTips: m.notes,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> saveMasterGrammarSpec(GrammarSpec spec) async {
+    final companion = MasterGrammarsCompanion(
+      id: Value(spec.id),
+      pattern: Value(spec.grammarPattern),
+      meaning: Value(spec.meaning),
+      formation: Value(spec.formation),
+      usage: Value(spec.usage),
+      examples: Value(jsonEncode(spec.examples.map((e) => e.toJson()).toList())),
+      commonMistakes: Value(jsonEncode(spec.commonMistakes.map((e) => e.toJson()).toList())),
+      relatedGrammar: Value(jsonEncode(spec.relatedGrammar)),
+      jlptLevel: Value(spec.jlpt),
+      tags: Value(jsonEncode(spec.tags)),
+      notes: Value(spec.memoryTips ?? ''),
+      createdAt: Value(spec.createdAt),
+      updatedAt: Value(DateTime.now()),
+      status: Value(spec.status),
+    );
+    await db.into(db.masterGrammars).insert(companion, mode: InsertMode.insertOrReplace);
+  }
+
+  @override
+  Future<void> deleteMasterGrammarSpec(String id, {bool permanent = false}) async {
+    if (permanent) {
+      await (db.delete(db.masterGrammars)..where((t) => t.id.equals(id))).go();
+    } else {
+      await (db.update(db.masterGrammars)..where((t) => t.id.equals(id))).write(
+        const MasterGrammarsCompanion(status: Value('Archived')),
+      );
+    }
+  }
+
+  @override
+  Future<List<ReadingSpec>> getMasterReadingsSpec() async {
+    final rows = await db.select(db.masterReadings).get();
+    return rows.map((m) {
+      List<ReadingQuestionSpec> questionsList = [];
+      if (m.question != null && m.question!.trim().isNotEmpty) {
+        final qStr = m.question!.trim();
+        if (qStr.startsWith('[') || qStr.startsWith('{')) {
+          try {
+            final decoded = jsonDecode(qStr);
+            if (decoded is List) {
+              questionsList = decoded.map((q) => ReadingQuestionSpec.fromJson(Map<String, dynamic>.from(q))).toList();
+            } else if (decoded is Map) {
+              questionsList = [ReadingQuestionSpec.fromJson(Map<String, dynamic>.from(decoded))];
+            }
+          } catch (_) {}
+        }
+        if (questionsList.isEmpty) {
+          questionsList = [
+            ReadingQuestionSpec(
+              id: 'q1',
+              questionText: m.question!,
+              options: const [],
+              correctOptionIndex: int.tryParse(m.answer ?? '0') ?? 0,
+              explanation: m.explanation ?? '',
+            )
+          ];
+        }
+      }
+
+      return ReadingSpec(
+        id: m.id,
+        title: m.title,
+        jlpt: m.level ?? 3,
+        difficulty: double.tryParse(m.difficulty ?? '1.0') ?? 1.0,
+        estimatedReadingTime: m.estimatedReadingTime ?? 5,
+        passage: m.passage,
+        translation: m.translation ?? '',
+        vocabularyReferences: _parseJsonList(m.vocabularyIds),
+        grammarReferences: _parseJsonList(m.grammarIds),
+        kanjiReferences: _parseJsonList(m.kanjiIds),
+        questions: questionsList,
+        answers: (m.answer ?? '0').split(';'),
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        status: m.status ?? 'Published',
+        schemaVersion: 1,
+        contentVersion: 1,
+        lastUpdated: m.updatedAt,
+        notes: m.explanation,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> saveMasterReadingSpec(ReadingSpec spec) async {
+    final companion = MasterReadingsCompanion(
+      id: Value(spec.id),
+      title: Value(spec.title),
+      level: Value(spec.jlpt),
+      passage: Value(spec.passage),
+      translation: Value(spec.translation),
+      kanjiIds: Value(jsonEncode(spec.kanjiReferences)),
+      vocabularyIds: Value(jsonEncode(spec.vocabularyReferences)),
+      grammarIds: Value(jsonEncode(spec.grammarReferences)),
+      estimatedReadingTime: Value(spec.estimatedReadingTime),
+      difficulty: Value(spec.difficulty.toString()),
+      question: Value(jsonEncode(spec.questions.map((q) => q.toJson()).toList())),
+      answer: Value(spec.answers.join(';')),
+      explanation: Value(spec.notes),
+      createdAt: Value(spec.createdAt),
+      updatedAt: Value(DateTime.now()),
+      status: Value(spec.status),
+    );
+    await db.into(db.masterReadings).insert(companion, mode: InsertMode.insertOrReplace);
+  }
+
+  @override
+  Future<void> deleteMasterReadingSpec(String id, {bool permanent = false}) async {
+    if (permanent) {
+      await (db.delete(db.masterReadings)..where((t) => t.id.equals(id))).go();
+    } else {
+      await (db.update(db.masterReadings)..where((t) => t.id.equals(id))).write(
+        const MasterReadingsCompanion(status: Value('Archived')),
+      );
+    }
+  }
+
+  @override
+  Future<List<ListeningSpec>> getMasterListeningsSpec() async {
+    final rows = await db.select(db.masterListenings).get();
+    return rows.map((m) {
+      return ListeningSpec(
+        id: m.id,
+        title: m.title,
+        jlpt: 3,
+        difficulty: double.tryParse(m.difficulty ?? '1.0') ?? 1.0,
+        transcript: m.transcript,
+        translation: '',
+        vocabularyReferences: _parseJsonList(m.vocabularyIds),
+        grammarReferences: _parseJsonList(m.grammarIds),
+        kanjiReferences: _parseJsonList(m.kanjiIds),
+        duration: (m.length ?? 0).toDouble(),
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        status: m.status ?? 'Published',
+        schemaVersion: 1,
+        contentVersion: 1,
+        lastUpdated: m.updatedAt,
+        audio: m.audioPath,
+      );
+    }).toList();
+  }
+
+  @override
+  Future<void> saveMasterListeningSpec(ListeningSpec spec) async {
+    final companion = MasterListeningsCompanion(
+      id: Value(spec.id),
+      title: Value(spec.title),
+      transcript: Value(spec.transcript),
+      audioPath: Value(spec.audio),
+      length: Value(spec.duration.toInt()),
+      difficulty: Value(spec.difficulty.toString()),
+      kanjiIds: Value(jsonEncode(spec.kanjiReferences)),
+      vocabularyIds: Value(jsonEncode(spec.vocabularyReferences)),
+      grammarIds: Value(jsonEncode(spec.grammarReferences)),
+      createdAt: Value(spec.createdAt),
+      updatedAt: Value(DateTime.now()),
+      status: Value(spec.status),
+    );
+    await db.into(db.masterListenings).insert(companion, mode: InsertMode.insertOrReplace);
+  }
+
+  @override
+  Future<void> deleteMasterListeningSpec(String id, {bool permanent = false}) async {
+    if (permanent) {
+      await (db.delete(db.masterListenings)..where((t) => t.id.equals(id))).go();
+    } else {
+      await (db.update(db.masterListenings)..where((t) => t.id.equals(id))).write(
+        const MasterListeningsCompanion(status: Value('Archived')),
+      );
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> getDatabaseStatistics() async {
+    final kanjis = await getMasterKanjisSpec();
+    final vocabs = await getMasterVocabulariesSpec();
+    final grammars = await getMasterGrammarsSpec();
+    final readings = await getMasterReadingsSpec();
+    final listenings = await getMasterListeningsSpec();
+
+    Map<String, int> getCounts(List<dynamic> list) {
+      int pub = 0;
+      int drf = 0;
+      int arc = 0;
+      for (var item in list) {
+        final status = (item as dynamic).status;
+        if (status == 'Published') pub++;
+        else if (status == 'Draft') drf++;
+        else if (status == 'Archived') arc++;
+      }
+      return {'Published': pub, 'Draft': drf, 'Archived': arc};
+    }
+
+    final kanjiCounts = getCounts(kanjis);
+    final vocabCounts = getCounts(vocabs);
+    final grammarCounts = getCounts(grammars);
+    final readingCounts = getCounts(readings);
+    final listeningCounts = getCounts(listenings);
+
+    final validation = ContentValidator.validate(
+      kanjis: kanjis,
+      vocabularies: vocabs,
+      grammars: grammars,
+      readings: readings,
+      listenings: listenings,
+    );
+
+    int brokenCount = 0;
+    int duplicateCount = 0;
+    int missingFieldsCount = 0;
+
+    for (var err in validation.errors) {
+      if (err.message.contains('Broken reference')) {
+        brokenCount++;
+      } else if (err.message.contains('Duplicate')) {
+        duplicateCount++;
+      } else {
+        missingFieldsCount++;
+      }
+    }
+
+    double calculateCompleteness(List<dynamic> list, int totalFields) {
+      if (list.isEmpty) return 100.0;
+      double sum = 0.0;
+      for (var item in list) {
+        int populated = 0;
+        final json = item.toJson();
+        json.forEach((k, v) {
+          if (v != null) {
+            if (v is String && v.trim().isNotEmpty) populated++;
+            else if (v is List && v.isNotEmpty) populated++;
+            else if (v is Map && v.isNotEmpty) populated++;
+            else if (v is num) populated++;
+            else if (v is bool) populated++;
+          }
+        });
+        sum += (populated / totalFields) * 100.0;
+      }
+      return sum / list.length;
+    }
+
+    final kanjiComp = calculateCompleteness(kanjis, 25);
+    final vocabComp = calculateCompleteness(vocabs, 20);
+    final grammarComp = calculateCompleteness(grammars, 18);
+    final readingComp = calculateCompleteness(readings, 18);
+    final listeningComp = calculateCompleteness(listenings, 15);
+
+    final avgComp = (kanjiComp + vocabComp + grammarComp + readingComp + listeningComp) / 5.0;
+
+    return {
+      'kanji': {'total': kanjis.length, ...kanjiCounts},
+      'vocabulary': {'total': vocabs.length, ...vocabCounts},
+      'grammar': {'total': grammars.length, ...grammarCounts},
+      'reading': {'total': readings.length, ...readingCounts},
+      'listening': {'total': listenings.length, ...listeningCounts},
+      'brokenReferences': brokenCount,
+      'duplicateRecords': duplicateCount,
+      'missingFields': missingFieldsCount,
+      'averageCompleteness': avgComp,
+    };
+  }
+
+  @override
+  Future<void> bulkImportMaster({
+    required List<KanjiSpec> kanjis,
+    required List<VocabularySpec> vocabularies,
+    required List<GrammarSpec> grammars,
+    required List<ReadingSpec> readings,
+    required List<ListeningSpec> listenings,
+    required String conflictStrategy,
+  }) async {
+    await db.transaction(() async {
+      for (var k in kanjis) {
+        final existing = await (db.select(db.masterKanjis)..where((t) => t.id.equals(k.id))).getSingleOrNull();
+        if (existing != null && conflictStrategy == 'skip') continue;
+        await saveMasterKanjiSpec(k);
+      }
+      for (var v in vocabularies) {
+        final existing = await (db.select(db.masterVocabularies)..where((t) => t.id.equals(v.id))).getSingleOrNull();
+        if (existing != null && conflictStrategy == 'skip') continue;
+        await saveMasterVocabularySpec(v);
+      }
+      for (var g in grammars) {
+        final existing = await (db.select(db.masterGrammars)..where((t) => t.id.equals(g.id))).getSingleOrNull();
+        if (existing != null && conflictStrategy == 'skip') continue;
+        await saveMasterGrammarSpec(g);
+      }
+      for (var r in readings) {
+        final existing = await (db.select(db.masterReadings)..where((t) => t.id.equals(r.id))).getSingleOrNull();
+        if (existing != null && conflictStrategy == 'skip') continue;
+        await saveMasterReadingSpec(r);
+      }
+      for (var l in listenings) {
+        final existing = await (db.select(db.masterListenings)..where((t) => t.id.equals(l.id))).getSingleOrNull();
+        if (existing != null && conflictStrategy == 'skip') continue;
+        await saveMasterListeningSpec(l);
+      }
+    });
   }
 }

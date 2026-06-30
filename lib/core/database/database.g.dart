@@ -2275,6 +2275,16 @@ class $MasterVocabulariesTable extends MasterVocabularies
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Published'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2292,6 +2302,7 @@ class $MasterVocabulariesTable extends MasterVocabularies
     notes,
     createdAt,
     updatedAt,
+    status,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2413,6 +2424,12 @@ class $MasterVocabulariesTable extends MasterVocabularies
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     return context;
   }
 
@@ -2482,6 +2499,10 @@ class $MasterVocabulariesTable extends MasterVocabularies
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
     );
   }
 
@@ -2508,6 +2529,7 @@ class MasterVocabulary extends DataClass
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String status;
   const MasterVocabulary({
     required this.id,
     required this.word,
@@ -2524,6 +2546,7 @@ class MasterVocabulary extends DataClass
     this.notes,
     required this.createdAt,
     required this.updatedAt,
+    required this.status,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2561,6 +2584,7 @@ class MasterVocabulary extends DataClass
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -2597,6 +2621,7 @@ class MasterVocabulary extends DataClass
           : Value(notes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      status: Value(status),
     );
   }
 
@@ -2621,6 +2646,7 @@ class MasterVocabulary extends DataClass
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -2642,6 +2668,7 @@ class MasterVocabulary extends DataClass
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -2661,6 +2688,7 @@ class MasterVocabulary extends DataClass
     Value<String?> notes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? status,
   }) => MasterVocabulary(
     id: id ?? this.id,
     word: word ?? this.word,
@@ -2679,6 +2707,7 @@ class MasterVocabulary extends DataClass
     notes: notes.present ? notes.value : this.notes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    status: status ?? this.status,
   );
   MasterVocabulary copyWithCompanion(MasterVocabulariesCompanion data) {
     return MasterVocabulary(
@@ -2703,6 +2732,7 @@ class MasterVocabulary extends DataClass
       notes: data.notes.present ? data.notes.value : this.notes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -2723,7 +2753,8 @@ class MasterVocabulary extends DataClass
           ..write('tags: $tags, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -2745,6 +2776,7 @@ class MasterVocabulary extends DataClass
     notes,
     createdAt,
     updatedAt,
+    status,
   );
   @override
   bool operator ==(Object other) =>
@@ -2764,7 +2796,8 @@ class MasterVocabulary extends DataClass
           other.tags == this.tags &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.status == this.status);
 }
 
 class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
@@ -2783,6 +2816,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String> status;
   final Value<int> rowid;
   const MasterVocabulariesCompanion({
     this.id = const Value.absent(),
@@ -2800,6 +2834,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MasterVocabulariesCompanion.insert({
@@ -2818,6 +2853,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
     this.notes = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        word = Value(word),
@@ -2841,6 +2877,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? status,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2859,6 +2896,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (status != null) 'status': status,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2879,6 +2917,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
     Value<String?>? notes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String>? status,
     Value<int>? rowid,
   }) {
     return MasterVocabulariesCompanion(
@@ -2897,6 +2936,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      status: status ?? this.status,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2949,6 +2989,9 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2973,6 +3016,7 @@ class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3846,6 +3890,16 @@ class $MasterGrammarsTable extends MasterGrammars
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Published'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -3861,6 +3915,7 @@ class $MasterGrammarsTable extends MasterGrammars
     notes,
     createdAt,
     updatedAt,
+    status,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3965,6 +4020,12 @@ class $MasterGrammarsTable extends MasterGrammars
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     return context;
   }
 
@@ -4026,6 +4087,10 @@ class $MasterGrammarsTable extends MasterGrammars
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
     );
   }
 
@@ -4049,6 +4114,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String status;
   const MasterGrammar({
     required this.id,
     required this.pattern,
@@ -4063,6 +4129,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
     this.notes,
     required this.createdAt,
     required this.updatedAt,
+    required this.status,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4096,6 +4163,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -4128,6 +4196,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
           : Value(notes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      status: Value(status),
     );
   }
 
@@ -4150,6 +4219,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
       notes: serializer.fromJson<String?>(json['notes']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -4169,6 +4239,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
       'notes': serializer.toJson<String?>(notes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -4186,6 +4257,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
     Value<String?> notes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? status,
   }) => MasterGrammar(
     id: id ?? this.id,
     pattern: pattern ?? this.pattern,
@@ -4204,6 +4276,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
     notes: notes.present ? notes.value : this.notes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    status: status ?? this.status,
   );
   MasterGrammar copyWithCompanion(MasterGrammarsCompanion data) {
     return MasterGrammar(
@@ -4224,6 +4297,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
       notes: data.notes.present ? data.notes.value : this.notes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -4242,7 +4316,8 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
           ..write('tags: $tags, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -4262,6 +4337,7 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
     notes,
     createdAt,
     updatedAt,
+    status,
   );
   @override
   bool operator ==(Object other) =>
@@ -4279,7 +4355,8 @@ class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
           other.tags == this.tags &&
           other.notes == this.notes &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.status == this.status);
 }
 
 class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
@@ -4296,6 +4373,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String> status;
   final Value<int> rowid;
   const MasterGrammarsCompanion({
     this.id = const Value.absent(),
@@ -4311,6 +4389,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MasterGrammarsCompanion.insert({
@@ -4327,6 +4406,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
     this.notes = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        pattern = Value(pattern),
@@ -4347,6 +4427,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? status,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4363,6 +4444,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (status != null) 'status': status,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4381,6 +4463,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
     Value<String?>? notes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String>? status,
     Value<int>? rowid,
   }) {
     return MasterGrammarsCompanion(
@@ -4397,6 +4480,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      status: status ?? this.status,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -4443,6 +4527,9 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -4465,6 +4552,7 @@ class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5155,6 +5243,16 @@ class $MasterReadingsTable extends MasterReadings
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Published'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -5172,6 +5270,7 @@ class $MasterReadingsTable extends MasterReadings
     explanation,
     createdAt,
     updatedAt,
+    status,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5294,6 +5393,12 @@ class $MasterReadingsTable extends MasterReadings
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     return context;
   }
 
@@ -5363,6 +5468,10 @@ class $MasterReadingsTable extends MasterReadings
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
     );
   }
 
@@ -5388,6 +5497,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
   final String? explanation;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String status;
   const MasterReading({
     required this.id,
     required this.title,
@@ -5404,6 +5514,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
     this.explanation,
     required this.createdAt,
     required this.updatedAt,
+    required this.status,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5443,6 +5554,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -5483,6 +5595,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
           : Value(explanation),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      status: Value(status),
     );
   }
 
@@ -5509,6 +5622,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
       explanation: serializer.fromJson<String?>(json['explanation']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -5530,6 +5644,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
       'explanation': serializer.toJson<String?>(explanation),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -5549,6 +5664,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
     Value<String?> explanation = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? status,
   }) => MasterReading(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -5569,6 +5685,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
     explanation: explanation.present ? explanation.value : this.explanation,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    status: status ?? this.status,
   );
   MasterReading copyWithCompanion(MasterReadingsCompanion data) {
     return MasterReading(
@@ -5599,6 +5716,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
           : this.explanation,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -5619,7 +5737,8 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
           ..write('answer: $answer, ')
           ..write('explanation: $explanation, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -5641,6 +5760,7 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
     explanation,
     createdAt,
     updatedAt,
+    status,
   );
   @override
   bool operator ==(Object other) =>
@@ -5660,7 +5780,8 @@ class MasterReading extends DataClass implements Insertable<MasterReading> {
           other.answer == this.answer &&
           other.explanation == this.explanation &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.status == this.status);
 }
 
 class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
@@ -5679,6 +5800,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
   final Value<String?> explanation;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String> status;
   final Value<int> rowid;
   const MasterReadingsCompanion({
     this.id = const Value.absent(),
@@ -5696,6 +5818,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
     this.explanation = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MasterReadingsCompanion.insert({
@@ -5714,6 +5837,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
     this.explanation = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -5736,6 +5860,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
     Expression<String>? explanation,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? status,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5755,6 +5880,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
       if (explanation != null) 'explanation': explanation,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (status != null) 'status': status,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5775,6 +5901,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
     Value<String?>? explanation,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String>? status,
     Value<int>? rowid,
   }) {
     return MasterReadingsCompanion(
@@ -5793,6 +5920,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
       explanation: explanation ?? this.explanation,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      status: status ?? this.status,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5845,6 +5973,9 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5869,6 +6000,7 @@ class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
           ..write('explanation: $explanation, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6549,6 +6681,16 @@ class $MasterListeningsTable extends MasterListenings
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Published'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -6565,6 +6707,7 @@ class $MasterListeningsTable extends MasterListenings
     explanation,
     createdAt,
     updatedAt,
+    status,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6675,6 +6818,12 @@ class $MasterListeningsTable extends MasterListenings
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     return context;
   }
 
@@ -6740,6 +6889,10 @@ class $MasterListeningsTable extends MasterListenings
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
     );
   }
 
@@ -6764,6 +6917,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
   final String? explanation;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String status;
   const MasterListening({
     required this.id,
     required this.title,
@@ -6779,6 +6933,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
     this.explanation,
     required this.createdAt,
     required this.updatedAt,
+    required this.status,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6815,6 +6970,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['status'] = Variable<String>(status);
     return map;
   }
 
@@ -6852,6 +7008,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
           : Value(explanation),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      status: Value(status),
     );
   }
 
@@ -6875,6 +7032,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
       explanation: serializer.fromJson<String?>(json['explanation']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      status: serializer.fromJson<String>(json['status']),
     );
   }
   @override
@@ -6895,6 +7053,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
       'explanation': serializer.toJson<String?>(explanation),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'status': serializer.toJson<String>(status),
     };
   }
 
@@ -6913,6 +7072,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
     Value<String?> explanation = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? status,
   }) => MasterListening(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -6930,6 +7090,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
     explanation: explanation.present ? explanation.value : this.explanation,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    status: status ?? this.status,
   );
   MasterListening copyWithCompanion(MasterListeningsCompanion data) {
     return MasterListening(
@@ -6957,6 +7118,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
           : this.explanation,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      status: data.status.present ? data.status.value : this.status,
     );
   }
 
@@ -6976,7 +7138,8 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
           ..write('answer: $answer, ')
           ..write('explanation: $explanation, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status')
           ..write(')'))
         .toString();
   }
@@ -6997,6 +7160,7 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
     explanation,
     createdAt,
     updatedAt,
+    status,
   );
   @override
   bool operator ==(Object other) =>
@@ -7015,7 +7179,8 @@ class MasterListening extends DataClass implements Insertable<MasterListening> {
           other.answer == this.answer &&
           other.explanation == this.explanation &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.status == this.status);
 }
 
 class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
@@ -7033,6 +7198,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
   final Value<String?> explanation;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String> status;
   final Value<int> rowid;
   const MasterListeningsCompanion({
     this.id = const Value.absent(),
@@ -7049,6 +7215,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
     this.explanation = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MasterListeningsCompanion.insert({
@@ -7066,6 +7233,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
     this.explanation = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.status = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -7087,6 +7255,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
     Expression<String>? explanation,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? status,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -7104,6 +7273,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
       if (explanation != null) 'explanation': explanation,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (status != null) 'status': status,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -7123,6 +7293,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
     Value<String?>? explanation,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String>? status,
     Value<int>? rowid,
   }) {
     return MasterListeningsCompanion(
@@ -7140,6 +7311,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
       explanation: explanation ?? this.explanation,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      status: status ?? this.status,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -7189,6 +7361,9 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -7212,6 +7387,7 @@ class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
           ..write('explanation: $explanation, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14097,6 +14273,7 @@ typedef $$MasterVocabulariesTableCreateCompanionBuilder =
       Value<String?> notes,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 typedef $$MasterVocabulariesTableUpdateCompanionBuilder =
@@ -14116,6 +14293,7 @@ typedef $$MasterVocabulariesTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 
@@ -14288,6 +14466,11 @@ class $$MasterVocabulariesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -14475,6 +14658,11 @@ class $$MasterVocabulariesTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MasterVocabulariesTableAnnotationComposer
@@ -14536,6 +14724,9 @@ class $$MasterVocabulariesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   Expression<T> userVocabulariesRefs<T extends Object>(
     Expression<T> Function($$UserVocabulariesTableAnnotationComposer a) f,
@@ -14691,6 +14882,7 @@ class $$MasterVocabulariesTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterVocabulariesCompanion(
                 id: id,
@@ -14708,6 +14900,7 @@ class $$MasterVocabulariesTableTableManager
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -14727,6 +14920,7 @@ class $$MasterVocabulariesTableTableManager
                 Value<String?> notes = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterVocabulariesCompanion.insert(
                 id: id,
@@ -14744,6 +14938,7 @@ class $$MasterVocabulariesTableTableManager
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -15372,6 +15567,7 @@ typedef $$MasterGrammarsTableCreateCompanionBuilder =
       Value<String?> notes,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 typedef $$MasterGrammarsTableUpdateCompanionBuilder =
@@ -15389,6 +15585,7 @@ typedef $$MasterGrammarsTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 
@@ -15528,6 +15725,11 @@ class $$MasterGrammarsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15680,6 +15882,11 @@ class $$MasterGrammarsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MasterGrammarsTableAnnotationComposer
@@ -15733,6 +15940,9 @@ class $$MasterGrammarsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   Expression<T> userGrammarsRefs<T extends Object>(
     Expression<T> Function($$UserGrammarsTableAnnotationComposer a) f,
@@ -15857,6 +16067,7 @@ class $$MasterGrammarsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterGrammarsCompanion(
                 id: id,
@@ -15872,6 +16083,7 @@ class $$MasterGrammarsTableTableManager
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -15889,6 +16101,7 @@ class $$MasterGrammarsTableTableManager
                 Value<String?> notes = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterGrammarsCompanion.insert(
                 id: id,
@@ -15904,6 +16117,7 @@ class $$MasterGrammarsTableTableManager
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -16415,6 +16629,7 @@ typedef $$MasterReadingsTableCreateCompanionBuilder =
       Value<String?> explanation,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 typedef $$MasterReadingsTableUpdateCompanionBuilder =
@@ -16434,6 +16649,7 @@ typedef $$MasterReadingsTableUpdateCompanionBuilder =
       Value<String?> explanation,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 
@@ -16622,6 +16838,11 @@ class $$MasterReadingsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -16834,6 +17055,11 @@ class $$MasterReadingsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MasterReadingsTableAnnotationComposer
@@ -16901,6 +17127,9 @@ class $$MasterReadingsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   Expression<T> userReadingsRefs<T extends Object>(
     Expression<T> Function($$UserReadingsTableAnnotationComposer a) f,
@@ -17080,6 +17309,7 @@ class $$MasterReadingsTableTableManager
                 Value<String?> explanation = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterReadingsCompanion(
                 id: id,
@@ -17097,6 +17327,7 @@ class $$MasterReadingsTableTableManager
                 explanation: explanation,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -17116,6 +17347,7 @@ class $$MasterReadingsTableTableManager
                 Value<String?> explanation = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterReadingsCompanion.insert(
                 id: id,
@@ -17133,6 +17365,7 @@ class $$MasterReadingsTableTableManager
                 explanation: explanation,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -17691,6 +17924,7 @@ typedef $$MasterListeningsTableCreateCompanionBuilder =
       Value<String?> explanation,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 typedef $$MasterListeningsTableUpdateCompanionBuilder =
@@ -17709,6 +17943,7 @@ typedef $$MasterListeningsTableUpdateCompanionBuilder =
       Value<String?> explanation,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String> status,
       Value<int> rowid,
     });
 
@@ -17837,6 +18072,11 @@ class $$MasterListeningsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17969,6 +18209,11 @@ class $$MasterListeningsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$MasterListeningsTableAnnotationComposer
@@ -18031,6 +18276,9 @@ class $$MasterListeningsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
 
   Expression<T> userListeningsRefs<T extends Object>(
     Expression<T> Function($$UserListeningsTableAnnotationComposer a) f,
@@ -18131,6 +18379,7 @@ class $$MasterListeningsTableTableManager
                 Value<String?> explanation = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterListeningsCompanion(
                 id: id,
@@ -18147,6 +18396,7 @@ class $$MasterListeningsTableTableManager
                 explanation: explanation,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -18165,6 +18415,7 @@ class $$MasterListeningsTableTableManager
                 Value<String?> explanation = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String> status = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MasterListeningsCompanion.insert(
                 id: id,
@@ -18181,6 +18432,7 @@ class $$MasterListeningsTableTableManager
                 explanation: explanation,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
