@@ -19,6 +19,6 @@ void main() {
     );
 
     // Verify that the dashboard header is present
-    expect(find.text('進化 SHINKA'), findsOneWidget);
+    expect(find.text('Good Morning, Mridul'), findsOneWidget);
   });
 }

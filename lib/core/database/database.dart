@@ -26,6 +26,7 @@ class MasterKanjis extends Table {
   TextColumn get tags => text().withDefault(const Constant('[]'))(); // JSON List<String>
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  TextColumn get status => text().withDefault(const Constant('Published'))(); // Published, Draft, Archived
 
   // Extensibility placeholders for future updates
   IntColumn get rtkNumber => integer().nullable()();
@@ -62,24 +63,73 @@ class UserKanjis extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class Vocabularies extends Table {
+class MasterVocabularies extends Table {
   TextColumn get id => text()();
   TextColumn get word => text()();
-  TextColumn get reading => text()();
+  TextColumn get kana => text()();
   TextColumn get meaning => text()();
-  TextColumn get status => text().withDefault(const Constant('unlearned'))(); // unlearned, learning, mastered
+  TextColumn get partOfSpeech => text().nullable()();
+  IntColumn get jlptLevel => integer().nullable()();
+  IntColumn get frequency => integer().nullable()();
+  TextColumn get relatedKanji => text().nullable()(); // JSON List<String>
+  TextColumn get exampleSentences => text().nullable()(); // JSON List<String>
+  TextColumn get synonyms => text().nullable()(); // JSON List<String>
+  TextColumn get antonyms => text().nullable()(); // JSON List<String>
+  TextColumn get tags => text().nullable()(); // JSON List<String>
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
-class Grammars extends Table {
+class UserVocabularies extends Table {
   TextColumn get id => text()();
-  TextColumn get title => text()();
-  TextColumn get explanation => text()();
-  TextColumn get structure => text()();
-  TextColumn get examplesJson => text()(); // JSON list of examples: [{"jp": "...", "en": "..."}]
+  TextColumn get masterVocabId => text().customConstraint('REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL')();
+  BoolColumn get isAdded => boolean().withDefault(const Constant(true))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
   TextColumn get status => text().withDefault(const Constant('unlearned'))(); // unlearned, learning, mastered
+  IntColumn get reviewCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get nextReview => dateTime().nullable()();
+  DateTimeColumn get lastReviewed => dateTime().nullable()();
+  RealColumn get easeFactor => real().withDefault(const Constant(2.5))();
+  TextColumn get customNotes => text().withDefault(const Constant(''))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class MasterGrammars extends Table {
+  TextColumn get id => text()();
+  TextColumn get pattern => text()();
+  TextColumn get meaning => text()();
+  TextColumn get formation => text().nullable()();
+  TextColumn get usage => text().nullable()();
+  TextColumn get examples => text().nullable()(); // JSON List of GrammarExample
+  TextColumn get commonMistakes => text().nullable()(); // JSON List<String>
+  TextColumn get relatedGrammar => text().nullable()(); // JSON List<String>
+  IntColumn get jlptLevel => integer().nullable()();
+  TextColumn get tags => text().nullable()(); // JSON List<String>
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class UserGrammars extends Table {
+  TextColumn get id => text()();
+  TextColumn get masterGrammarId => text().customConstraint('REFERENCES master_grammars(id) ON DELETE CASCADE NOT NULL')();
+  BoolColumn get isAdded => boolean().withDefault(const Constant(true))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  TextColumn get status => text().withDefault(const Constant('unlearned'))(); // unlearned, learning, mastered
+  TextColumn get customNotes => text().withDefault(const Constant(''))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -117,32 +167,121 @@ class QuizResults extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-class Readings extends Table {
+class MasterReadings extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
+  IntColumn get level => integer().nullable()(); // jlptLevel
   TextColumn get passage => text()();
-  TextColumn get question => text()();
-  TextColumn get answer => text()();
-  TextColumn get explanation => text()();
-  TextColumn get notes => text().withDefault(const Constant(''))();
-  TextColumn get status => text().withDefault(const Constant('unlearned'))();
+  TextColumn get translation => text().nullable()();
+  TextColumn get kanjiIds => text().nullable()(); // JSON List<String>
+  TextColumn get vocabularyIds => text().nullable()(); // JSON List<String>
+  TextColumn get grammarIds => text().nullable()(); // JSON List<String>
+  IntColumn get estimatedReadingTime => integer().nullable()();
+  TextColumn get difficulty => text().nullable()();
+  TextColumn get question => text().nullable()();
+  TextColumn get answer => text().nullable()();
+  TextColumn get explanation => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
 }
 
-class Listenings extends Table {
+class UserReadings extends Table {
   TextColumn get id => text()();
-  TextColumn get title => text()();
-  TextColumn get audioScript => text()();
-  TextColumn get question => text()();
-  TextColumn get answer => text()();
-  TextColumn get explanation => text()();
-  TextColumn get notes => text().withDefault(const Constant(''))();
+  TextColumn get masterReadingId => text().customConstraint('REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL')();
+  BoolColumn get isAdded => boolean().withDefault(const Constant(true))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
   TextColumn get status => text().withDefault(const Constant('unlearned'))();
+  TextColumn get customNotes => text().withDefault(const Constant(''))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+class MasterListenings extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get transcript => text()();
+  TextColumn get audioPath => text().nullable()();
+  IntColumn get length => integer().nullable()(); // durationSeconds
+  TextColumn get difficulty => text().nullable()();
+  TextColumn get kanjiIds => text().nullable()(); // JSON List<String>
+  TextColumn get vocabularyIds => text().nullable()(); // JSON List<String>
+  TextColumn get grammarIds => text().nullable()(); // JSON List<String>
+  TextColumn get question => text().nullable()();
+  TextColumn get answer => text().nullable()();
+  TextColumn get explanation => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class UserListenings extends Table {
+  TextColumn get id => text()();
+  TextColumn get masterListeningId => text().customConstraint('REFERENCES master_listenings(id) ON DELETE CASCADE NOT NULL')();
+  BoolColumn get isAdded => boolean().withDefault(const Constant(true))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  TextColumn get status => text().withDefault(const Constant('unlearned'))();
+  TextColumn get customNotes => text().withDefault(const Constant(''))();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class KanjiVocabs extends Table {
+  TextColumn get kanjiId => text().customConstraint('REFERENCES master_kanjis(id) ON DELETE CASCADE NOT NULL')();
+  TextColumn get vocabId => text().customConstraint('REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {kanjiId, vocabId};
+}
+
+class VocabGrammars extends Table {
+  TextColumn get vocabId => text().customConstraint('REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL')();
+  TextColumn get grammarId => text().customConstraint('REFERENCES master_grammars(id) ON DELETE CASCADE NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {vocabId, grammarId};
+}
+
+class GrammarReadings extends Table {
+  TextColumn get grammarId => text().customConstraint('REFERENCES master_grammars(id) ON DELETE CASCADE NOT NULL')();
+  TextColumn get readingId => text().customConstraint('REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {grammarId, readingId};
+}
+
+class ReadingListenings extends Table {
+  TextColumn get readingId => text().customConstraint('REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL')();
+  TextColumn get listeningId => text().customConstraint('REFERENCES master_listenings(id) ON DELETE CASCADE NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {readingId, listeningId};
+}
+
+class KanjiReadings extends Table {
+  TextColumn get kanjiId => text().customConstraint('REFERENCES master_kanjis(id) ON DELETE CASCADE NOT NULL')();
+  TextColumn get readingId => text().customConstraint('REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {kanjiId, readingId};
+}
+
+class VocabReadings extends Table {
+  TextColumn get vocabId => text().customConstraint('REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL')();
+  TextColumn get readingId => text().customConstraint('REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL')();
+
+  @override
+  Set<Column> get primaryKey => {vocabId, readingId};
 }
 
 class StudyPlans extends Table {
@@ -218,21 +357,57 @@ class WeeklyGoals extends Table {
 
 // --- DATABASE CLASS ---
 
-@DriftDatabase(tables: [MasterKanjis, UserKanjis, Vocabularies, Grammars, StudySessions, DailyGoals, QuizResults, Readings, Listenings, StudyPlans, PlannerTasks, ReviewItems, UserStats, Achievements, WeeklyGoals])
+@DriftDatabase(tables: [
+  MasterKanjis,
+  UserKanjis,
+  MasterVocabularies,
+  UserVocabularies,
+  MasterGrammars,
+  UserGrammars,
+  MasterReadings,
+  UserReadings,
+  MasterListenings,
+  UserListenings,
+  KanjiVocabs,
+  VocabGrammars,
+  GrammarReadings,
+  ReadingListenings,
+  KanjiReadings,
+  VocabReadings,
+  StudySessions,
+  DailyGoals,
+  QuizResults,
+  StudyPlans,
+  PlannerTasks,
+  ReviewItems,
+  UserStats,
+  Achievements,
+  WeeklyGoals
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   Future<void> resetMasterDatabase() async {
     await transaction(() async {
       await delete(masterKanjis).go();
       await delete(userKanjis).go();
-      await delete(vocabularies).go();
-      await delete(grammars).go();
-      await delete(readings).go();
-      await delete(listenings).go();
+      await delete(masterVocabularies).go();
+      await delete(userVocabularies).go();
+      await delete(masterGrammars).go();
+      await delete(userGrammars).go();
+      await delete(masterReadings).go();
+      await delete(userReadings).go();
+      await delete(masterListenings).go();
+      await delete(userListenings).go();
+      await delete(kanjiVocabs).go();
+      await delete(vocabGrammars).go();
+      await delete(grammarReadings).go();
+      await delete(readingListenings).go();
+      await delete(kanjiReadings).go();
+      await delete(vocabReadings).go();
       await delete(studySessions).go();
       await delete(dailyGoals).go();
       await delete(quizResults).go();
@@ -357,36 +532,242 @@ class AppDatabase extends _$AppDatabase {
 
         await customStatement('DROP TABLE IF EXISTS kanjis;');
       }
+
+      if (from < 5) {
+        await m.createTable(masterVocabularies);
+        await m.createTable(userVocabularies);
+        await m.createTable(masterGrammars);
+        await m.createTable(userGrammars);
+        await m.createTable(masterReadings);
+        await m.createTable(userReadings);
+        await m.createTable(masterListenings);
+        await m.createTable(userListenings);
+        await m.createTable(kanjiVocabs);
+        await m.createTable(vocabGrammars);
+        await m.createTable(grammarReadings);
+        await m.createTable(readingListenings);
+        await m.createTable(kanjiReadings);
+        await m.createTable(vocabReadings);
+
+        // Migrate Vocabularies
+        final List<Map<String, dynamic>> oldVocabs = [];
+        try {
+          final rows = await customSelect('SELECT * FROM vocabularies;').get();
+          for (var r in rows) {
+            oldVocabs.add(r.data);
+          }
+        } catch (e) {
+          // ignore
+        }
+        for (var old in oldVocabs) {
+          final id = old['id'] as String;
+          final word = old['word'] as String? ?? '';
+          final reading = old['reading'] as String? ?? '';
+          final meaning = old['meaning'] as String? ?? '';
+          final status = old['status'] as String? ?? 'unlearned';
+
+          await into(masterVocabularies).insert(
+            MasterVocabulariesCompanion.insert(
+              id: id,
+              word: word,
+              kana: reading,
+              meaning: meaning,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+
+          if (status != 'unlearned') {
+            await into(userVocabularies).insert(
+              UserVocabulariesCompanion.insert(
+                id: id,
+                masterVocabId: id,
+                isAdded: const Value(true),
+                isFavorite: const Value(false),
+                status: Value(status),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            );
+          }
+        }
+
+        // Migrate Grammars
+        final List<Map<String, dynamic>> oldGrammars = [];
+        try {
+          final rows = await customSelect('SELECT * FROM grammars;').get();
+          for (var r in rows) {
+            oldGrammars.add(r.data);
+          }
+        } catch (e) {
+          // ignore
+        }
+        for (var old in oldGrammars) {
+          final id = old['id'] as String;
+          final title = old['title'] as String? ?? '';
+          final explanation = old['explanation'] as String? ?? '';
+          final structure = old['structure'] as String? ?? '';
+          final examplesJson = old['examples_json'] as String? ?? '[]';
+          final status = old['status'] as String? ?? 'unlearned';
+
+          await into(masterGrammars).insert(
+            MasterGrammarsCompanion.insert(
+              id: id,
+              pattern: title,
+              meaning: explanation,
+              formation: Value(structure),
+              examples: Value(examplesJson),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+
+          if (status != 'unlearned') {
+            await into(userGrammars).insert(
+              UserGrammarsCompanion.insert(
+                id: id,
+                masterGrammarId: id,
+                isAdded: const Value(true),
+                isFavorite: const Value(false),
+                status: Value(status),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            );
+          }
+        }
+
+        // Migrate Readings
+        final List<Map<String, dynamic>> oldReadings = [];
+        try {
+          final rows = await customSelect('SELECT * FROM readings;').get();
+          for (var r in rows) {
+            oldReadings.add(r.data);
+          }
+        } catch (e) {
+          // ignore
+        }
+        for (var old in oldReadings) {
+          final id = old['id'] as String;
+          final title = old['title'] as String? ?? '';
+          final passage = old['passage'] as String? ?? '';
+          final question = old['question'] as String? ?? '';
+          final answer = old['answer'] as String? ?? '';
+          final explanation = old['explanation'] as String? ?? '';
+          final status = old['status'] as String? ?? 'unlearned';
+
+          await into(masterReadings).insert(
+            MasterReadingsCompanion.insert(
+              id: id,
+              title: title,
+              passage: passage,
+              question: Value(question),
+              answer: Value(answer),
+              explanation: Value(explanation),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+
+          if (status != 'unlearned') {
+            await into(userReadings).insert(
+              UserReadingsCompanion.insert(
+                id: id,
+                masterReadingId: id,
+                isAdded: const Value(true),
+                isFavorite: const Value(false),
+                status: Value(status),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            );
+          }
+        }
+
+        // Migrate Listenings
+        final List<Map<String, dynamic>> oldListenings = [];
+        try {
+          final rows = await customSelect('SELECT * FROM listenings;').get();
+          for (var r in rows) {
+            oldListenings.add(r.data);
+          }
+        } catch (e) {
+          // ignore
+        }
+        for (var old in oldListenings) {
+          final id = old['id'] as String;
+          final title = old['title'] as String? ?? '';
+          final audioScript = old['audio_script'] as String? ?? '';
+          final question = old['question'] as String? ?? '';
+          final answer = old['answer'] as String? ?? '';
+          final explanation = old['explanation'] as String? ?? '';
+          final status = old['status'] as String? ?? 'unlearned';
+
+          await into(masterListenings).insert(
+            MasterListeningsCompanion.insert(
+              id: id,
+              title: title,
+              transcript: audioScript,
+              question: Value(question),
+              answer: Value(answer),
+              explanation: Value(explanation),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+
+          if (status != 'unlearned') {
+            await into(userListenings).insert(
+              UserListeningsCompanion.insert(
+                id: id,
+                masterListeningId: id,
+                isAdded: const Value(true),
+                isFavorite: const Value(false),
+                status: Value(status),
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+              ),
+            );
+          }
+        }
+
+        // Drop old tables
+        await customStatement('DROP TABLE IF EXISTS vocabularies;');
+        await customStatement('DROP TABLE IF EXISTS grammars;');
+        await customStatement('DROP TABLE IF EXISTS readings;');
+        await customStatement('DROP TABLE IF EXISTS listenings;');
+      }
     },
   );
 
   Future<void> _seedDatabase() async {
     // --- Vocabulary Seeds ---
     final vocabSeeds = [
-      {'id': 'v1', 'word': '諦める', 'reading': 'あきらめる', 'meaning': 'To give up, to abandon hope', 'status': 'unlearned'},
-      {'id': 'v2', 'word': '謝る', 'reading': 'あやまる', 'meaning': 'To apologize', 'status': 'unlearned'},
-      {'id': 'v3', 'word': '怒る', 'reading': 'おこる', 'meaning': 'To get angry, to be mad', 'status': 'unlearned'},
-      {'id': 'v4', 'word': '驚く', 'reading': 'おどろく', 'meaning': 'To be surprised, to be astonished', 'status': 'unlearned'},
-      {'id': 'v5', 'word': '飾る', 'reading': 'かざる', 'meaning': 'To decorate, to ornament', 'status': 'unlearned'},
-      {'id': 'v6', 'word': '乾く', 'reading': 'かわく', 'meaning': 'To get dry', 'status': 'unlearned'},
-      {'id': 'v7', 'word': '暮らす', 'reading': 'くらす', 'meaning': 'To live, to spend time', 'status': 'unlearned'},
-      {'id': 'v8', 'word': '込む', 'reading': 'こむ', 'meaning': 'To be crowded, to be packed', 'status': 'unlearned'},
-      {'id': 'v9', 'word': '断る', 'reading': 'ことわる', 'meaning': 'To refuse, to decline', 'status': 'unlearned'},
-      {'id': 'v10', 'word': '準備', 'reading': 'じゅんび', 'meaning': 'Preparation, arrangements', 'status': 'unlearned'},
-      {'id': 'v11', 'word': '紹介', 'reading': 'しょうかい', 'meaning': 'Introduction', 'status': 'unlearned'},
-      {'id': 'v12', 'word': '相談', 'reading': 'そうだん', 'meaning': 'Consultation, discussion', 'status': 'unlearned'},
-      {'id': 'v13', 'word': '適当', 'reading': 'てきとう', 'meaning': 'Suitable, appropriate, random', 'status': 'unlearned'},
-      {'id': 'v14', 'word': '複雑', 'reading': 'ふくざつ', 'meaning': 'Complexity, complication', 'status': 'unlearned'},
-      {'id': 'v15', 'word': '独身', 'reading': 'どくしん', 'meaning': 'Single, unmarried', 'status': 'unlearned'},
+      {'id': 'v1', 'word': '諦める', 'reading': 'あきらめる', 'meaning': 'To give up, to abandon hope'},
+      {'id': 'v2', 'word': '謝る', 'reading': 'あやまる', 'meaning': 'To apologize'},
+      {'id': 'v3', 'word': '怒る', 'reading': 'おこる', 'meaning': 'To get angry, to be mad'},
+      {'id': 'v4', 'word': '驚く', 'reading': 'おどろく', 'meaning': 'To be surprised, to be astonished'},
+      {'id': 'v5', 'word': '飾る', 'reading': 'かざる', 'meaning': 'To decorate, to ornament'},
+      {'id': 'v6', 'word': '乾く', 'reading': 'かわく', 'meaning': 'To get dry'},
+      {'id': 'v7', 'word': '暮らす', 'reading': 'くらす', 'meaning': 'To live, to spend time'},
+      {'id': 'v8', 'word': '込む', 'reading': 'こむ', 'meaning': 'To be crowded, to be packed'},
+      {'id': 'v9', 'word': '断る', 'reading': 'ことわる', 'meaning': 'To refuse, to decline'},
+      {'id': 'v10', 'word': '準備', 'reading': 'じゅんび', 'meaning': 'Preparation, arrangements'},
+      {'id': 'v11', 'word': '紹介', 'reading': 'しょうかい', 'meaning': 'Introduction'},
+      {'id': 'v12', 'word': '相談', 'reading': 'そうだん', 'meaning': 'Consultation, discussion'},
+      {'id': 'v13', 'word': '適当', 'reading': 'てきとう', 'meaning': 'Suitable, appropriate, random'},
+      {'id': 'v14', 'word': '複雑', 'reading': 'ふくざつ', 'meaning': 'Complexity, complication'},
+      {'id': 'v15', 'word': '独身', 'reading': 'どくしん', 'meaning': 'Single, unmarried'},
     ];
 
     for (var seed in vocabSeeds) {
-      await into(vocabularies).insert(VocabulariesCompanion.insert(
+      await into(masterVocabularies).insert(MasterVocabulariesCompanion.insert(
         id: seed['id'] as String,
         word: seed['word'] as String,
-        reading: seed['reading'] as String,
+        kana: seed['reading'] as String,
         meaning: seed['meaning'] as String,
-        status: Value(seed['status'] as String),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ));
     }
 
@@ -401,7 +782,6 @@ class AppDatabase extends _$AppDatabase {
           {'jp': '先生に対して失礼なことを言ってはいけません。', 'en': 'You must not speak rudely to the teacher.'},
           {'jp': '兄が活動的なのに対して、弟は家で読書をするのが好きだ。', 'en': 'While the older brother is active, the younger brother likes to read at home.'}
         ]),
-        'status': 'unlearned'
       },
       {
         'id': 'g2',
@@ -412,7 +792,6 @@ class AppDatabase extends _$AppDatabase {
           {'jp': '一人暮らしは自由な反面、寂しさも感じる。', 'en': 'Living alone is free, but on the other hand, you also feel lonely.'},
           {'jp': 'このスマホは高価な反面、機能がとても優れている。', 'en': 'Although this smartphone is expensive, its features are excellent.'}
         ]),
-        'status': 'unlearned'
       },
       {
         'id': 'g3',
@@ -423,7 +802,6 @@ class AppDatabase extends _$AppDatabase {
           {'jp': '薬を飲みさえすれば、病気は治ります。', 'en': 'As long as you take the medicine, you will recover.'},
           {'jp': 'お金さえあれば、何でも買えるわけではない。', 'en': 'Just because you have money doesn\'t mean you can buy anything.'}
         ]),
-        'status': 'unlearned'
       },
       {
         'id': 'g4',
@@ -434,7 +812,6 @@ class AppDatabase extends _$AppDatabase {
           {'jp': '明日は大事な試験があるから、休むわけにはいかない。', 'en': 'Because there is an important exam tomorrow, I cannot afford to take a day off.'},
           {'jp': 'お世話になった人に、嘘をつくわけにはいかない。', 'en': 'I cannot lie to someone who has taken care of me.'}
         ]),
-        'status': 'unlearned'
       },
       {
         'id': 'g5',
@@ -445,18 +822,18 @@ class AppDatabase extends _$AppDatabase {
           {'jp': '桜が綺麗なうちに、お花見に行きましょう。', 'en': 'Let\'s go cherry blossom viewing while the cherry blossoms are still beautiful.'},
           {'jp': '話し合っているうちに、問題が解決しました。', 'en': 'While we were discussing, the problem was solved.'}
         ]),
-        'status': 'unlearned'
       }
     ];
 
     for (var seed in grammarSeeds) {
-      await into(grammars).insert(GrammarsCompanion.insert(
+      await into(masterGrammars).insert(MasterGrammarsCompanion.insert(
         id: seed['id'] as String,
-        title: seed['title'] as String,
-        explanation: seed['explanation'] as String,
-        structure: seed['structure'] as String,
-        examplesJson: seed['examples'] as String,
-        status: Value(seed['status'] as String),
+        pattern: seed['title'] as String,
+        meaning: seed['explanation'] as String,
+        formation: Value(seed['structure'] as String),
+        examples: Value(seed['examples'] as String),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ));
     }
 
@@ -469,28 +846,27 @@ class AppDatabase extends _$AppDatabase {
         'question': 'What does Sado (茶道) emphasize?',
         'answer': 'It values hospitality and mental tranquility as an art form.',
         'explanation': 'The passage states that Sado values hospitality (客をもてなす心) and mental tranquility (精神的な静けさ) as an art.',
-        'status': 'unlearned'
       },
       {
         'id': 'r2',
         'title': '自転車のルール (Bicycle Rules)',
-        'passage': '近年、日本国内で自転車の事故が増加しています。そのため、ルールが厳しくなっています。例えば、原則として自転車は歩道ではなく車道の左側を走らなければなりません。また、傘を差し長らの運転や、携帯電話を使いながらの運転は禁止されており、違反すると罰金が科されます。',
+        'passage': '近年、日本国内で自転車 of 事故が増加しています。そのため、ルールが厳しくなっています。例えば、原則として自転車は歩道ではなく車道の左側を走らなければなりません。また、傘を差しながらの運転や、携帯電話を使いながらの運転は禁止されており、違反すると罰金が科されます。',
         'question': 'Where should bicycles be ridden on Japanese streets?',
         'answer': 'On the left side of the roadway, not on the sidewalks.',
         'explanation': 'The passage explicitly states that bicycles must run on the left side of the roadway (車道の左側), not on sidewalks.',
-        'status': 'unlearned'
       }
     ];
 
     for (var seed in readingSeeds) {
-      await into(readings).insert(ReadingsCompanion.insert(
+      await into(masterReadings).insert(MasterReadingsCompanion.insert(
         id: seed['id']!,
         title: seed['title']!,
         passage: seed['passage']!,
-        question: seed['question']!,
-        answer: seed['answer']!,
-        explanation: seed['explanation']!,
-        status: Value(seed['status']!),
+        question: Value(seed['question']!),
+        answer: Value(seed['answer']!),
+        explanation: Value(seed['explanation']!),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ));
     }
 
@@ -503,7 +879,6 @@ class AppDatabase extends _$AppDatabase {
         'question': 'What will the woman do first?',
         'answer': 'Copy the conference materials.',
         'explanation': 'The man asks her to make 30 copies first, then check the projector power.',
-        'status': 'unlearned'
       },
       {
         'id': 'l2',
@@ -512,19 +887,19 @@ class AppDatabase extends _$AppDatabase {
         'question': 'Which corner must the woman turn at?',
         'answer': 'The second corner on the right after crossing the traffic light.',
         'explanation': 'The policeman directs her to cross the first traffic light, and then turn right at the second corner.',
-        'status': 'unlearned'
       }
     ];
 
     for (var seed in listeningSeeds) {
-      await into(listenings).insert(ListeningsCompanion.insert(
+      await into(masterListenings).insert(MasterListeningsCompanion.insert(
         id: seed['id']!,
         title: seed['title']!,
-        audioScript: seed['audioScript']!,
-        question: seed['question']!,
-        answer: seed['answer']!,
-        explanation: seed['explanation']!,
-        status: Value(seed['status']!),
+        transcript: seed['audioScript']!,
+        question: Value(seed['question']!),
+        answer: Value(seed['answer']!),
+        explanation: Value(seed['explanation']!),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       ));
     }
   }

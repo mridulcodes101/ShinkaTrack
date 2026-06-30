@@ -32,8 +32,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   @override
   void dispose() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (ref.read(activeFabProvider)?.label == 'Start Study') {
-        ref.read(activeFabProvider.notifier).state = null;
+      if (mounted) {
+        if (ref.read(activeFabProvider)?.label == 'Start Study') {
+          ref.read(activeFabProvider.notifier).state = null;
+        }
       }
     });
     super.dispose();
@@ -354,7 +356,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           Row(
             children: [
               Text(

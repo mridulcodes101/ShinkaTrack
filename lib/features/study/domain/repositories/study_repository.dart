@@ -77,4 +77,5 @@ abstract class StudyRepository {
   Future<String> exportBackupJson();
   Future<void> importBackupJson(String jsonStr);
   Future<void> resetMasterDatabase();
+  Future<List<dynamic>> globalSearch(String query);
 }

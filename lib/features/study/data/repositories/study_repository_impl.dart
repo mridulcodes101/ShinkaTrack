@@ -227,24 +227,49 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<List<VocabularyEntity>> getVocabularies() async {
-    final list = await db.select(db.vocabularies).get();
-    return list.map((v) => VocabularyEntity(
-      id: v.id,
-      word: v.word,
-      reading: v.reading,
-      meaning: v.meaning,
-      status: StudyStatus.fromString(v.status),
-    )).toList();
+    final query = db.select(db.masterVocabularies).join([
+      leftOuterJoin(db.userVocabularies, db.userVocabularies.masterVocabId.equalsExp(db.masterVocabularies.id)),
+    ]);
+    final rows = await query.get();
+    return rows.map((row) {
+      final m = row.readTable(db.masterVocabularies);
+      final u = row.readTableOrNull(db.userVocabularies);
+      return VocabularyEntity(
+        id: m.id,
+        word: m.word,
+        reading: m.kana,
+        meaning: m.meaning,
+        status: StudyStatus.fromString(u?.status ?? 'unlearned'),
+      );
+    }).toList();
   }
 
   @override
   Future<void> updateVocabStatus(String id, StudyStatus status) async {
-    final existing = await (db.select(db.vocabularies)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final existing = await (db.select(db.userVocabularies)..where((t) => t.masterVocabId.equals(id))).getSingleOrNull();
     final bool wasMastered = existing?.status == 'mastered';
 
-    await (db.update(db.vocabularies)..where((t) => t.id.equals(id))).write(
-      VocabulariesCompanion(status: Value(status.toDbString())),
-    );
+    if (existing == null) {
+      await db.into(db.userVocabularies).insert(
+        UserVocabulariesCompanion.insert(
+          id: _uuid.v4(),
+          masterVocabId: id,
+          isAdded: const Value(true),
+          isFavorite: const Value(false),
+          status: Value(status.toDbString()),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } else {
+      await (db.update(db.userVocabularies)..where((t) => t.masterVocabId.equals(id))).write(
+        UserVocabulariesCompanion(
+          status: Value(status.toDbString()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
+
     await autoScheduleReview('vocab', id, status == StudyStatus.mastered);
 
     if (status == StudyStatus.mastered && !wasMastered) {
@@ -254,25 +279,50 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<List<GrammarEntity>> getGrammars() async {
-    final list = await db.select(db.grammars).get();
-    return list.map((g) => GrammarEntity.fromDb(
-      id: g.id,
-      title: g.title,
-      explanation: g.explanation,
-      structure: g.structure,
-      examplesJson: g.examplesJson,
-      status: StudyStatus.fromString(g.status),
-    )).toList();
+    final query = db.select(db.masterGrammars).join([
+      leftOuterJoin(db.userGrammars, db.userGrammars.masterGrammarId.equalsExp(db.masterGrammars.id)),
+    ]);
+    final rows = await query.get();
+    return rows.map((row) {
+      final m = row.readTable(db.masterGrammars);
+      final u = row.readTableOrNull(db.userGrammars);
+      return GrammarEntity.fromDb(
+        id: m.id,
+        title: m.pattern,
+        explanation: m.meaning,
+        structure: m.formation ?? '',
+        examplesJson: m.examples ?? '[]',
+        status: StudyStatus.fromString(u?.status ?? 'unlearned'),
+      );
+    }).toList();
   }
 
   @override
   Future<void> updateGrammarStatus(String id, StudyStatus status) async {
-    final existing = await (db.select(db.grammars)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final existing = await (db.select(db.userGrammars)..where((t) => t.masterGrammarId.equals(id))).getSingleOrNull();
     final bool wasMastered = existing?.status == 'mastered';
 
-    await (db.update(db.grammars)..where((t) => t.id.equals(id))).write(
-      GrammarsCompanion(status: Value(status.toDbString())),
-    );
+    if (existing == null) {
+      await db.into(db.userGrammars).insert(
+        UserGrammarsCompanion.insert(
+          id: _uuid.v4(),
+          masterGrammarId: id,
+          isAdded: const Value(true),
+          isFavorite: const Value(false),
+          status: Value(status.toDbString()),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } else {
+      await (db.update(db.userGrammars)..where((t) => t.masterGrammarId.equals(id))).write(
+        UserGrammarsCompanion(
+          status: Value(status.toDbString()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
+
     await autoScheduleReview('grammar', id, status == StudyStatus.mastered);
 
     if (status == StudyStatus.mastered && !wasMastered) {
@@ -388,27 +438,52 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<List<ReadingEntity>> getReadings() async {
-    final list = await db.select(db.readings).get();
-    return list.map((r) => ReadingEntity(
-      id: r.id,
-      title: r.title,
-      passage: r.passage,
-      question: r.question,
-      answer: r.answer,
-      explanation: r.explanation,
-      notes: r.notes,
-      status: StudyStatus.fromString(r.status),
-    )).toList();
+    final query = db.select(db.masterReadings).join([
+      leftOuterJoin(db.userReadings, db.userReadings.masterReadingId.equalsExp(db.masterReadings.id)),
+    ]);
+    final rows = await query.get();
+    return rows.map((row) {
+      final m = row.readTable(db.masterReadings);
+      final u = row.readTableOrNull(db.userReadings);
+      return ReadingEntity(
+        id: m.id,
+        title: m.title,
+        passage: m.passage,
+        question: m.question ?? '',
+        answer: m.answer ?? '',
+        explanation: m.explanation ?? '',
+        notes: u?.customNotes ?? '',
+        status: StudyStatus.fromString(u?.status ?? 'unlearned'),
+      );
+    }).toList();
   }
 
   @override
   Future<void> updateReadingStatus(String id, StudyStatus status) async {
-    final existing = await (db.select(db.readings)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final existing = await (db.select(db.userReadings)..where((t) => t.masterReadingId.equals(id))).getSingleOrNull();
     final bool wasMastered = existing?.status == 'mastered';
 
-    await (db.update(db.readings)..where((t) => t.id.equals(id))).write(
-      ReadingsCompanion(status: Value(status.toDbString())),
-    );
+    if (existing == null) {
+      await db.into(db.userReadings).insert(
+        UserReadingsCompanion.insert(
+          id: _uuid.v4(),
+          masterReadingId: id,
+          isAdded: const Value(true),
+          isFavorite: const Value(false),
+          status: Value(status.toDbString()),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } else {
+      await (db.update(db.userReadings)..where((t) => t.masterReadingId.equals(id))).write(
+        UserReadingsCompanion(
+          status: Value(status.toDbString()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
+
     await autoScheduleReview('reading', id, status == StudyStatus.mastered);
 
     if (status == StudyStatus.mastered && !wasMastered) {
@@ -418,34 +493,78 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> updateReadingNotes(String id, String notes) async {
-    await (db.update(db.readings)..where((t) => t.id.equals(id))).write(
-      ReadingsCompanion(notes: Value(notes)),
-    );
+    final existing = await (db.select(db.userReadings)..where((t) => t.masterReadingId.equals(id))).getSingleOrNull();
+    if (existing == null) {
+      await db.into(db.userReadings).insert(
+        UserReadingsCompanion.insert(
+          id: _uuid.v4(),
+          masterReadingId: id,
+          isAdded: const Value(true),
+          isFavorite: const Value(false),
+          status: const Value('unlearned'),
+          customNotes: Value(notes),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } else {
+      await (db.update(db.userReadings)..where((t) => t.masterReadingId.equals(id))).write(
+        UserReadingsCompanion(
+          customNotes: Value(notes),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
   }
 
   @override
   Future<List<ListeningEntity>> getListenings() async {
-    final list = await db.select(db.listenings).get();
-    return list.map((l) => ListeningEntity(
-      id: l.id,
-      title: l.title,
-      audioScript: l.audioScript,
-      question: l.question,
-      answer: l.answer,
-      explanation: l.explanation,
-      notes: l.notes,
-      status: StudyStatus.fromString(l.status),
-    )).toList();
+    final query = db.select(db.masterListenings).join([
+      leftOuterJoin(db.userListenings, db.userListenings.masterListeningId.equalsExp(db.masterListenings.id)),
+    ]);
+    final rows = await query.get();
+    return rows.map((row) {
+      final m = row.readTable(db.masterListenings);
+      final u = row.readTableOrNull(db.userListenings);
+      return ListeningEntity(
+        id: m.id,
+        title: m.title,
+        audioScript: m.transcript,
+        question: m.question ?? '',
+        answer: m.answer ?? '',
+        explanation: m.explanation ?? '',
+        notes: u?.customNotes ?? '',
+        status: StudyStatus.fromString(u?.status ?? 'unlearned'),
+      );
+    }).toList();
   }
 
   @override
   Future<void> updateListeningStatus(String id, StudyStatus status) async {
-    final existing = await (db.select(db.listenings)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final existing = await (db.select(db.userListenings)..where((t) => t.masterListeningId.equals(id))).getSingleOrNull();
     final bool wasMastered = existing?.status == 'mastered';
 
-    await (db.update(db.listenings)..where((t) => t.id.equals(id))).write(
-      ListeningsCompanion(status: Value(status.toDbString())),
-    );
+    if (existing == null) {
+      await db.into(db.userListenings).insert(
+        UserListeningsCompanion.insert(
+          id: _uuid.v4(),
+          masterListeningId: id,
+          isAdded: const Value(true),
+          isFavorite: const Value(false),
+          status: Value(status.toDbString()),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } else {
+      await (db.update(db.userListenings)..where((t) => t.masterListeningId.equals(id))).write(
+        UserListeningsCompanion(
+          status: Value(status.toDbString()),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
+
     await autoScheduleReview('listening', id, status == StudyStatus.mastered);
 
     if (status == StudyStatus.mastered && !wasMastered) {
@@ -455,9 +574,28 @@ class StudyRepositoryImpl implements StudyRepository {
 
   @override
   Future<void> updateListeningNotes(String id, String notes) async {
-    await (db.update(db.listenings)..where((t) => t.id.equals(id))).write(
-      ListeningsCompanion(notes: Value(notes)),
-    );
+    final existing = await (db.select(db.userListenings)..where((t) => t.masterListeningId.equals(id))).getSingleOrNull();
+    if (existing == null) {
+      await db.into(db.userListenings).insert(
+        UserListeningsCompanion.insert(
+          id: _uuid.v4(),
+          masterListeningId: id,
+          isAdded: const Value(true),
+          isFavorite: const Value(false),
+          status: const Value('unlearned'),
+          customNotes: Value(notes),
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+    } else {
+      await (db.update(db.userListenings)..where((t) => t.masterListeningId.equals(id))).write(
+        UserListeningsCompanion(
+          customNotes: Value(notes),
+          updatedAt: Value(DateTime.now()),
+        ),
+      );
+    }
   }
 
   @override
@@ -496,10 +634,10 @@ class StudyRepositoryImpl implements StudyRepository {
   @override
   Future<void> resetAllProgress() async {
     await db.delete(db.userKanjis).go();
-    await db.update(db.vocabularies).write(const VocabulariesCompanion(status: Value('unlearned')));
-    await db.update(db.grammars).write(const GrammarsCompanion(status: Value('unlearned')));
-    await db.update(db.readings).write(const ReadingsCompanion(status: Value('unlearned'), notes: Value('')));
-    await db.update(db.listenings).write(const ListeningsCompanion(status: Value('unlearned'), notes: Value('')));
+    await db.delete(db.userVocabularies).go();
+    await db.delete(db.userGrammars).go();
+    await db.delete(db.userReadings).go();
+    await db.delete(db.userListenings).go();
 
     await db.delete(db.studySessions).go();
     await db.delete(db.dailyGoals).go();
@@ -544,16 +682,16 @@ class StudyRepositoryImpl implements StudyRepository {
 
     // Fetch all items that are not mastered
     final kanjiList = await getKanjis();
-    final vocabList = await db.select(db.vocabularies).get();
-    final grammarList = await db.select(db.grammars).get();
-    final readingList = await db.select(db.readings).get();
-    final listeningList = await db.select(db.listenings).get();
+    final vocabList = await getVocabularies();
+    final grammarList = await getGrammars();
+    final readingList = await getReadings();
+    final listeningList = await getListenings();
 
     final unlearnedKanjis = kanjiList.where((k) => k.isAdded && !k.isLearned).toList();
-    final unlearnedVocabs = vocabList.where((v) => v.status != 'mastered').toList();
-    final unlearnedGrammars = grammarList.where((g) => g.status != 'mastered').toList();
-    final unlearnedReadings = readingList.where((r) => r.status != 'mastered').toList();
-    final unlearnedListenings = listeningList.where((l) => l.status != 'mastered').toList();
+    final unlearnedVocabs = vocabList.where((v) => v.status != StudyStatus.mastered).toList();
+    final unlearnedGrammars = grammarList.where((g) => g.status != StudyStatus.mastered).toList();
+    final unlearnedReadings = readingList.where((r) => r.status != StudyStatus.mastered).toList();
+    final unlearnedListenings = listeningList.where((l) => l.status != StudyStatus.mastered).toList();
 
     // Create list of all items to schedule
     final List<Map<String, String>> scheduleItems = [];
@@ -640,19 +778,19 @@ class StudyRepositoryImpl implements StudyRepository {
           title = 'Learn Kanji: ${item?.kanji ?? ""}';
           details = item?.meaning ?? '';
         } else if (t.itemType == 'vocab') {
-          final item = await (db.select(db.vocabularies)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
+          final item = await (db.select(db.masterVocabularies)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
           title = 'Learn Vocab: ${item?.word ?? ""}';
           details = item?.meaning ?? '';
         } else if (t.itemType == 'grammar') {
-          final item = await (db.select(db.grammars)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
-          title = 'Learn Grammar: ${item?.title ?? ""}';
-          details = item?.explanation ?? '';
+          final item = await (db.select(db.masterGrammars)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
+          title = 'Learn Grammar: ${item?.pattern ?? ""}';
+          details = item?.meaning ?? '';
         } else if (t.itemType == 'reading') {
-          final item = await (db.select(db.readings)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
+          final item = await (db.select(db.masterReadings)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
           title = 'Read Lesson: ${item?.title ?? ""}';
           details = item?.question ?? '';
         } else if (t.itemType == 'listening') {
-          final item = await (db.select(db.listenings)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
+          final item = await (db.select(db.masterListenings)..where((x) => x.id.equals(t.itemId))).getSingleOrNull();
           title = 'Listen Lesson: ${item?.title ?? ""}';
           details = item?.question ?? '';
         }
@@ -690,21 +828,13 @@ class StudyRepositoryImpl implements StudyRepository {
     if (task.itemType == 'kanji') {
       await updateKanjiStatus(task.itemId, isCompleted ? StudyStatus.mastered : StudyStatus.learning);
     } else if (task.itemType == 'vocab') {
-      await (db.update(db.vocabularies)..where((x) => x.id.equals(task.itemId))).write(
-        VocabulariesCompanion(status: Value(newStatus.toDbString())),
-      );
+      await updateVocabStatus(task.itemId, newStatus);
     } else if (task.itemType == 'grammar') {
-      await (db.update(db.grammars)..where((x) => x.id.equals(task.itemId))).write(
-        GrammarsCompanion(status: Value(newStatus.toDbString())),
-      );
+      await updateGrammarStatus(task.itemId, newStatus);
     } else if (task.itemType == 'reading') {
-      await (db.update(db.readings)..where((x) => x.id.equals(task.itemId))).write(
-        ReadingsCompanion(status: Value(newStatus.toDbString())),
-      );
+      await updateReadingStatus(task.itemId, newStatus);
     } else if (task.itemType == 'listening') {
-      await (db.update(db.listenings)..where((x) => x.id.equals(task.itemId))).write(
-        ListeningsCompanion(status: Value(newStatus.toDbString())),
-      );
+      await updateListeningStatus(task.itemId, newStatus);
     }
 
     // 4. Auto schedule review!
@@ -858,19 +988,19 @@ class StudyRepositoryImpl implements StudyRepository {
         title = 'Review Kanji: ${item?.kanji ?? ""}';
         details = 'Meaning: ${item?.meaning ?? ""}';
       } else if (r.itemType == 'vocab') {
-        final item = await (db.select(db.vocabularies)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
+        final item = await (db.select(db.masterVocabularies)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
         title = 'Review Vocab: ${item?.word ?? ""}';
         details = 'Meaning: ${item?.meaning ?? ""}';
       } else if (r.itemType == 'grammar') {
-        final item = await (db.select(db.grammars)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
-        title = 'Review Grammar: ${item?.title ?? ""}';
-        details = 'Explanation: ${item?.explanation ?? ""}';
+        final item = await (db.select(db.masterGrammars)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
+        title = 'Review Grammar: ${item?.pattern ?? ""}';
+        details = 'Explanation: ${item?.meaning ?? ""}';
       } else if (r.itemType == 'reading') {
-        final item = await (db.select(db.readings)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
+        final item = await (db.select(db.masterReadings)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
         title = 'Review Reading: ${item?.title ?? ""}';
         details = 'Question: ${item?.question ?? ""}';
       } else if (r.itemType == 'listening') {
-        final item = await (db.select(db.listenings)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
+        final item = await (db.select(db.masterListenings)..where((x) => x.id.equals(r.itemId))).getSingleOrNull();
         title = 'Review Listening: ${item?.title ?? ""}';
         details = 'Question: ${item?.question ?? ""}';
       }
@@ -1069,10 +1199,10 @@ class StudyRepositoryImpl implements StudyRepository {
 
     // 1. First Step (master first lesson)
     final masteredKanjis = await (db.select(db.userKanjis)..where((x) => x.isLearned.equals(true))).get();
-    final masteredVocabs = await (db.select(db.vocabularies)..where((x) => x.status.equals('mastered'))).get();
-    final masteredGrammars = await (db.select(db.grammars)..where((x) => x.status.equals('mastered'))).get();
-    final masteredReadings = await (db.select(db.readings)..where((x) => x.status.equals('mastered'))).get();
-    final masteredListenings = await (db.select(db.listenings)..where((x) => x.status.equals('mastered'))).get();
+    final masteredVocabs = await (db.select(db.userVocabularies)..where((x) => x.status.equals('mastered'))).get();
+    final masteredGrammars = await (db.select(db.userGrammars)..where((x) => x.status.equals('mastered'))).get();
+    final masteredReadings = await (db.select(db.userReadings)..where((x) => x.status.equals('mastered'))).get();
+    final masteredListenings = await (db.select(db.userListenings)..where((x) => x.status.equals('mastered'))).get();
 
     if (masteredKanjis.isNotEmpty || masteredVocabs.isNotEmpty || masteredGrammars.isNotEmpty || masteredReadings.isNotEmpty || masteredListenings.isNotEmpty) {
       await unlock('first_lesson');
@@ -1168,10 +1298,10 @@ class StudyRepositoryImpl implements StudyRepository {
   @override
   Future<String> exportBackupJson() async {
     final kanjisData = await db.select(db.userKanjis).get();
-    final vocabsData = await db.select(db.vocabularies).get();
-    final grammarsData = await db.select(db.grammars).get();
-    final readingsData = await db.select(db.readings).get();
-    final listeningsData = await db.select(db.listenings).get();
+    final vocabsData = await db.select(db.userVocabularies).get();
+    final grammarsData = await db.select(db.userGrammars).get();
+    final readingsData = await db.select(db.userReadings).get();
+    final listeningsData = await db.select(db.userListenings).get();
     final sessionsData = await db.select(db.studySessions).get();
     final goalsData = await db.select(db.dailyGoals).get();
     final reviewsData = await db.select(db.reviewItems).get();
@@ -1186,10 +1316,10 @@ class StudyRepositoryImpl implements StudyRepository {
         'reviewCount': k.reviewCount,
         'status': k.isLearned ? 'mastered' : (k.reviewCount > 0 ? 'learning' : 'unlearned')
       }).toList(),
-      'vocabularies': vocabsData.map((v) => {'id': v.id, 'status': v.status}).toList(),
-      'grammars': grammarsData.map((g) => {'id': g.id, 'status': g.status}).toList(),
-      'readings': readingsData.map((r) => {'id': r.id, 'status': r.status, 'notes': r.notes}).toList(),
-      'listenings': listeningsData.map((l) => {'id': l.id, 'status': l.status, 'notes': l.notes}).toList(),
+      'vocabularies': vocabsData.map((v) => {'id': v.masterVocabId, 'status': v.status}).toList(),
+      'grammars': grammarsData.map((g) => {'id': g.masterGrammarId, 'status': g.status}).toList(),
+      'readings': readingsData.map((r) => {'id': r.masterReadingId, 'status': r.status, 'notes': r.customNotes}).toList(),
+      'listenings': listeningsData.map((l) => {'id': l.masterListeningId, 'status': l.status, 'notes': l.customNotes}).toList(),
       'studySessions': sessionsData.map((s) => {
         'id': s.id,
         'date': s.date.toIso8601String(),
@@ -1243,65 +1373,12 @@ class StudyRepositoryImpl implements StudyRepository {
     final data = jsonDecode(jsonStr) as Map<String, dynamic>;
 
     await db.transaction(() async {
-      // 1. Restore master items statuses
-      if (data.containsKey('kanjis')) {
-        for (var k in data['kanjis']) {
-          final isLearned = k['isLearned'] ?? (k['status'] == 'mastered');
-          final reviewCount = k['reviewCount'] ?? (k['status'] == 'learning' ? 1 : (k['status'] == 'mastered' ? 5 : 0));
-          final existing = await (db.select(db.userKanjis)..where((t) => t.masterKanjiId.equals(k['id']))).getSingleOrNull();
-          if (existing != null) {
-            await (db.update(db.userKanjis)..where((t) => t.masterKanjiId.equals(k['id']))).write(
-              UserKanjisCompanion(
-                isLearned: Value(isLearned),
-                reviewCount: Value(reviewCount),
-              ),
-            );
-          } else {
-            await db.into(db.userKanjis).insert(
-              UserKanjisCompanion.insert(
-                id: k['id'],
-                masterKanjiId: k['id'],
-                isAdded: const Value(true),
-                isLearned: Value(isLearned),
-                isFavorite: const Value(false),
-                reviewCount: Value(reviewCount),
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-              ),
-            );
-          }
-        }
-      }
-      if (data.containsKey('vocabularies')) {
-        for (var v in data['vocabularies']) {
-          await (db.update(db.vocabularies)..where((t) => t.id.equals(v['id']))).write(
-            VocabulariesCompanion(status: Value(v['status'])),
-          );
-        }
-      }
-      if (data.containsKey('grammars')) {
-        for (var g in data['grammars']) {
-          await (db.update(db.grammars)..where((t) => t.id.equals(g['id']))).write(
-            GrammarsCompanion(status: Value(g['status'])),
-          );
-        }
-      }
-      if (data.containsKey('readings')) {
-        for (var r in data['readings']) {
-          await (db.update(db.readings)..where((t) => t.id.equals(r['id']))).write(
-            ReadingsCompanion(status: Value(r['status']), notes: Value(r['notes'] ?? '')),
-          );
-        }
-      }
-      if (data.containsKey('listenings')) {
-        for (var l in data['listenings']) {
-          await (db.update(db.listenings)..where((t) => t.id.equals(l['id']))).write(
-            ListeningsCompanion(status: Value(l['status']), notes: Value(l['notes'] ?? '')),
-          );
-        }
-      }
-
-      // 2. Clear tables that are fully user-generated
+      // 1. Clear all user progress tables first
+      await db.delete(db.userKanjis).go();
+      await db.delete(db.userVocabularies).go();
+      await db.delete(db.userGrammars).go();
+      await db.delete(db.userReadings).go();
+      await db.delete(db.userListenings).go();
       await db.delete(db.studySessions).go();
       await db.delete(db.dailyGoals).go();
       await db.delete(db.reviewItems).go();
@@ -1309,7 +1386,108 @@ class StudyRepositoryImpl implements StudyRepository {
       await db.delete(db.achievements).go();
       await db.delete(db.weeklyGoals).go();
 
-      // 3. Re-insert user-generated data
+      // 2. Restore user Kanjis progress
+      if (data.containsKey('kanjis')) {
+        for (var k in data['kanjis']) {
+          final isLearned = k['isLearned'] ?? (k['status'] == 'mastered');
+          final reviewCount = k['reviewCount'] ?? (k['status'] == 'learning' ? 1 : (k['status'] == 'mastered' ? 5 : 0));
+          final masterId = k['id'] as String;
+          await db.into(db.userKanjis).insert(
+            UserKanjisCompanion.insert(
+              id: masterId,
+              masterKanjiId: masterId,
+              isAdded: const Value(true),
+              isLearned: Value(isLearned),
+              isFavorite: const Value(false),
+              reviewCount: Value(reviewCount),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      // 3. Restore user Vocabularies progress
+      if (data.containsKey('vocabularies')) {
+        for (var v in data['vocabularies']) {
+          final id = v['id'] as String;
+          final status = v['status'] as String? ?? 'unlearned';
+          await db.into(db.userVocabularies).insert(
+            UserVocabulariesCompanion.insert(
+              id: _uuid.v4(),
+              masterVocabId: id,
+              isAdded: const Value(true),
+              isFavorite: const Value(false),
+              status: Value(status),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      // 4. Restore user Grammars progress
+      if (data.containsKey('grammars')) {
+        for (var g in data['grammars']) {
+          final id = g['id'] as String;
+          final status = g['status'] as String? ?? 'unlearned';
+          await db.into(db.userGrammars).insert(
+            UserGrammarsCompanion.insert(
+              id: _uuid.v4(),
+              masterGrammarId: id,
+              isAdded: const Value(true),
+              isFavorite: const Value(false),
+              status: Value(status),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      // 5. Restore user Readings progress
+      if (data.containsKey('readings')) {
+        for (var r in data['readings']) {
+          final id = r['id'] as String;
+          final status = r['status'] as String? ?? 'unlearned';
+          final notes = r['notes'] as String? ?? '';
+          await db.into(db.userReadings).insert(
+            UserReadingsCompanion.insert(
+              id: _uuid.v4(),
+              masterReadingId: id,
+              isAdded: const Value(true),
+              isFavorite: const Value(false),
+              status: Value(status),
+              customNotes: Value(notes),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      // 6. Restore user Listenings progress
+      if (data.containsKey('listenings')) {
+        for (var l in data['listenings']) {
+          final id = l['id'] as String;
+          final status = l['status'] as String? ?? 'unlearned';
+          final notes = l['notes'] as String? ?? '';
+          await db.into(db.userListenings).insert(
+            UserListeningsCompanion.insert(
+              id: _uuid.v4(),
+              masterListeningId: id,
+              isAdded: const Value(true),
+              isFavorite: const Value(false),
+              status: Value(status),
+              customNotes: Value(notes),
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            ),
+          );
+        }
+      }
+
+      // 7. Re-insert user-generated metadata
       if (data.containsKey('studySessions')) {
         for (var s in data['studySessions']) {
           await db.into(db.studySessions).insert(StudySessionsCompanion.insert(
@@ -1383,5 +1561,94 @@ class StudyRepositoryImpl implements StudyRepository {
   @override
   Future<void> resetMasterDatabase() async {
     await db.resetMasterDatabase();
+  }
+
+  @override
+  Future<List<dynamic>> globalSearch(String queryStr) async {
+    final cleanQuery = '%$queryStr%';
+    
+    // Search Kanji
+    final kanjisQuery = db.select(db.masterKanjis).join([
+      leftOuterJoin(db.userKanjis, db.userKanjis.masterKanjiId.equalsExp(db.masterKanjis.id)),
+    ])..where(db.masterKanjis.kanji.like(cleanQuery) | db.masterKanjis.meaning.like(cleanQuery));
+    
+    final kanjiRows = await kanjisQuery.get();
+    final kanjisList = kanjiRows.map((row) {
+      final m = row.readTable(db.masterKanjis);
+      final u = row.readTableOrNull(db.userKanjis);
+      return KanjiEntity(
+        id: m.id,
+        kanji: m.kanji,
+        kunYomi: List<String>.from(jsonDecode(m.kunYomi)),
+        onYomi: List<String>.from(jsonDecode(m.onYomi)),
+        meaning: m.meaning,
+        radicals: m.radicals,
+        strokeCount: m.strokeCount,
+        strokeOrderDiagramPath: m.strokeOrderDiagram,
+        jlptLevel: m.jlptLevel,
+        gradeLevel: m.gradeLevel,
+        unicode: m.unicode,
+        notes: m.notes,
+        examples: List<String>.from(jsonDecode(m.exampleWords)),
+        exampleSentences: List<String>.from(jsonDecode(m.exampleSentences)),
+        tags: List<String>.from(jsonDecode(m.tags)),
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        rtkNumber: m.rtkNumber,
+        frequencyRank: m.frequencyRank,
+        pitchAccent: m.pitchAccent,
+        audioPath: m.audioPath,
+        animatedStrokeOrderPath: m.animatedStrokeOrderPath,
+        syncStatus: m.syncStatus,
+        lastSyncedAt: m.lastSyncedAt,
+        isAdded: u?.isAdded ?? false,
+        isLearned: u?.isLearned ?? false,
+        isFavorite: u?.isFavorite ?? false,
+        reviewCount: u?.reviewCount ?? 0,
+        easeFactor: u?.easeFactor ?? 2.5,
+        nextReview: u?.nextReview,
+        lastReviewed: u?.lastReviewed,
+        customNotes: u?.customNotes ?? '',
+      );
+    }).toList();
+
+    // Search Vocabularies
+    final vocabsQuery = db.select(db.masterVocabularies).join([
+      leftOuterJoin(db.userVocabularies, db.userVocabularies.masterVocabId.equalsExp(db.masterVocabularies.id)),
+    ])..where(db.masterVocabularies.word.like(cleanQuery) | db.masterVocabularies.meaning.like(cleanQuery) | db.masterVocabularies.kana.like(cleanQuery));
+    
+    final vocabRows = await vocabsQuery.get();
+    final vocabsList = vocabRows.map((row) {
+      final m = row.readTable(db.masterVocabularies);
+      final u = row.readTableOrNull(db.userVocabularies);
+      return VocabularyEntity(
+        id: m.id,
+        word: m.word,
+        reading: m.kana,
+        meaning: m.meaning,
+        status: StudyStatus.fromString(u?.status ?? 'unlearned'),
+      );
+    }).toList();
+
+    // Search Grammars
+    final grammarsQuery = db.select(db.masterGrammars).join([
+      leftOuterJoin(db.userGrammars, db.userGrammars.masterGrammarId.equalsExp(db.masterGrammars.id)),
+    ])..where(db.masterGrammars.pattern.like(cleanQuery) | db.masterGrammars.meaning.like(cleanQuery));
+    
+    final grammarRows = await grammarsQuery.get();
+    final grammarsList = grammarRows.map((row) {
+      final m = row.readTable(db.masterGrammars);
+      final u = row.readTableOrNull(db.userGrammars);
+      return GrammarEntity.fromDb(
+        id: m.id,
+        title: m.pattern,
+        explanation: m.meaning,
+        structure: m.formation ?? '',
+        examplesJson: m.examples ?? '[]',
+        status: StudyStatus.fromString(u?.status ?? 'unlearned'),
+      );
+    }).toList();
+
+    return [...kanjisList, ...vocabsList, ...grammarsList];
   }
 }

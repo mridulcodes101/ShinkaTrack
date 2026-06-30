@@ -190,6 +190,16 @@ class $MasterKanjisTable extends MasterKanjis
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Published'),
+  );
   static const VerificationMeta _rtkNumberMeta = const VerificationMeta(
     'rtkNumber',
   );
@@ -286,6 +296,7 @@ class $MasterKanjisTable extends MasterKanjis
     tags,
     createdAt,
     updatedAt,
+    status,
     rtkNumber,
     frequencyRank,
     pitchAccent,
@@ -439,6 +450,12 @@ class $MasterKanjisTable extends MasterKanjis
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
     if (data.containsKey('rtk_number')) {
       context.handle(
         _rtkNumberMeta,
@@ -570,6 +587,10 @@ class $MasterKanjisTable extends MasterKanjis
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
       rtkNumber: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}rtk_number'],
@@ -625,6 +646,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
   final String tags;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String status;
   final int? rtkNumber;
   final int? frequencyRank;
   final String? pitchAccent;
@@ -650,6 +672,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
     required this.tags,
     required this.createdAt,
     required this.updatedAt,
+    required this.status,
     this.rtkNumber,
     this.frequencyRank,
     this.pitchAccent,
@@ -682,6 +705,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
     map['tags'] = Variable<String>(tags);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['status'] = Variable<String>(status);
     if (!nullToAbsent || rtkNumber != null) {
       map['rtk_number'] = Variable<int>(rtkNumber);
     }
@@ -731,6 +755,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
       tags: Value(tags),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      status: Value(status),
       rtkNumber: rtkNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(rtkNumber),
@@ -780,6 +805,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
       tags: serializer.fromJson<String>(json['tags']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      status: serializer.fromJson<String>(json['status']),
       rtkNumber: serializer.fromJson<int?>(json['rtkNumber']),
       frequencyRank: serializer.fromJson<int?>(json['frequencyRank']),
       pitchAccent: serializer.fromJson<String?>(json['pitchAccent']),
@@ -812,6 +838,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
       'tags': serializer.toJson<String>(tags),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'status': serializer.toJson<String>(status),
       'rtkNumber': serializer.toJson<int?>(rtkNumber),
       'frequencyRank': serializer.toJson<int?>(frequencyRank),
       'pitchAccent': serializer.toJson<String?>(pitchAccent),
@@ -842,6 +869,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
     String? tags,
     DateTime? createdAt,
     DateTime? updatedAt,
+    String? status,
     Value<int?> rtkNumber = const Value.absent(),
     Value<int?> frequencyRank = const Value.absent(),
     Value<String?> pitchAccent = const Value.absent(),
@@ -869,6 +897,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
     tags: tags ?? this.tags,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    status: status ?? this.status,
     rtkNumber: rtkNumber.present ? rtkNumber.value : this.rtkNumber,
     frequencyRank: frequencyRank.present
         ? frequencyRank.value
@@ -910,6 +939,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
       tags: data.tags.present ? data.tags.value : this.tags,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      status: data.status.present ? data.status.value : this.status,
       rtkNumber: data.rtkNumber.present ? data.rtkNumber.value : this.rtkNumber,
       frequencyRank: data.frequencyRank.present
           ? data.frequencyRank.value
@@ -950,6 +980,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
           ..write('tags: $tags, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status, ')
           ..write('rtkNumber: $rtkNumber, ')
           ..write('frequencyRank: $frequencyRank, ')
           ..write('pitchAccent: $pitchAccent, ')
@@ -980,6 +1011,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
     tags,
     createdAt,
     updatedAt,
+    status,
     rtkNumber,
     frequencyRank,
     pitchAccent,
@@ -1009,6 +1041,7 @@ class MasterKanji extends DataClass implements Insertable<MasterKanji> {
           other.tags == this.tags &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
+          other.status == this.status &&
           other.rtkNumber == this.rtkNumber &&
           other.frequencyRank == this.frequencyRank &&
           other.pitchAccent == this.pitchAccent &&
@@ -1036,6 +1069,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
   final Value<String> tags;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String> status;
   final Value<int?> rtkNumber;
   final Value<int?> frequencyRank;
   final Value<String?> pitchAccent;
@@ -1062,6 +1096,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
     this.tags = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.status = const Value.absent(),
     this.rtkNumber = const Value.absent(),
     this.frequencyRank = const Value.absent(),
     this.pitchAccent = const Value.absent(),
@@ -1089,6 +1124,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
     this.tags = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.status = const Value.absent(),
     this.rtkNumber = const Value.absent(),
     this.frequencyRank = const Value.absent(),
     this.pitchAccent = const Value.absent(),
@@ -1126,6 +1162,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
     Expression<String>? tags,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? status,
     Expression<int>? rtkNumber,
     Expression<int>? frequencyRank,
     Expression<String>? pitchAccent,
@@ -1154,6 +1191,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
       if (tags != null) 'tags': tags,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (status != null) 'status': status,
       if (rtkNumber != null) 'rtk_number': rtkNumber,
       if (frequencyRank != null) 'frequency_rank': frequencyRank,
       if (pitchAccent != null) 'pitch_accent': pitchAccent,
@@ -1184,6 +1222,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
     Value<String>? tags,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String>? status,
     Value<int?>? rtkNumber,
     Value<int?>? frequencyRank,
     Value<String?>? pitchAccent,
@@ -1211,6 +1250,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
       tags: tags ?? this.tags,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      status: status ?? this.status,
       rtkNumber: rtkNumber ?? this.rtkNumber,
       frequencyRank: frequencyRank ?? this.frequencyRank,
       pitchAccent: pitchAccent ?? this.pitchAccent,
@@ -1277,6 +1317,9 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (rtkNumber.present) {
       map['rtk_number'] = Variable<int>(rtkNumber.value);
     }
@@ -1326,6 +1369,7 @@ class MasterKanjisCompanion extends UpdateCompanion<MasterKanji> {
           ..write('tags: $tags, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('status: $status, ')
           ..write('rtkNumber: $rtkNumber, ')
           ..write('frequencyRank: $frequencyRank, ')
           ..write('pitchAccent: $pitchAccent, ')
@@ -2070,12 +2114,12 @@ class UserKanjisCompanion extends UpdateCompanion<UserKanji> {
   }
 }
 
-class $VocabulariesTable extends Vocabularies
-    with TableInfo<$VocabulariesTable, Vocabulary> {
+class $MasterVocabulariesTable extends MasterVocabularies
+    with TableInfo<$MasterVocabulariesTable, MasterVocabulary> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $VocabulariesTable(this.attachedDatabase, [this._alias]);
+  $MasterVocabulariesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -2094,12 +2138,10 @@ class $VocabulariesTable extends Vocabularies
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _readingMeta = const VerificationMeta(
-    'reading',
-  );
+  static const VerificationMeta _kanaMeta = const VerificationMeta('kana');
   @override
-  late final GeneratedColumn<String> reading = GeneratedColumn<String>(
-    'reading',
+  late final GeneratedColumn<String> kana = GeneratedColumn<String>(
+    'kana',
     aliasedName,
     false,
     type: DriftSqlType.string,
@@ -2116,26 +2158,149 @@ class $VocabulariesTable extends Vocabularies
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('unlearned'),
+  static const VerificationMeta _partOfSpeechMeta = const VerificationMeta(
+    'partOfSpeech',
   );
   @override
-  List<GeneratedColumn> get $columns => [id, word, reading, meaning, status];
+  late final GeneratedColumn<String> partOfSpeech = GeneratedColumn<String>(
+    'part_of_speech',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _jlptLevelMeta = const VerificationMeta(
+    'jlptLevel',
+  );
+  @override
+  late final GeneratedColumn<int> jlptLevel = GeneratedColumn<int>(
+    'jlpt_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _frequencyMeta = const VerificationMeta(
+    'frequency',
+  );
+  @override
+  late final GeneratedColumn<int> frequency = GeneratedColumn<int>(
+    'frequency',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _relatedKanjiMeta = const VerificationMeta(
+    'relatedKanji',
+  );
+  @override
+  late final GeneratedColumn<String> relatedKanji = GeneratedColumn<String>(
+    'related_kanji',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _exampleSentencesMeta = const VerificationMeta(
+    'exampleSentences',
+  );
+  @override
+  late final GeneratedColumn<String> exampleSentences = GeneratedColumn<String>(
+    'example_sentences',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _synonymsMeta = const VerificationMeta(
+    'synonyms',
+  );
+  @override
+  late final GeneratedColumn<String> synonyms = GeneratedColumn<String>(
+    'synonyms',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _antonymsMeta = const VerificationMeta(
+    'antonyms',
+  );
+  @override
+  late final GeneratedColumn<String> antonyms = GeneratedColumn<String>(
+    'antonyms',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    word,
+    kana,
+    meaning,
+    partOfSpeech,
+    jlptLevel,
+    frequency,
+    relatedKanji,
+    exampleSentences,
+    synonyms,
+    antonyms,
+    tags,
+    notes,
+    createdAt,
+    updatedAt,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'vocabularies';
+  static const String $name = 'master_vocabularies';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Vocabulary> instance, {
+    Insertable<MasterVocabulary> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -2153,13 +2318,13 @@ class $VocabulariesTable extends Vocabularies
     } else if (isInserting) {
       context.missing(_wordMeta);
     }
-    if (data.containsKey('reading')) {
+    if (data.containsKey('kana')) {
       context.handle(
-        _readingMeta,
-        reading.isAcceptableOrUnknown(data['reading']!, _readingMeta),
+        _kanaMeta,
+        kana.isAcceptableOrUnknown(data['kana']!, _kanaMeta),
       );
     } else if (isInserting) {
-      context.missing(_readingMeta);
+      context.missing(_kanaMeta);
     }
     if (data.containsKey('meaning')) {
       context.handle(
@@ -2169,11 +2334,84 @@ class $VocabulariesTable extends Vocabularies
     } else if (isInserting) {
       context.missing(_meaningMeta);
     }
-    if (data.containsKey('status')) {
+    if (data.containsKey('part_of_speech')) {
       context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+        _partOfSpeechMeta,
+        partOfSpeech.isAcceptableOrUnknown(
+          data['part_of_speech']!,
+          _partOfSpeechMeta,
+        ),
       );
+    }
+    if (data.containsKey('jlpt_level')) {
+      context.handle(
+        _jlptLevelMeta,
+        jlptLevel.isAcceptableOrUnknown(data['jlpt_level']!, _jlptLevelMeta),
+      );
+    }
+    if (data.containsKey('frequency')) {
+      context.handle(
+        _frequencyMeta,
+        frequency.isAcceptableOrUnknown(data['frequency']!, _frequencyMeta),
+      );
+    }
+    if (data.containsKey('related_kanji')) {
+      context.handle(
+        _relatedKanjiMeta,
+        relatedKanji.isAcceptableOrUnknown(
+          data['related_kanji']!,
+          _relatedKanjiMeta,
+        ),
+      );
+    }
+    if (data.containsKey('example_sentences')) {
+      context.handle(
+        _exampleSentencesMeta,
+        exampleSentences.isAcceptableOrUnknown(
+          data['example_sentences']!,
+          _exampleSentencesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('synonyms')) {
+      context.handle(
+        _synonymsMeta,
+        synonyms.isAcceptableOrUnknown(data['synonyms']!, _synonymsMeta),
+      );
+    }
+    if (data.containsKey('antonyms')) {
+      context.handle(
+        _antonymsMeta,
+        antonyms.isAcceptableOrUnknown(data['antonyms']!, _antonymsMeta),
+      );
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -2181,9 +2419,9 @@ class $VocabulariesTable extends Vocabularies
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Vocabulary map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MasterVocabulary map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Vocabulary(
+    return MasterVocabulary(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -2192,72 +2430,197 @@ class $VocabulariesTable extends Vocabularies
         DriftSqlType.string,
         data['${effectivePrefix}word'],
       )!,
-      reading: attachedDatabase.typeMapping.read(
+      kana: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}reading'],
+        data['${effectivePrefix}kana'],
       )!,
       meaning: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}meaning'],
       )!,
-      status: attachedDatabase.typeMapping.read(
+      partOfSpeech: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}status'],
+        data['${effectivePrefix}part_of_speech'],
+      ),
+      jlptLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jlpt_level'],
+      ),
+      frequency: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}frequency'],
+      ),
+      relatedKanji: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}related_kanji'],
+      ),
+      exampleSentences: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}example_sentences'],
+      ),
+      synonyms: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}synonyms'],
+      ),
+      antonyms: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}antonyms'],
+      ),
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
       )!,
     );
   }
 
   @override
-  $VocabulariesTable createAlias(String alias) {
-    return $VocabulariesTable(attachedDatabase, alias);
+  $MasterVocabulariesTable createAlias(String alias) {
+    return $MasterVocabulariesTable(attachedDatabase, alias);
   }
 }
 
-class Vocabulary extends DataClass implements Insertable<Vocabulary> {
+class MasterVocabulary extends DataClass
+    implements Insertable<MasterVocabulary> {
   final String id;
   final String word;
-  final String reading;
+  final String kana;
   final String meaning;
-  final String status;
-  const Vocabulary({
+  final String? partOfSpeech;
+  final int? jlptLevel;
+  final int? frequency;
+  final String? relatedKanji;
+  final String? exampleSentences;
+  final String? synonyms;
+  final String? antonyms;
+  final String? tags;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const MasterVocabulary({
     required this.id,
     required this.word,
-    required this.reading,
+    required this.kana,
     required this.meaning,
-    required this.status,
+    this.partOfSpeech,
+    this.jlptLevel,
+    this.frequency,
+    this.relatedKanji,
+    this.exampleSentences,
+    this.synonyms,
+    this.antonyms,
+    this.tags,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['word'] = Variable<String>(word);
-    map['reading'] = Variable<String>(reading);
+    map['kana'] = Variable<String>(kana);
     map['meaning'] = Variable<String>(meaning);
-    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || partOfSpeech != null) {
+      map['part_of_speech'] = Variable<String>(partOfSpeech);
+    }
+    if (!nullToAbsent || jlptLevel != null) {
+      map['jlpt_level'] = Variable<int>(jlptLevel);
+    }
+    if (!nullToAbsent || frequency != null) {
+      map['frequency'] = Variable<int>(frequency);
+    }
+    if (!nullToAbsent || relatedKanji != null) {
+      map['related_kanji'] = Variable<String>(relatedKanji);
+    }
+    if (!nullToAbsent || exampleSentences != null) {
+      map['example_sentences'] = Variable<String>(exampleSentences);
+    }
+    if (!nullToAbsent || synonyms != null) {
+      map['synonyms'] = Variable<String>(synonyms);
+    }
+    if (!nullToAbsent || antonyms != null) {
+      map['antonyms'] = Variable<String>(antonyms);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
-  VocabulariesCompanion toCompanion(bool nullToAbsent) {
-    return VocabulariesCompanion(
+  MasterVocabulariesCompanion toCompanion(bool nullToAbsent) {
+    return MasterVocabulariesCompanion(
       id: Value(id),
       word: Value(word),
-      reading: Value(reading),
+      kana: Value(kana),
       meaning: Value(meaning),
-      status: Value(status),
+      partOfSpeech: partOfSpeech == null && nullToAbsent
+          ? const Value.absent()
+          : Value(partOfSpeech),
+      jlptLevel: jlptLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(jlptLevel),
+      frequency: frequency == null && nullToAbsent
+          ? const Value.absent()
+          : Value(frequency),
+      relatedKanji: relatedKanji == null && nullToAbsent
+          ? const Value.absent()
+          : Value(relatedKanji),
+      exampleSentences: exampleSentences == null && nullToAbsent
+          ? const Value.absent()
+          : Value(exampleSentences),
+      synonyms: synonyms == null && nullToAbsent
+          ? const Value.absent()
+          : Value(synonyms),
+      antonyms: antonyms == null && nullToAbsent
+          ? const Value.absent()
+          : Value(antonyms),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
-  factory Vocabulary.fromJson(
+  factory MasterVocabulary.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Vocabulary(
+    return MasterVocabulary(
       id: serializer.fromJson<String>(json['id']),
       word: serializer.fromJson<String>(json['word']),
-      reading: serializer.fromJson<String>(json['reading']),
+      kana: serializer.fromJson<String>(json['kana']),
       meaning: serializer.fromJson<String>(json['meaning']),
-      status: serializer.fromJson<String>(json['status']),
+      partOfSpeech: serializer.fromJson<String?>(json['partOfSpeech']),
+      jlptLevel: serializer.fromJson<int?>(json['jlptLevel']),
+      frequency: serializer.fromJson<int?>(json['frequency']),
+      relatedKanji: serializer.fromJson<String?>(json['relatedKanji']),
+      exampleSentences: serializer.fromJson<String?>(json['exampleSentences']),
+      synonyms: serializer.fromJson<String?>(json['synonyms']),
+      antonyms: serializer.fromJson<String?>(json['antonyms']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -2266,118 +2629,274 @@ class Vocabulary extends DataClass implements Insertable<Vocabulary> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'word': serializer.toJson<String>(word),
-      'reading': serializer.toJson<String>(reading),
+      'kana': serializer.toJson<String>(kana),
       'meaning': serializer.toJson<String>(meaning),
-      'status': serializer.toJson<String>(status),
+      'partOfSpeech': serializer.toJson<String?>(partOfSpeech),
+      'jlptLevel': serializer.toJson<int?>(jlptLevel),
+      'frequency': serializer.toJson<int?>(frequency),
+      'relatedKanji': serializer.toJson<String?>(relatedKanji),
+      'exampleSentences': serializer.toJson<String?>(exampleSentences),
+      'synonyms': serializer.toJson<String?>(synonyms),
+      'antonyms': serializer.toJson<String?>(antonyms),
+      'tags': serializer.toJson<String?>(tags),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
-  Vocabulary copyWith({
+  MasterVocabulary copyWith({
     String? id,
     String? word,
-    String? reading,
+    String? kana,
     String? meaning,
-    String? status,
-  }) => Vocabulary(
+    Value<String?> partOfSpeech = const Value.absent(),
+    Value<int?> jlptLevel = const Value.absent(),
+    Value<int?> frequency = const Value.absent(),
+    Value<String?> relatedKanji = const Value.absent(),
+    Value<String?> exampleSentences = const Value.absent(),
+    Value<String?> synonyms = const Value.absent(),
+    Value<String?> antonyms = const Value.absent(),
+    Value<String?> tags = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => MasterVocabulary(
     id: id ?? this.id,
     word: word ?? this.word,
-    reading: reading ?? this.reading,
+    kana: kana ?? this.kana,
     meaning: meaning ?? this.meaning,
-    status: status ?? this.status,
+    partOfSpeech: partOfSpeech.present ? partOfSpeech.value : this.partOfSpeech,
+    jlptLevel: jlptLevel.present ? jlptLevel.value : this.jlptLevel,
+    frequency: frequency.present ? frequency.value : this.frequency,
+    relatedKanji: relatedKanji.present ? relatedKanji.value : this.relatedKanji,
+    exampleSentences: exampleSentences.present
+        ? exampleSentences.value
+        : this.exampleSentences,
+    synonyms: synonyms.present ? synonyms.value : this.synonyms,
+    antonyms: antonyms.present ? antonyms.value : this.antonyms,
+    tags: tags.present ? tags.value : this.tags,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
   );
-  Vocabulary copyWithCompanion(VocabulariesCompanion data) {
-    return Vocabulary(
+  MasterVocabulary copyWithCompanion(MasterVocabulariesCompanion data) {
+    return MasterVocabulary(
       id: data.id.present ? data.id.value : this.id,
       word: data.word.present ? data.word.value : this.word,
-      reading: data.reading.present ? data.reading.value : this.reading,
+      kana: data.kana.present ? data.kana.value : this.kana,
       meaning: data.meaning.present ? data.meaning.value : this.meaning,
-      status: data.status.present ? data.status.value : this.status,
+      partOfSpeech: data.partOfSpeech.present
+          ? data.partOfSpeech.value
+          : this.partOfSpeech,
+      jlptLevel: data.jlptLevel.present ? data.jlptLevel.value : this.jlptLevel,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      relatedKanji: data.relatedKanji.present
+          ? data.relatedKanji.value
+          : this.relatedKanji,
+      exampleSentences: data.exampleSentences.present
+          ? data.exampleSentences.value
+          : this.exampleSentences,
+      synonyms: data.synonyms.present ? data.synonyms.value : this.synonyms,
+      antonyms: data.antonyms.present ? data.antonyms.value : this.antonyms,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('Vocabulary(')
+    return (StringBuffer('MasterVocabulary(')
           ..write('id: $id, ')
           ..write('word: $word, ')
-          ..write('reading: $reading, ')
+          ..write('kana: $kana, ')
           ..write('meaning: $meaning, ')
-          ..write('status: $status')
+          ..write('partOfSpeech: $partOfSpeech, ')
+          ..write('jlptLevel: $jlptLevel, ')
+          ..write('frequency: $frequency, ')
+          ..write('relatedKanji: $relatedKanji, ')
+          ..write('exampleSentences: $exampleSentences, ')
+          ..write('synonyms: $synonyms, ')
+          ..write('antonyms: $antonyms, ')
+          ..write('tags: $tags, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, word, reading, meaning, status);
+  int get hashCode => Object.hash(
+    id,
+    word,
+    kana,
+    meaning,
+    partOfSpeech,
+    jlptLevel,
+    frequency,
+    relatedKanji,
+    exampleSentences,
+    synonyms,
+    antonyms,
+    tags,
+    notes,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Vocabulary &&
+      (other is MasterVocabulary &&
           other.id == this.id &&
           other.word == this.word &&
-          other.reading == this.reading &&
+          other.kana == this.kana &&
           other.meaning == this.meaning &&
-          other.status == this.status);
+          other.partOfSpeech == this.partOfSpeech &&
+          other.jlptLevel == this.jlptLevel &&
+          other.frequency == this.frequency &&
+          other.relatedKanji == this.relatedKanji &&
+          other.exampleSentences == this.exampleSentences &&
+          other.synonyms == this.synonyms &&
+          other.antonyms == this.antonyms &&
+          other.tags == this.tags &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
-class VocabulariesCompanion extends UpdateCompanion<Vocabulary> {
+class MasterVocabulariesCompanion extends UpdateCompanion<MasterVocabulary> {
   final Value<String> id;
   final Value<String> word;
-  final Value<String> reading;
+  final Value<String> kana;
   final Value<String> meaning;
-  final Value<String> status;
+  final Value<String?> partOfSpeech;
+  final Value<int?> jlptLevel;
+  final Value<int?> frequency;
+  final Value<String?> relatedKanji;
+  final Value<String?> exampleSentences;
+  final Value<String?> synonyms;
+  final Value<String?> antonyms;
+  final Value<String?> tags;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
   final Value<int> rowid;
-  const VocabulariesCompanion({
+  const MasterVocabulariesCompanion({
     this.id = const Value.absent(),
     this.word = const Value.absent(),
-    this.reading = const Value.absent(),
+    this.kana = const Value.absent(),
     this.meaning = const Value.absent(),
-    this.status = const Value.absent(),
+    this.partOfSpeech = const Value.absent(),
+    this.jlptLevel = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.relatedKanji = const Value.absent(),
+    this.exampleSentences = const Value.absent(),
+    this.synonyms = const Value.absent(),
+    this.antonyms = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  VocabulariesCompanion.insert({
+  MasterVocabulariesCompanion.insert({
     required String id,
     required String word,
-    required String reading,
+    required String kana,
     required String meaning,
-    this.status = const Value.absent(),
+    this.partOfSpeech = const Value.absent(),
+    this.jlptLevel = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.relatedKanji = const Value.absent(),
+    this.exampleSentences = const Value.absent(),
+    this.synonyms = const Value.absent(),
+    this.antonyms = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        word = Value(word),
-       reading = Value(reading),
-       meaning = Value(meaning);
-  static Insertable<Vocabulary> custom({
+       kana = Value(kana),
+       meaning = Value(meaning),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<MasterVocabulary> custom({
     Expression<String>? id,
     Expression<String>? word,
-    Expression<String>? reading,
+    Expression<String>? kana,
     Expression<String>? meaning,
-    Expression<String>? status,
+    Expression<String>? partOfSpeech,
+    Expression<int>? jlptLevel,
+    Expression<int>? frequency,
+    Expression<String>? relatedKanji,
+    Expression<String>? exampleSentences,
+    Expression<String>? synonyms,
+    Expression<String>? antonyms,
+    Expression<String>? tags,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (word != null) 'word': word,
-      if (reading != null) 'reading': reading,
+      if (kana != null) 'kana': kana,
       if (meaning != null) 'meaning': meaning,
-      if (status != null) 'status': status,
+      if (partOfSpeech != null) 'part_of_speech': partOfSpeech,
+      if (jlptLevel != null) 'jlpt_level': jlptLevel,
+      if (frequency != null) 'frequency': frequency,
+      if (relatedKanji != null) 'related_kanji': relatedKanji,
+      if (exampleSentences != null) 'example_sentences': exampleSentences,
+      if (synonyms != null) 'synonyms': synonyms,
+      if (antonyms != null) 'antonyms': antonyms,
+      if (tags != null) 'tags': tags,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  VocabulariesCompanion copyWith({
+  MasterVocabulariesCompanion copyWith({
     Value<String>? id,
     Value<String>? word,
-    Value<String>? reading,
+    Value<String>? kana,
     Value<String>? meaning,
-    Value<String>? status,
+    Value<String?>? partOfSpeech,
+    Value<int?>? jlptLevel,
+    Value<int?>? frequency,
+    Value<String?>? relatedKanji,
+    Value<String?>? exampleSentences,
+    Value<String?>? synonyms,
+    Value<String?>? antonyms,
+    Value<String?>? tags,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
-    return VocabulariesCompanion(
+    return MasterVocabulariesCompanion(
       id: id ?? this.id,
       word: word ?? this.word,
-      reading: reading ?? this.reading,
+      kana: kana ?? this.kana,
       meaning: meaning ?? this.meaning,
-      status: status ?? this.status,
+      partOfSpeech: partOfSpeech ?? this.partOfSpeech,
+      jlptLevel: jlptLevel ?? this.jlptLevel,
+      frequency: frequency ?? this.frequency,
+      relatedKanji: relatedKanji ?? this.relatedKanji,
+      exampleSentences: exampleSentences ?? this.exampleSentences,
+      synonyms: synonyms ?? this.synonyms,
+      antonyms: antonyms ?? this.antonyms,
+      tags: tags ?? this.tags,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2391,14 +2910,44 @@ class VocabulariesCompanion extends UpdateCompanion<Vocabulary> {
     if (word.present) {
       map['word'] = Variable<String>(word.value);
     }
-    if (reading.present) {
-      map['reading'] = Variable<String>(reading.value);
+    if (kana.present) {
+      map['kana'] = Variable<String>(kana.value);
     }
     if (meaning.present) {
       map['meaning'] = Variable<String>(meaning.value);
     }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
+    if (partOfSpeech.present) {
+      map['part_of_speech'] = Variable<String>(partOfSpeech.value);
+    }
+    if (jlptLevel.present) {
+      map['jlpt_level'] = Variable<int>(jlptLevel.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<int>(frequency.value);
+    }
+    if (relatedKanji.present) {
+      map['related_kanji'] = Variable<String>(relatedKanji.value);
+    }
+    if (exampleSentences.present) {
+      map['example_sentences'] = Variable<String>(exampleSentences.value);
+    }
+    if (synonyms.present) {
+      map['synonyms'] = Variable<String>(synonyms.value);
+    }
+    if (antonyms.present) {
+      map['antonyms'] = Variable<String>(antonyms.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -2408,23 +2957,2048 @@ class VocabulariesCompanion extends UpdateCompanion<Vocabulary> {
 
   @override
   String toString() {
-    return (StringBuffer('VocabulariesCompanion(')
+    return (StringBuffer('MasterVocabulariesCompanion(')
           ..write('id: $id, ')
           ..write('word: $word, ')
-          ..write('reading: $reading, ')
+          ..write('kana: $kana, ')
           ..write('meaning: $meaning, ')
-          ..write('status: $status, ')
+          ..write('partOfSpeech: $partOfSpeech, ')
+          ..write('jlptLevel: $jlptLevel, ')
+          ..write('frequency: $frequency, ')
+          ..write('relatedKanji: $relatedKanji, ')
+          ..write('exampleSentences: $exampleSentences, ')
+          ..write('synonyms: $synonyms, ')
+          ..write('antonyms: $antonyms, ')
+          ..write('tags: $tags, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
+class $UserVocabulariesTable extends UserVocabularies
+    with TableInfo<$UserVocabulariesTable, UserVocabulary> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $GrammarsTable(this.attachedDatabase, [this._alias]);
+  $UserVocabulariesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _masterVocabIdMeta = const VerificationMeta(
+    'masterVocabId',
+  );
+  @override
+  late final GeneratedColumn<String> masterVocabId = GeneratedColumn<String>(
+    'master_vocab_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _isAddedMeta = const VerificationMeta(
+    'isAdded',
+  );
+  @override
+  late final GeneratedColumn<bool> isAdded = GeneratedColumn<bool>(
+    'is_added',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_added" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unlearned'),
+  );
+  static const VerificationMeta _reviewCountMeta = const VerificationMeta(
+    'reviewCount',
+  );
+  @override
+  late final GeneratedColumn<int> reviewCount = GeneratedColumn<int>(
+    'review_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _nextReviewMeta = const VerificationMeta(
+    'nextReview',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextReview = GeneratedColumn<DateTime>(
+    'next_review',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastReviewedMeta = const VerificationMeta(
+    'lastReviewed',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastReviewed = GeneratedColumn<DateTime>(
+    'last_reviewed',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _easeFactorMeta = const VerificationMeta(
+    'easeFactor',
+  );
+  @override
+  late final GeneratedColumn<double> easeFactor = GeneratedColumn<double>(
+    'ease_factor',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(2.5),
+  );
+  static const VerificationMeta _customNotesMeta = const VerificationMeta(
+    'customNotes',
+  );
+  @override
+  late final GeneratedColumn<String> customNotes = GeneratedColumn<String>(
+    'custom_notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    masterVocabId,
+    isAdded,
+    isFavorite,
+    status,
+    reviewCount,
+    nextReview,
+    lastReviewed,
+    easeFactor,
+    customNotes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_vocabularies';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserVocabulary> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('master_vocab_id')) {
+      context.handle(
+        _masterVocabIdMeta,
+        masterVocabId.isAcceptableOrUnknown(
+          data['master_vocab_id']!,
+          _masterVocabIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_masterVocabIdMeta);
+    }
+    if (data.containsKey('is_added')) {
+      context.handle(
+        _isAddedMeta,
+        isAdded.isAcceptableOrUnknown(data['is_added']!, _isAddedMeta),
+      );
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('review_count')) {
+      context.handle(
+        _reviewCountMeta,
+        reviewCount.isAcceptableOrUnknown(
+          data['review_count']!,
+          _reviewCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('next_review')) {
+      context.handle(
+        _nextReviewMeta,
+        nextReview.isAcceptableOrUnknown(data['next_review']!, _nextReviewMeta),
+      );
+    }
+    if (data.containsKey('last_reviewed')) {
+      context.handle(
+        _lastReviewedMeta,
+        lastReviewed.isAcceptableOrUnknown(
+          data['last_reviewed']!,
+          _lastReviewedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('ease_factor')) {
+      context.handle(
+        _easeFactorMeta,
+        easeFactor.isAcceptableOrUnknown(data['ease_factor']!, _easeFactorMeta),
+      );
+    }
+    if (data.containsKey('custom_notes')) {
+      context.handle(
+        _customNotesMeta,
+        customNotes.isAcceptableOrUnknown(
+          data['custom_notes']!,
+          _customNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserVocabulary map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserVocabulary(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      masterVocabId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}master_vocab_id'],
+      )!,
+      isAdded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_added'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      reviewCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}review_count'],
+      )!,
+      nextReview: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_review'],
+      ),
+      lastReviewed: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_reviewed'],
+      ),
+      easeFactor: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}ease_factor'],
+      )!,
+      customNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_notes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserVocabulariesTable createAlias(String alias) {
+    return $UserVocabulariesTable(attachedDatabase, alias);
+  }
+}
+
+class UserVocabulary extends DataClass implements Insertable<UserVocabulary> {
+  final String id;
+  final String masterVocabId;
+  final bool isAdded;
+  final bool isFavorite;
+  final String status;
+  final int reviewCount;
+  final DateTime? nextReview;
+  final DateTime? lastReviewed;
+  final double easeFactor;
+  final String customNotes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const UserVocabulary({
+    required this.id,
+    required this.masterVocabId,
+    required this.isAdded,
+    required this.isFavorite,
+    required this.status,
+    required this.reviewCount,
+    this.nextReview,
+    this.lastReviewed,
+    required this.easeFactor,
+    required this.customNotes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['master_vocab_id'] = Variable<String>(masterVocabId);
+    map['is_added'] = Variable<bool>(isAdded);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['status'] = Variable<String>(status);
+    map['review_count'] = Variable<int>(reviewCount);
+    if (!nullToAbsent || nextReview != null) {
+      map['next_review'] = Variable<DateTime>(nextReview);
+    }
+    if (!nullToAbsent || lastReviewed != null) {
+      map['last_reviewed'] = Variable<DateTime>(lastReviewed);
+    }
+    map['ease_factor'] = Variable<double>(easeFactor);
+    map['custom_notes'] = Variable<String>(customNotes);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  UserVocabulariesCompanion toCompanion(bool nullToAbsent) {
+    return UserVocabulariesCompanion(
+      id: Value(id),
+      masterVocabId: Value(masterVocabId),
+      isAdded: Value(isAdded),
+      isFavorite: Value(isFavorite),
+      status: Value(status),
+      reviewCount: Value(reviewCount),
+      nextReview: nextReview == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextReview),
+      lastReviewed: lastReviewed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastReviewed),
+      easeFactor: Value(easeFactor),
+      customNotes: Value(customNotes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserVocabulary.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserVocabulary(
+      id: serializer.fromJson<String>(json['id']),
+      masterVocabId: serializer.fromJson<String>(json['masterVocabId']),
+      isAdded: serializer.fromJson<bool>(json['isAdded']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      status: serializer.fromJson<String>(json['status']),
+      reviewCount: serializer.fromJson<int>(json['reviewCount']),
+      nextReview: serializer.fromJson<DateTime?>(json['nextReview']),
+      lastReviewed: serializer.fromJson<DateTime?>(json['lastReviewed']),
+      easeFactor: serializer.fromJson<double>(json['easeFactor']),
+      customNotes: serializer.fromJson<String>(json['customNotes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'masterVocabId': serializer.toJson<String>(masterVocabId),
+      'isAdded': serializer.toJson<bool>(isAdded),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'status': serializer.toJson<String>(status),
+      'reviewCount': serializer.toJson<int>(reviewCount),
+      'nextReview': serializer.toJson<DateTime?>(nextReview),
+      'lastReviewed': serializer.toJson<DateTime?>(lastReviewed),
+      'easeFactor': serializer.toJson<double>(easeFactor),
+      'customNotes': serializer.toJson<String>(customNotes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  UserVocabulary copyWith({
+    String? id,
+    String? masterVocabId,
+    bool? isAdded,
+    bool? isFavorite,
+    String? status,
+    int? reviewCount,
+    Value<DateTime?> nextReview = const Value.absent(),
+    Value<DateTime?> lastReviewed = const Value.absent(),
+    double? easeFactor,
+    String? customNotes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => UserVocabulary(
+    id: id ?? this.id,
+    masterVocabId: masterVocabId ?? this.masterVocabId,
+    isAdded: isAdded ?? this.isAdded,
+    isFavorite: isFavorite ?? this.isFavorite,
+    status: status ?? this.status,
+    reviewCount: reviewCount ?? this.reviewCount,
+    nextReview: nextReview.present ? nextReview.value : this.nextReview,
+    lastReviewed: lastReviewed.present ? lastReviewed.value : this.lastReviewed,
+    easeFactor: easeFactor ?? this.easeFactor,
+    customNotes: customNotes ?? this.customNotes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  UserVocabulary copyWithCompanion(UserVocabulariesCompanion data) {
+    return UserVocabulary(
+      id: data.id.present ? data.id.value : this.id,
+      masterVocabId: data.masterVocabId.present
+          ? data.masterVocabId.value
+          : this.masterVocabId,
+      isAdded: data.isAdded.present ? data.isAdded.value : this.isAdded,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+      status: data.status.present ? data.status.value : this.status,
+      reviewCount: data.reviewCount.present
+          ? data.reviewCount.value
+          : this.reviewCount,
+      nextReview: data.nextReview.present
+          ? data.nextReview.value
+          : this.nextReview,
+      lastReviewed: data.lastReviewed.present
+          ? data.lastReviewed.value
+          : this.lastReviewed,
+      easeFactor: data.easeFactor.present
+          ? data.easeFactor.value
+          : this.easeFactor,
+      customNotes: data.customNotes.present
+          ? data.customNotes.value
+          : this.customNotes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserVocabulary(')
+          ..write('id: $id, ')
+          ..write('masterVocabId: $masterVocabId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('reviewCount: $reviewCount, ')
+          ..write('nextReview: $nextReview, ')
+          ..write('lastReviewed: $lastReviewed, ')
+          ..write('easeFactor: $easeFactor, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    masterVocabId,
+    isAdded,
+    isFavorite,
+    status,
+    reviewCount,
+    nextReview,
+    lastReviewed,
+    easeFactor,
+    customNotes,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserVocabulary &&
+          other.id == this.id &&
+          other.masterVocabId == this.masterVocabId &&
+          other.isAdded == this.isAdded &&
+          other.isFavorite == this.isFavorite &&
+          other.status == this.status &&
+          other.reviewCount == this.reviewCount &&
+          other.nextReview == this.nextReview &&
+          other.lastReviewed == this.lastReviewed &&
+          other.easeFactor == this.easeFactor &&
+          other.customNotes == this.customNotes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserVocabulariesCompanion extends UpdateCompanion<UserVocabulary> {
+  final Value<String> id;
+  final Value<String> masterVocabId;
+  final Value<bool> isAdded;
+  final Value<bool> isFavorite;
+  final Value<String> status;
+  final Value<int> reviewCount;
+  final Value<DateTime?> nextReview;
+  final Value<DateTime?> lastReviewed;
+  final Value<double> easeFactor;
+  final Value<String> customNotes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const UserVocabulariesCompanion({
+    this.id = const Value.absent(),
+    this.masterVocabId = const Value.absent(),
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.reviewCount = const Value.absent(),
+    this.nextReview = const Value.absent(),
+    this.lastReviewed = const Value.absent(),
+    this.easeFactor = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserVocabulariesCompanion.insert({
+    required String id,
+    required String masterVocabId,
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.reviewCount = const Value.absent(),
+    this.nextReview = const Value.absent(),
+    this.lastReviewed = const Value.absent(),
+    this.easeFactor = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       masterVocabId = Value(masterVocabId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<UserVocabulary> custom({
+    Expression<String>? id,
+    Expression<String>? masterVocabId,
+    Expression<bool>? isAdded,
+    Expression<bool>? isFavorite,
+    Expression<String>? status,
+    Expression<int>? reviewCount,
+    Expression<DateTime>? nextReview,
+    Expression<DateTime>? lastReviewed,
+    Expression<double>? easeFactor,
+    Expression<String>? customNotes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (masterVocabId != null) 'master_vocab_id': masterVocabId,
+      if (isAdded != null) 'is_added': isAdded,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (status != null) 'status': status,
+      if (reviewCount != null) 'review_count': reviewCount,
+      if (nextReview != null) 'next_review': nextReview,
+      if (lastReviewed != null) 'last_reviewed': lastReviewed,
+      if (easeFactor != null) 'ease_factor': easeFactor,
+      if (customNotes != null) 'custom_notes': customNotes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserVocabulariesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? masterVocabId,
+    Value<bool>? isAdded,
+    Value<bool>? isFavorite,
+    Value<String>? status,
+    Value<int>? reviewCount,
+    Value<DateTime?>? nextReview,
+    Value<DateTime?>? lastReviewed,
+    Value<double>? easeFactor,
+    Value<String>? customNotes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserVocabulariesCompanion(
+      id: id ?? this.id,
+      masterVocabId: masterVocabId ?? this.masterVocabId,
+      isAdded: isAdded ?? this.isAdded,
+      isFavorite: isFavorite ?? this.isFavorite,
+      status: status ?? this.status,
+      reviewCount: reviewCount ?? this.reviewCount,
+      nextReview: nextReview ?? this.nextReview,
+      lastReviewed: lastReviewed ?? this.lastReviewed,
+      easeFactor: easeFactor ?? this.easeFactor,
+      customNotes: customNotes ?? this.customNotes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (masterVocabId.present) {
+      map['master_vocab_id'] = Variable<String>(masterVocabId.value);
+    }
+    if (isAdded.present) {
+      map['is_added'] = Variable<bool>(isAdded.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (reviewCount.present) {
+      map['review_count'] = Variable<int>(reviewCount.value);
+    }
+    if (nextReview.present) {
+      map['next_review'] = Variable<DateTime>(nextReview.value);
+    }
+    if (lastReviewed.present) {
+      map['last_reviewed'] = Variable<DateTime>(lastReviewed.value);
+    }
+    if (easeFactor.present) {
+      map['ease_factor'] = Variable<double>(easeFactor.value);
+    }
+    if (customNotes.present) {
+      map['custom_notes'] = Variable<String>(customNotes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserVocabulariesCompanion(')
+          ..write('id: $id, ')
+          ..write('masterVocabId: $masterVocabId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('reviewCount: $reviewCount, ')
+          ..write('nextReview: $nextReview, ')
+          ..write('lastReviewed: $lastReviewed, ')
+          ..write('easeFactor: $easeFactor, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MasterGrammarsTable extends MasterGrammars
+    with TableInfo<$MasterGrammarsTable, MasterGrammar> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MasterGrammarsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _patternMeta = const VerificationMeta(
+    'pattern',
+  );
+  @override
+  late final GeneratedColumn<String> pattern = GeneratedColumn<String>(
+    'pattern',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _meaningMeta = const VerificationMeta(
+    'meaning',
+  );
+  @override
+  late final GeneratedColumn<String> meaning = GeneratedColumn<String>(
+    'meaning',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _formationMeta = const VerificationMeta(
+    'formation',
+  );
+  @override
+  late final GeneratedColumn<String> formation = GeneratedColumn<String>(
+    'formation',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _usageMeta = const VerificationMeta('usage');
+  @override
+  late final GeneratedColumn<String> usage = GeneratedColumn<String>(
+    'usage',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _examplesMeta = const VerificationMeta(
+    'examples',
+  );
+  @override
+  late final GeneratedColumn<String> examples = GeneratedColumn<String>(
+    'examples',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _commonMistakesMeta = const VerificationMeta(
+    'commonMistakes',
+  );
+  @override
+  late final GeneratedColumn<String> commonMistakes = GeneratedColumn<String>(
+    'common_mistakes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _relatedGrammarMeta = const VerificationMeta(
+    'relatedGrammar',
+  );
+  @override
+  late final GeneratedColumn<String> relatedGrammar = GeneratedColumn<String>(
+    'related_grammar',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _jlptLevelMeta = const VerificationMeta(
+    'jlptLevel',
+  );
+  @override
+  late final GeneratedColumn<int> jlptLevel = GeneratedColumn<int>(
+    'jlpt_level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    pattern,
+    meaning,
+    formation,
+    usage,
+    examples,
+    commonMistakes,
+    relatedGrammar,
+    jlptLevel,
+    tags,
+    notes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'master_grammars';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MasterGrammar> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('pattern')) {
+      context.handle(
+        _patternMeta,
+        pattern.isAcceptableOrUnknown(data['pattern']!, _patternMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_patternMeta);
+    }
+    if (data.containsKey('meaning')) {
+      context.handle(
+        _meaningMeta,
+        meaning.isAcceptableOrUnknown(data['meaning']!, _meaningMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_meaningMeta);
+    }
+    if (data.containsKey('formation')) {
+      context.handle(
+        _formationMeta,
+        formation.isAcceptableOrUnknown(data['formation']!, _formationMeta),
+      );
+    }
+    if (data.containsKey('usage')) {
+      context.handle(
+        _usageMeta,
+        usage.isAcceptableOrUnknown(data['usage']!, _usageMeta),
+      );
+    }
+    if (data.containsKey('examples')) {
+      context.handle(
+        _examplesMeta,
+        examples.isAcceptableOrUnknown(data['examples']!, _examplesMeta),
+      );
+    }
+    if (data.containsKey('common_mistakes')) {
+      context.handle(
+        _commonMistakesMeta,
+        commonMistakes.isAcceptableOrUnknown(
+          data['common_mistakes']!,
+          _commonMistakesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('related_grammar')) {
+      context.handle(
+        _relatedGrammarMeta,
+        relatedGrammar.isAcceptableOrUnknown(
+          data['related_grammar']!,
+          _relatedGrammarMeta,
+        ),
+      );
+    }
+    if (data.containsKey('jlpt_level')) {
+      context.handle(
+        _jlptLevelMeta,
+        jlptLevel.isAcceptableOrUnknown(data['jlpt_level']!, _jlptLevelMeta),
+      );
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MasterGrammar map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MasterGrammar(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      pattern: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pattern'],
+      )!,
+      meaning: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}meaning'],
+      )!,
+      formation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}formation'],
+      ),
+      usage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}usage'],
+      ),
+      examples: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}examples'],
+      ),
+      commonMistakes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}common_mistakes'],
+      ),
+      relatedGrammar: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}related_grammar'],
+      ),
+      jlptLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jlpt_level'],
+      ),
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $MasterGrammarsTable createAlias(String alias) {
+    return $MasterGrammarsTable(attachedDatabase, alias);
+  }
+}
+
+class MasterGrammar extends DataClass implements Insertable<MasterGrammar> {
+  final String id;
+  final String pattern;
+  final String meaning;
+  final String? formation;
+  final String? usage;
+  final String? examples;
+  final String? commonMistakes;
+  final String? relatedGrammar;
+  final int? jlptLevel;
+  final String? tags;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const MasterGrammar({
+    required this.id,
+    required this.pattern,
+    required this.meaning,
+    this.formation,
+    this.usage,
+    this.examples,
+    this.commonMistakes,
+    this.relatedGrammar,
+    this.jlptLevel,
+    this.tags,
+    this.notes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['pattern'] = Variable<String>(pattern);
+    map['meaning'] = Variable<String>(meaning);
+    if (!nullToAbsent || formation != null) {
+      map['formation'] = Variable<String>(formation);
+    }
+    if (!nullToAbsent || usage != null) {
+      map['usage'] = Variable<String>(usage);
+    }
+    if (!nullToAbsent || examples != null) {
+      map['examples'] = Variable<String>(examples);
+    }
+    if (!nullToAbsent || commonMistakes != null) {
+      map['common_mistakes'] = Variable<String>(commonMistakes);
+    }
+    if (!nullToAbsent || relatedGrammar != null) {
+      map['related_grammar'] = Variable<String>(relatedGrammar);
+    }
+    if (!nullToAbsent || jlptLevel != null) {
+      map['jlpt_level'] = Variable<int>(jlptLevel);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  MasterGrammarsCompanion toCompanion(bool nullToAbsent) {
+    return MasterGrammarsCompanion(
+      id: Value(id),
+      pattern: Value(pattern),
+      meaning: Value(meaning),
+      formation: formation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(formation),
+      usage: usage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(usage),
+      examples: examples == null && nullToAbsent
+          ? const Value.absent()
+          : Value(examples),
+      commonMistakes: commonMistakes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commonMistakes),
+      relatedGrammar: relatedGrammar == null && nullToAbsent
+          ? const Value.absent()
+          : Value(relatedGrammar),
+      jlptLevel: jlptLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(jlptLevel),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory MasterGrammar.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MasterGrammar(
+      id: serializer.fromJson<String>(json['id']),
+      pattern: serializer.fromJson<String>(json['pattern']),
+      meaning: serializer.fromJson<String>(json['meaning']),
+      formation: serializer.fromJson<String?>(json['formation']),
+      usage: serializer.fromJson<String?>(json['usage']),
+      examples: serializer.fromJson<String?>(json['examples']),
+      commonMistakes: serializer.fromJson<String?>(json['commonMistakes']),
+      relatedGrammar: serializer.fromJson<String?>(json['relatedGrammar']),
+      jlptLevel: serializer.fromJson<int?>(json['jlptLevel']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'pattern': serializer.toJson<String>(pattern),
+      'meaning': serializer.toJson<String>(meaning),
+      'formation': serializer.toJson<String?>(formation),
+      'usage': serializer.toJson<String?>(usage),
+      'examples': serializer.toJson<String?>(examples),
+      'commonMistakes': serializer.toJson<String?>(commonMistakes),
+      'relatedGrammar': serializer.toJson<String?>(relatedGrammar),
+      'jlptLevel': serializer.toJson<int?>(jlptLevel),
+      'tags': serializer.toJson<String?>(tags),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  MasterGrammar copyWith({
+    String? id,
+    String? pattern,
+    String? meaning,
+    Value<String?> formation = const Value.absent(),
+    Value<String?> usage = const Value.absent(),
+    Value<String?> examples = const Value.absent(),
+    Value<String?> commonMistakes = const Value.absent(),
+    Value<String?> relatedGrammar = const Value.absent(),
+    Value<int?> jlptLevel = const Value.absent(),
+    Value<String?> tags = const Value.absent(),
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => MasterGrammar(
+    id: id ?? this.id,
+    pattern: pattern ?? this.pattern,
+    meaning: meaning ?? this.meaning,
+    formation: formation.present ? formation.value : this.formation,
+    usage: usage.present ? usage.value : this.usage,
+    examples: examples.present ? examples.value : this.examples,
+    commonMistakes: commonMistakes.present
+        ? commonMistakes.value
+        : this.commonMistakes,
+    relatedGrammar: relatedGrammar.present
+        ? relatedGrammar.value
+        : this.relatedGrammar,
+    jlptLevel: jlptLevel.present ? jlptLevel.value : this.jlptLevel,
+    tags: tags.present ? tags.value : this.tags,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  MasterGrammar copyWithCompanion(MasterGrammarsCompanion data) {
+    return MasterGrammar(
+      id: data.id.present ? data.id.value : this.id,
+      pattern: data.pattern.present ? data.pattern.value : this.pattern,
+      meaning: data.meaning.present ? data.meaning.value : this.meaning,
+      formation: data.formation.present ? data.formation.value : this.formation,
+      usage: data.usage.present ? data.usage.value : this.usage,
+      examples: data.examples.present ? data.examples.value : this.examples,
+      commonMistakes: data.commonMistakes.present
+          ? data.commonMistakes.value
+          : this.commonMistakes,
+      relatedGrammar: data.relatedGrammar.present
+          ? data.relatedGrammar.value
+          : this.relatedGrammar,
+      jlptLevel: data.jlptLevel.present ? data.jlptLevel.value : this.jlptLevel,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MasterGrammar(')
+          ..write('id: $id, ')
+          ..write('pattern: $pattern, ')
+          ..write('meaning: $meaning, ')
+          ..write('formation: $formation, ')
+          ..write('usage: $usage, ')
+          ..write('examples: $examples, ')
+          ..write('commonMistakes: $commonMistakes, ')
+          ..write('relatedGrammar: $relatedGrammar, ')
+          ..write('jlptLevel: $jlptLevel, ')
+          ..write('tags: $tags, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    pattern,
+    meaning,
+    formation,
+    usage,
+    examples,
+    commonMistakes,
+    relatedGrammar,
+    jlptLevel,
+    tags,
+    notes,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MasterGrammar &&
+          other.id == this.id &&
+          other.pattern == this.pattern &&
+          other.meaning == this.meaning &&
+          other.formation == this.formation &&
+          other.usage == this.usage &&
+          other.examples == this.examples &&
+          other.commonMistakes == this.commonMistakes &&
+          other.relatedGrammar == this.relatedGrammar &&
+          other.jlptLevel == this.jlptLevel &&
+          other.tags == this.tags &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class MasterGrammarsCompanion extends UpdateCompanion<MasterGrammar> {
+  final Value<String> id;
+  final Value<String> pattern;
+  final Value<String> meaning;
+  final Value<String?> formation;
+  final Value<String?> usage;
+  final Value<String?> examples;
+  final Value<String?> commonMistakes;
+  final Value<String?> relatedGrammar;
+  final Value<int?> jlptLevel;
+  final Value<String?> tags;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const MasterGrammarsCompanion({
+    this.id = const Value.absent(),
+    this.pattern = const Value.absent(),
+    this.meaning = const Value.absent(),
+    this.formation = const Value.absent(),
+    this.usage = const Value.absent(),
+    this.examples = const Value.absent(),
+    this.commonMistakes = const Value.absent(),
+    this.relatedGrammar = const Value.absent(),
+    this.jlptLevel = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MasterGrammarsCompanion.insert({
+    required String id,
+    required String pattern,
+    required String meaning,
+    this.formation = const Value.absent(),
+    this.usage = const Value.absent(),
+    this.examples = const Value.absent(),
+    this.commonMistakes = const Value.absent(),
+    this.relatedGrammar = const Value.absent(),
+    this.jlptLevel = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.notes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       pattern = Value(pattern),
+       meaning = Value(meaning),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<MasterGrammar> custom({
+    Expression<String>? id,
+    Expression<String>? pattern,
+    Expression<String>? meaning,
+    Expression<String>? formation,
+    Expression<String>? usage,
+    Expression<String>? examples,
+    Expression<String>? commonMistakes,
+    Expression<String>? relatedGrammar,
+    Expression<int>? jlptLevel,
+    Expression<String>? tags,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (pattern != null) 'pattern': pattern,
+      if (meaning != null) 'meaning': meaning,
+      if (formation != null) 'formation': formation,
+      if (usage != null) 'usage': usage,
+      if (examples != null) 'examples': examples,
+      if (commonMistakes != null) 'common_mistakes': commonMistakes,
+      if (relatedGrammar != null) 'related_grammar': relatedGrammar,
+      if (jlptLevel != null) 'jlpt_level': jlptLevel,
+      if (tags != null) 'tags': tags,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MasterGrammarsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? pattern,
+    Value<String>? meaning,
+    Value<String?>? formation,
+    Value<String?>? usage,
+    Value<String?>? examples,
+    Value<String?>? commonMistakes,
+    Value<String?>? relatedGrammar,
+    Value<int?>? jlptLevel,
+    Value<String?>? tags,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return MasterGrammarsCompanion(
+      id: id ?? this.id,
+      pattern: pattern ?? this.pattern,
+      meaning: meaning ?? this.meaning,
+      formation: formation ?? this.formation,
+      usage: usage ?? this.usage,
+      examples: examples ?? this.examples,
+      commonMistakes: commonMistakes ?? this.commonMistakes,
+      relatedGrammar: relatedGrammar ?? this.relatedGrammar,
+      jlptLevel: jlptLevel ?? this.jlptLevel,
+      tags: tags ?? this.tags,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (pattern.present) {
+      map['pattern'] = Variable<String>(pattern.value);
+    }
+    if (meaning.present) {
+      map['meaning'] = Variable<String>(meaning.value);
+    }
+    if (formation.present) {
+      map['formation'] = Variable<String>(formation.value);
+    }
+    if (usage.present) {
+      map['usage'] = Variable<String>(usage.value);
+    }
+    if (examples.present) {
+      map['examples'] = Variable<String>(examples.value);
+    }
+    if (commonMistakes.present) {
+      map['common_mistakes'] = Variable<String>(commonMistakes.value);
+    }
+    if (relatedGrammar.present) {
+      map['related_grammar'] = Variable<String>(relatedGrammar.value);
+    }
+    if (jlptLevel.present) {
+      map['jlpt_level'] = Variable<int>(jlptLevel.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MasterGrammarsCompanion(')
+          ..write('id: $id, ')
+          ..write('pattern: $pattern, ')
+          ..write('meaning: $meaning, ')
+          ..write('formation: $formation, ')
+          ..write('usage: $usage, ')
+          ..write('examples: $examples, ')
+          ..write('commonMistakes: $commonMistakes, ')
+          ..write('relatedGrammar: $relatedGrammar, ')
+          ..write('jlptLevel: $jlptLevel, ')
+          ..write('tags: $tags, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserGrammarsTable extends UserGrammars
+    with TableInfo<$UserGrammarsTable, UserGrammar> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserGrammarsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _masterGrammarIdMeta = const VerificationMeta(
+    'masterGrammarId',
+  );
+  @override
+  late final GeneratedColumn<String> masterGrammarId = GeneratedColumn<String>(
+    'master_grammar_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_grammars(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _isAddedMeta = const VerificationMeta(
+    'isAdded',
+  );
+  @override
+  late final GeneratedColumn<bool> isAdded = GeneratedColumn<bool>(
+    'is_added',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_added" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unlearned'),
+  );
+  static const VerificationMeta _customNotesMeta = const VerificationMeta(
+    'customNotes',
+  );
+  @override
+  late final GeneratedColumn<String> customNotes = GeneratedColumn<String>(
+    'custom_notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    masterGrammarId,
+    isAdded,
+    isFavorite,
+    status,
+    customNotes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_grammars';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserGrammar> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('master_grammar_id')) {
+      context.handle(
+        _masterGrammarIdMeta,
+        masterGrammarId.isAcceptableOrUnknown(
+          data['master_grammar_id']!,
+          _masterGrammarIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_masterGrammarIdMeta);
+    }
+    if (data.containsKey('is_added')) {
+      context.handle(
+        _isAddedMeta,
+        isAdded.isAcceptableOrUnknown(data['is_added']!, _isAddedMeta),
+      );
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('custom_notes')) {
+      context.handle(
+        _customNotesMeta,
+        customNotes.isAcceptableOrUnknown(
+          data['custom_notes']!,
+          _customNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserGrammar map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserGrammar(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      masterGrammarId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}master_grammar_id'],
+      )!,
+      isAdded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_added'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      customNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_notes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserGrammarsTable createAlias(String alias) {
+    return $UserGrammarsTable(attachedDatabase, alias);
+  }
+}
+
+class UserGrammar extends DataClass implements Insertable<UserGrammar> {
+  final String id;
+  final String masterGrammarId;
+  final bool isAdded;
+  final bool isFavorite;
+  final String status;
+  final String customNotes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const UserGrammar({
+    required this.id,
+    required this.masterGrammarId,
+    required this.isAdded,
+    required this.isFavorite,
+    required this.status,
+    required this.customNotes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['master_grammar_id'] = Variable<String>(masterGrammarId);
+    map['is_added'] = Variable<bool>(isAdded);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['status'] = Variable<String>(status);
+    map['custom_notes'] = Variable<String>(customNotes);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  UserGrammarsCompanion toCompanion(bool nullToAbsent) {
+    return UserGrammarsCompanion(
+      id: Value(id),
+      masterGrammarId: Value(masterGrammarId),
+      isAdded: Value(isAdded),
+      isFavorite: Value(isFavorite),
+      status: Value(status),
+      customNotes: Value(customNotes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserGrammar.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserGrammar(
+      id: serializer.fromJson<String>(json['id']),
+      masterGrammarId: serializer.fromJson<String>(json['masterGrammarId']),
+      isAdded: serializer.fromJson<bool>(json['isAdded']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      status: serializer.fromJson<String>(json['status']),
+      customNotes: serializer.fromJson<String>(json['customNotes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'masterGrammarId': serializer.toJson<String>(masterGrammarId),
+      'isAdded': serializer.toJson<bool>(isAdded),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'status': serializer.toJson<String>(status),
+      'customNotes': serializer.toJson<String>(customNotes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  UserGrammar copyWith({
+    String? id,
+    String? masterGrammarId,
+    bool? isAdded,
+    bool? isFavorite,
+    String? status,
+    String? customNotes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => UserGrammar(
+    id: id ?? this.id,
+    masterGrammarId: masterGrammarId ?? this.masterGrammarId,
+    isAdded: isAdded ?? this.isAdded,
+    isFavorite: isFavorite ?? this.isFavorite,
+    status: status ?? this.status,
+    customNotes: customNotes ?? this.customNotes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  UserGrammar copyWithCompanion(UserGrammarsCompanion data) {
+    return UserGrammar(
+      id: data.id.present ? data.id.value : this.id,
+      masterGrammarId: data.masterGrammarId.present
+          ? data.masterGrammarId.value
+          : this.masterGrammarId,
+      isAdded: data.isAdded.present ? data.isAdded.value : this.isAdded,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+      status: data.status.present ? data.status.value : this.status,
+      customNotes: data.customNotes.present
+          ? data.customNotes.value
+          : this.customNotes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserGrammar(')
+          ..write('id: $id, ')
+          ..write('masterGrammarId: $masterGrammarId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    masterGrammarId,
+    isAdded,
+    isFavorite,
+    status,
+    customNotes,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserGrammar &&
+          other.id == this.id &&
+          other.masterGrammarId == this.masterGrammarId &&
+          other.isAdded == this.isAdded &&
+          other.isFavorite == this.isFavorite &&
+          other.status == this.status &&
+          other.customNotes == this.customNotes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserGrammarsCompanion extends UpdateCompanion<UserGrammar> {
+  final Value<String> id;
+  final Value<String> masterGrammarId;
+  final Value<bool> isAdded;
+  final Value<bool> isFavorite;
+  final Value<String> status;
+  final Value<String> customNotes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const UserGrammarsCompanion({
+    this.id = const Value.absent(),
+    this.masterGrammarId = const Value.absent(),
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserGrammarsCompanion.insert({
+    required String id,
+    required String masterGrammarId,
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       masterGrammarId = Value(masterGrammarId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<UserGrammar> custom({
+    Expression<String>? id,
+    Expression<String>? masterGrammarId,
+    Expression<bool>? isAdded,
+    Expression<bool>? isFavorite,
+    Expression<String>? status,
+    Expression<String>? customNotes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (masterGrammarId != null) 'master_grammar_id': masterGrammarId,
+      if (isAdded != null) 'is_added': isAdded,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (status != null) 'status': status,
+      if (customNotes != null) 'custom_notes': customNotes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserGrammarsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? masterGrammarId,
+    Value<bool>? isAdded,
+    Value<bool>? isFavorite,
+    Value<String>? status,
+    Value<String>? customNotes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserGrammarsCompanion(
+      id: id ?? this.id,
+      masterGrammarId: masterGrammarId ?? this.masterGrammarId,
+      isAdded: isAdded ?? this.isAdded,
+      isFavorite: isFavorite ?? this.isFavorite,
+      status: status ?? this.status,
+      customNotes: customNotes ?? this.customNotes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (masterGrammarId.present) {
+      map['master_grammar_id'] = Variable<String>(masterGrammarId.value);
+    }
+    if (isAdded.present) {
+      map['is_added'] = Variable<bool>(isAdded.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (customNotes.present) {
+      map['custom_notes'] = Variable<String>(customNotes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserGrammarsCompanion(')
+          ..write('id: $id, ')
+          ..write('masterGrammarId: $masterGrammarId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MasterReadingsTable extends MasterReadings
+    with TableInfo<$MasterReadingsTable, MasterReading> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MasterReadingsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -2443,6 +5017,111 @@ class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<int> level = GeneratedColumn<int>(
+    'level',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _passageMeta = const VerificationMeta(
+    'passage',
+  );
+  @override
+  late final GeneratedColumn<String> passage = GeneratedColumn<String>(
+    'passage',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _translationMeta = const VerificationMeta(
+    'translation',
+  );
+  @override
+  late final GeneratedColumn<String> translation = GeneratedColumn<String>(
+    'translation',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _kanjiIdsMeta = const VerificationMeta(
+    'kanjiIds',
+  );
+  @override
+  late final GeneratedColumn<String> kanjiIds = GeneratedColumn<String>(
+    'kanji_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vocabularyIdsMeta = const VerificationMeta(
+    'vocabularyIds',
+  );
+  @override
+  late final GeneratedColumn<String> vocabularyIds = GeneratedColumn<String>(
+    'vocabulary_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grammarIdsMeta = const VerificationMeta(
+    'grammarIds',
+  );
+  @override
+  late final GeneratedColumn<String> grammarIds = GeneratedColumn<String>(
+    'grammar_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _estimatedReadingTimeMeta =
+      const VerificationMeta('estimatedReadingTime');
+  @override
+  late final GeneratedColumn<int> estimatedReadingTime = GeneratedColumn<int>(
+    'estimated_reading_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _difficultyMeta = const VerificationMeta(
+    'difficulty',
+  );
+  @override
+  late final GeneratedColumn<String> difficulty = GeneratedColumn<String>(
+    'difficulty',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _questionMeta = const VerificationMeta(
+    'question',
+  );
+  @override
+  late final GeneratedColumn<String> question = GeneratedColumn<String>(
+    'question',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
+  @override
+  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
+    'answer',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _explanationMeta = const VerificationMeta(
     'explanation',
   );
@@ -2450,59 +5129,58 @@ class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
   late final GeneratedColumn<String> explanation = GeneratedColumn<String>(
     'explanation',
     aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _structureMeta = const VerificationMeta(
-    'structure',
-  );
-  @override
-  late final GeneratedColumn<String> structure = GeneratedColumn<String>(
-    'structure',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _examplesJsonMeta = const VerificationMeta(
-    'examplesJson',
-  );
-  @override
-  late final GeneratedColumn<String> examplesJson = GeneratedColumn<String>(
-    'examples_json',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
+    true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant('unlearned'),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
   );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     title,
+    level,
+    passage,
+    translation,
+    kanjiIds,
+    vocabularyIds,
+    grammarIds,
+    estimatedReadingTime,
+    difficulty,
+    question,
+    answer,
     explanation,
-    structure,
-    examplesJson,
-    status,
+    createdAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'grammars';
+  static const String $name = 'master_readings';
   @override
   VerificationContext validateIntegrity(
-    Insertable<Grammar> instance, {
+    Insertable<MasterReading> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -2520,6 +5198,77 @@ class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    }
+    if (data.containsKey('passage')) {
+      context.handle(
+        _passageMeta,
+        passage.isAcceptableOrUnknown(data['passage']!, _passageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_passageMeta);
+    }
+    if (data.containsKey('translation')) {
+      context.handle(
+        _translationMeta,
+        translation.isAcceptableOrUnknown(
+          data['translation']!,
+          _translationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('kanji_ids')) {
+      context.handle(
+        _kanjiIdsMeta,
+        kanjiIds.isAcceptableOrUnknown(data['kanji_ids']!, _kanjiIdsMeta),
+      );
+    }
+    if (data.containsKey('vocabulary_ids')) {
+      context.handle(
+        _vocabularyIdsMeta,
+        vocabularyIds.isAcceptableOrUnknown(
+          data['vocabulary_ids']!,
+          _vocabularyIdsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grammar_ids')) {
+      context.handle(
+        _grammarIdsMeta,
+        grammarIds.isAcceptableOrUnknown(data['grammar_ids']!, _grammarIdsMeta),
+      );
+    }
+    if (data.containsKey('estimated_reading_time')) {
+      context.handle(
+        _estimatedReadingTimeMeta,
+        estimatedReadingTime.isAcceptableOrUnknown(
+          data['estimated_reading_time']!,
+          _estimatedReadingTimeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+        _difficultyMeta,
+        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
+      );
+    }
+    if (data.containsKey('question')) {
+      context.handle(
+        _questionMeta,
+        question.isAcceptableOrUnknown(data['question']!, _questionMeta),
+      );
+    }
+    if (data.containsKey('answer')) {
+      context.handle(
+        _answerMeta,
+        answer.isAcceptableOrUnknown(data['answer']!, _answerMeta),
+      );
+    }
     if (data.containsKey('explanation')) {
       context.handle(
         _explanationMeta,
@@ -2528,33 +5277,22 @@ class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
           _explanationMeta,
         ),
       );
-    } else if (isInserting) {
-      context.missing(_explanationMeta);
     }
-    if (data.containsKey('structure')) {
+    if (data.containsKey('created_at')) {
       context.handle(
-        _structureMeta,
-        structure.isAcceptableOrUnknown(data['structure']!, _structureMeta),
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     } else if (isInserting) {
-      context.missing(_structureMeta);
+      context.missing(_createdAtMeta);
     }
-    if (data.containsKey('examples_json')) {
+    if (data.containsKey('updated_at')) {
       context.handle(
-        _examplesJsonMeta,
-        examplesJson.isAcceptableOrUnknown(
-          data['examples_json']!,
-          _examplesJsonMeta,
-        ),
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     } else if (isInserting) {
-      context.missing(_examplesJsonMeta);
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
+      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -2562,9 +5300,9 @@ class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Grammar map(Map<String, dynamic> data, {String? tablePrefix}) {
+  MasterReading map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Grammar(
+    return MasterReading(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -2573,81 +5311,204 @@ class $GrammarsTable extends Grammars with TableInfo<$GrammarsTable, Grammar> {
         DriftSqlType.string,
         data['${effectivePrefix}title'],
       )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}level'],
+      ),
+      passage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}passage'],
+      )!,
+      translation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}translation'],
+      ),
+      kanjiIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kanji_ids'],
+      ),
+      vocabularyIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vocabulary_ids'],
+      ),
+      grammarIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammar_ids'],
+      ),
+      estimatedReadingTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}estimated_reading_time'],
+      ),
+      difficulty: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}difficulty'],
+      ),
+      question: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}question'],
+      ),
+      answer: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}answer'],
+      ),
       explanation: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}explanation'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
       )!,
-      structure: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}structure'],
-      )!,
-      examplesJson: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}examples_json'],
-      )!,
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
       )!,
     );
   }
 
   @override
-  $GrammarsTable createAlias(String alias) {
-    return $GrammarsTable(attachedDatabase, alias);
+  $MasterReadingsTable createAlias(String alias) {
+    return $MasterReadingsTable(attachedDatabase, alias);
   }
 }
 
-class Grammar extends DataClass implements Insertable<Grammar> {
+class MasterReading extends DataClass implements Insertable<MasterReading> {
   final String id;
   final String title;
-  final String explanation;
-  final String structure;
-  final String examplesJson;
-  final String status;
-  const Grammar({
+  final int? level;
+  final String passage;
+  final String? translation;
+  final String? kanjiIds;
+  final String? vocabularyIds;
+  final String? grammarIds;
+  final int? estimatedReadingTime;
+  final String? difficulty;
+  final String? question;
+  final String? answer;
+  final String? explanation;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const MasterReading({
     required this.id,
     required this.title,
-    required this.explanation,
-    required this.structure,
-    required this.examplesJson,
-    required this.status,
+    this.level,
+    required this.passage,
+    this.translation,
+    this.kanjiIds,
+    this.vocabularyIds,
+    this.grammarIds,
+    this.estimatedReadingTime,
+    this.difficulty,
+    this.question,
+    this.answer,
+    this.explanation,
+    required this.createdAt,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['title'] = Variable<String>(title);
-    map['explanation'] = Variable<String>(explanation);
-    map['structure'] = Variable<String>(structure);
-    map['examples_json'] = Variable<String>(examplesJson);
-    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || level != null) {
+      map['level'] = Variable<int>(level);
+    }
+    map['passage'] = Variable<String>(passage);
+    if (!nullToAbsent || translation != null) {
+      map['translation'] = Variable<String>(translation);
+    }
+    if (!nullToAbsent || kanjiIds != null) {
+      map['kanji_ids'] = Variable<String>(kanjiIds);
+    }
+    if (!nullToAbsent || vocabularyIds != null) {
+      map['vocabulary_ids'] = Variable<String>(vocabularyIds);
+    }
+    if (!nullToAbsent || grammarIds != null) {
+      map['grammar_ids'] = Variable<String>(grammarIds);
+    }
+    if (!nullToAbsent || estimatedReadingTime != null) {
+      map['estimated_reading_time'] = Variable<int>(estimatedReadingTime);
+    }
+    if (!nullToAbsent || difficulty != null) {
+      map['difficulty'] = Variable<String>(difficulty);
+    }
+    if (!nullToAbsent || question != null) {
+      map['question'] = Variable<String>(question);
+    }
+    if (!nullToAbsent || answer != null) {
+      map['answer'] = Variable<String>(answer);
+    }
+    if (!nullToAbsent || explanation != null) {
+      map['explanation'] = Variable<String>(explanation);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
-  GrammarsCompanion toCompanion(bool nullToAbsent) {
-    return GrammarsCompanion(
+  MasterReadingsCompanion toCompanion(bool nullToAbsent) {
+    return MasterReadingsCompanion(
       id: Value(id),
       title: Value(title),
-      explanation: Value(explanation),
-      structure: Value(structure),
-      examplesJson: Value(examplesJson),
-      status: Value(status),
+      level: level == null && nullToAbsent
+          ? const Value.absent()
+          : Value(level),
+      passage: Value(passage),
+      translation: translation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(translation),
+      kanjiIds: kanjiIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(kanjiIds),
+      vocabularyIds: vocabularyIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vocabularyIds),
+      grammarIds: grammarIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grammarIds),
+      estimatedReadingTime: estimatedReadingTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(estimatedReadingTime),
+      difficulty: difficulty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(difficulty),
+      question: question == null && nullToAbsent
+          ? const Value.absent()
+          : Value(question),
+      answer: answer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(answer),
+      explanation: explanation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(explanation),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 
-  factory Grammar.fromJson(
+  factory MasterReading.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Grammar(
+    return MasterReading(
       id: serializer.fromJson<String>(json['id']),
       title: serializer.fromJson<String>(json['title']),
-      explanation: serializer.fromJson<String>(json['explanation']),
-      structure: serializer.fromJson<String>(json['structure']),
-      examplesJson: serializer.fromJson<String>(json['examplesJson']),
-      status: serializer.fromJson<String>(json['status']),
+      level: serializer.fromJson<int?>(json['level']),
+      passage: serializer.fromJson<String>(json['passage']),
+      translation: serializer.fromJson<String?>(json['translation']),
+      kanjiIds: serializer.fromJson<String?>(json['kanjiIds']),
+      vocabularyIds: serializer.fromJson<String?>(json['vocabularyIds']),
+      grammarIds: serializer.fromJson<String?>(json['grammarIds']),
+      estimatedReadingTime: serializer.fromJson<int?>(
+        json['estimatedReadingTime'],
+      ),
+      difficulty: serializer.fromJson<String?>(json['difficulty']),
+      question: serializer.fromJson<String?>(json['question']),
+      answer: serializer.fromJson<String?>(json['answer']),
+      explanation: serializer.fromJson<String?>(json['explanation']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -2656,137 +5517,282 @@ class Grammar extends DataClass implements Insertable<Grammar> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'title': serializer.toJson<String>(title),
-      'explanation': serializer.toJson<String>(explanation),
-      'structure': serializer.toJson<String>(structure),
-      'examplesJson': serializer.toJson<String>(examplesJson),
-      'status': serializer.toJson<String>(status),
+      'level': serializer.toJson<int?>(level),
+      'passage': serializer.toJson<String>(passage),
+      'translation': serializer.toJson<String?>(translation),
+      'kanjiIds': serializer.toJson<String?>(kanjiIds),
+      'vocabularyIds': serializer.toJson<String?>(vocabularyIds),
+      'grammarIds': serializer.toJson<String?>(grammarIds),
+      'estimatedReadingTime': serializer.toJson<int?>(estimatedReadingTime),
+      'difficulty': serializer.toJson<String?>(difficulty),
+      'question': serializer.toJson<String?>(question),
+      'answer': serializer.toJson<String?>(answer),
+      'explanation': serializer.toJson<String?>(explanation),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
-  Grammar copyWith({
+  MasterReading copyWith({
     String? id,
     String? title,
-    String? explanation,
-    String? structure,
-    String? examplesJson,
-    String? status,
-  }) => Grammar(
+    Value<int?> level = const Value.absent(),
+    String? passage,
+    Value<String?> translation = const Value.absent(),
+    Value<String?> kanjiIds = const Value.absent(),
+    Value<String?> vocabularyIds = const Value.absent(),
+    Value<String?> grammarIds = const Value.absent(),
+    Value<int?> estimatedReadingTime = const Value.absent(),
+    Value<String?> difficulty = const Value.absent(),
+    Value<String?> question = const Value.absent(),
+    Value<String?> answer = const Value.absent(),
+    Value<String?> explanation = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => MasterReading(
     id: id ?? this.id,
     title: title ?? this.title,
-    explanation: explanation ?? this.explanation,
-    structure: structure ?? this.structure,
-    examplesJson: examplesJson ?? this.examplesJson,
-    status: status ?? this.status,
+    level: level.present ? level.value : this.level,
+    passage: passage ?? this.passage,
+    translation: translation.present ? translation.value : this.translation,
+    kanjiIds: kanjiIds.present ? kanjiIds.value : this.kanjiIds,
+    vocabularyIds: vocabularyIds.present
+        ? vocabularyIds.value
+        : this.vocabularyIds,
+    grammarIds: grammarIds.present ? grammarIds.value : this.grammarIds,
+    estimatedReadingTime: estimatedReadingTime.present
+        ? estimatedReadingTime.value
+        : this.estimatedReadingTime,
+    difficulty: difficulty.present ? difficulty.value : this.difficulty,
+    question: question.present ? question.value : this.question,
+    answer: answer.present ? answer.value : this.answer,
+    explanation: explanation.present ? explanation.value : this.explanation,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
   );
-  Grammar copyWithCompanion(GrammarsCompanion data) {
-    return Grammar(
+  MasterReading copyWithCompanion(MasterReadingsCompanion data) {
+    return MasterReading(
       id: data.id.present ? data.id.value : this.id,
       title: data.title.present ? data.title.value : this.title,
+      level: data.level.present ? data.level.value : this.level,
+      passage: data.passage.present ? data.passage.value : this.passage,
+      translation: data.translation.present
+          ? data.translation.value
+          : this.translation,
+      kanjiIds: data.kanjiIds.present ? data.kanjiIds.value : this.kanjiIds,
+      vocabularyIds: data.vocabularyIds.present
+          ? data.vocabularyIds.value
+          : this.vocabularyIds,
+      grammarIds: data.grammarIds.present
+          ? data.grammarIds.value
+          : this.grammarIds,
+      estimatedReadingTime: data.estimatedReadingTime.present
+          ? data.estimatedReadingTime.value
+          : this.estimatedReadingTime,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
+      question: data.question.present ? data.question.value : this.question,
+      answer: data.answer.present ? data.answer.value : this.answer,
       explanation: data.explanation.present
           ? data.explanation.value
           : this.explanation,
-      structure: data.structure.present ? data.structure.value : this.structure,
-      examplesJson: data.examplesJson.present
-          ? data.examplesJson.value
-          : this.examplesJson,
-      status: data.status.present ? data.status.value : this.status,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('Grammar(')
+    return (StringBuffer('MasterReading(')
           ..write('id: $id, ')
           ..write('title: $title, ')
+          ..write('level: $level, ')
+          ..write('passage: $passage, ')
+          ..write('translation: $translation, ')
+          ..write('kanjiIds: $kanjiIds, ')
+          ..write('vocabularyIds: $vocabularyIds, ')
+          ..write('grammarIds: $grammarIds, ')
+          ..write('estimatedReadingTime: $estimatedReadingTime, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('question: $question, ')
+          ..write('answer: $answer, ')
           ..write('explanation: $explanation, ')
-          ..write('structure: $structure, ')
-          ..write('examplesJson: $examplesJson, ')
-          ..write('status: $status')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, explanation, structure, examplesJson, status);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    level,
+    passage,
+    translation,
+    kanjiIds,
+    vocabularyIds,
+    grammarIds,
+    estimatedReadingTime,
+    difficulty,
+    question,
+    answer,
+    explanation,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Grammar &&
+      (other is MasterReading &&
           other.id == this.id &&
           other.title == this.title &&
+          other.level == this.level &&
+          other.passage == this.passage &&
+          other.translation == this.translation &&
+          other.kanjiIds == this.kanjiIds &&
+          other.vocabularyIds == this.vocabularyIds &&
+          other.grammarIds == this.grammarIds &&
+          other.estimatedReadingTime == this.estimatedReadingTime &&
+          other.difficulty == this.difficulty &&
+          other.question == this.question &&
+          other.answer == this.answer &&
           other.explanation == this.explanation &&
-          other.structure == this.structure &&
-          other.examplesJson == this.examplesJson &&
-          other.status == this.status);
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
-class GrammarsCompanion extends UpdateCompanion<Grammar> {
+class MasterReadingsCompanion extends UpdateCompanion<MasterReading> {
   final Value<String> id;
   final Value<String> title;
-  final Value<String> explanation;
-  final Value<String> structure;
-  final Value<String> examplesJson;
-  final Value<String> status;
+  final Value<int?> level;
+  final Value<String> passage;
+  final Value<String?> translation;
+  final Value<String?> kanjiIds;
+  final Value<String?> vocabularyIds;
+  final Value<String?> grammarIds;
+  final Value<int?> estimatedReadingTime;
+  final Value<String?> difficulty;
+  final Value<String?> question;
+  final Value<String?> answer;
+  final Value<String?> explanation;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
   final Value<int> rowid;
-  const GrammarsCompanion({
+  const MasterReadingsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
+    this.level = const Value.absent(),
+    this.passage = const Value.absent(),
+    this.translation = const Value.absent(),
+    this.kanjiIds = const Value.absent(),
+    this.vocabularyIds = const Value.absent(),
+    this.grammarIds = const Value.absent(),
+    this.estimatedReadingTime = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.question = const Value.absent(),
+    this.answer = const Value.absent(),
     this.explanation = const Value.absent(),
-    this.structure = const Value.absent(),
-    this.examplesJson = const Value.absent(),
-    this.status = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  GrammarsCompanion.insert({
+  MasterReadingsCompanion.insert({
     required String id,
     required String title,
-    required String explanation,
-    required String structure,
-    required String examplesJson,
-    this.status = const Value.absent(),
+    this.level = const Value.absent(),
+    required String passage,
+    this.translation = const Value.absent(),
+    this.kanjiIds = const Value.absent(),
+    this.vocabularyIds = const Value.absent(),
+    this.grammarIds = const Value.absent(),
+    this.estimatedReadingTime = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.question = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.explanation = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
-       explanation = Value(explanation),
-       structure = Value(structure),
-       examplesJson = Value(examplesJson);
-  static Insertable<Grammar> custom({
+       passage = Value(passage),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<MasterReading> custom({
     Expression<String>? id,
     Expression<String>? title,
+    Expression<int>? level,
+    Expression<String>? passage,
+    Expression<String>? translation,
+    Expression<String>? kanjiIds,
+    Expression<String>? vocabularyIds,
+    Expression<String>? grammarIds,
+    Expression<int>? estimatedReadingTime,
+    Expression<String>? difficulty,
+    Expression<String>? question,
+    Expression<String>? answer,
     Expression<String>? explanation,
-    Expression<String>? structure,
-    Expression<String>? examplesJson,
-    Expression<String>? status,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
+      if (level != null) 'level': level,
+      if (passage != null) 'passage': passage,
+      if (translation != null) 'translation': translation,
+      if (kanjiIds != null) 'kanji_ids': kanjiIds,
+      if (vocabularyIds != null) 'vocabulary_ids': vocabularyIds,
+      if (grammarIds != null) 'grammar_ids': grammarIds,
+      if (estimatedReadingTime != null)
+        'estimated_reading_time': estimatedReadingTime,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (question != null) 'question': question,
+      if (answer != null) 'answer': answer,
       if (explanation != null) 'explanation': explanation,
-      if (structure != null) 'structure': structure,
-      if (examplesJson != null) 'examples_json': examplesJson,
-      if (status != null) 'status': status,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  GrammarsCompanion copyWith({
+  MasterReadingsCompanion copyWith({
     Value<String>? id,
     Value<String>? title,
-    Value<String>? explanation,
-    Value<String>? structure,
-    Value<String>? examplesJson,
-    Value<String>? status,
+    Value<int?>? level,
+    Value<String>? passage,
+    Value<String?>? translation,
+    Value<String?>? kanjiIds,
+    Value<String?>? vocabularyIds,
+    Value<String?>? grammarIds,
+    Value<int?>? estimatedReadingTime,
+    Value<String?>? difficulty,
+    Value<String?>? question,
+    Value<String?>? answer,
+    Value<String?>? explanation,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
-    return GrammarsCompanion(
+    return MasterReadingsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
+      level: level ?? this.level,
+      passage: passage ?? this.passage,
+      translation: translation ?? this.translation,
+      kanjiIds: kanjiIds ?? this.kanjiIds,
+      vocabularyIds: vocabularyIds ?? this.vocabularyIds,
+      grammarIds: grammarIds ?? this.grammarIds,
+      estimatedReadingTime: estimatedReadingTime ?? this.estimatedReadingTime,
+      difficulty: difficulty ?? this.difficulty,
+      question: question ?? this.question,
+      answer: answer ?? this.answer,
       explanation: explanation ?? this.explanation,
-      structure: structure ?? this.structure,
-      examplesJson: examplesJson ?? this.examplesJson,
-      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2800,17 +5806,44 @@ class GrammarsCompanion extends UpdateCompanion<Grammar> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
+    if (level.present) {
+      map['level'] = Variable<int>(level.value);
+    }
+    if (passage.present) {
+      map['passage'] = Variable<String>(passage.value);
+    }
+    if (translation.present) {
+      map['translation'] = Variable<String>(translation.value);
+    }
+    if (kanjiIds.present) {
+      map['kanji_ids'] = Variable<String>(kanjiIds.value);
+    }
+    if (vocabularyIds.present) {
+      map['vocabulary_ids'] = Variable<String>(vocabularyIds.value);
+    }
+    if (grammarIds.present) {
+      map['grammar_ids'] = Variable<String>(grammarIds.value);
+    }
+    if (estimatedReadingTime.present) {
+      map['estimated_reading_time'] = Variable<int>(estimatedReadingTime.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<String>(difficulty.value);
+    }
+    if (question.present) {
+      map['question'] = Variable<String>(question.value);
+    }
+    if (answer.present) {
+      map['answer'] = Variable<String>(answer.value);
+    }
     if (explanation.present) {
       map['explanation'] = Variable<String>(explanation.value);
     }
-    if (structure.present) {
-      map['structure'] = Variable<String>(structure.value);
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
     }
-    if (examplesJson.present) {
-      map['examples_json'] = Variable<String>(examplesJson.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -2820,13 +5853,3222 @@ class GrammarsCompanion extends UpdateCompanion<Grammar> {
 
   @override
   String toString() {
-    return (StringBuffer('GrammarsCompanion(')
+    return (StringBuffer('MasterReadingsCompanion(')
           ..write('id: $id, ')
           ..write('title: $title, ')
+          ..write('level: $level, ')
+          ..write('passage: $passage, ')
+          ..write('translation: $translation, ')
+          ..write('kanjiIds: $kanjiIds, ')
+          ..write('vocabularyIds: $vocabularyIds, ')
+          ..write('grammarIds: $grammarIds, ')
+          ..write('estimatedReadingTime: $estimatedReadingTime, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('question: $question, ')
+          ..write('answer: $answer, ')
           ..write('explanation: $explanation, ')
-          ..write('structure: $structure, ')
-          ..write('examplesJson: $examplesJson, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserReadingsTable extends UserReadings
+    with TableInfo<$UserReadingsTable, UserReading> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserReadingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _masterReadingIdMeta = const VerificationMeta(
+    'masterReadingId',
+  );
+  @override
+  late final GeneratedColumn<String> masterReadingId = GeneratedColumn<String>(
+    'master_reading_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _isAddedMeta = const VerificationMeta(
+    'isAdded',
+  );
+  @override
+  late final GeneratedColumn<bool> isAdded = GeneratedColumn<bool>(
+    'is_added',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_added" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unlearned'),
+  );
+  static const VerificationMeta _customNotesMeta = const VerificationMeta(
+    'customNotes',
+  );
+  @override
+  late final GeneratedColumn<String> customNotes = GeneratedColumn<String>(
+    'custom_notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    masterReadingId,
+    isAdded,
+    isFavorite,
+    status,
+    customNotes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_readings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserReading> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('master_reading_id')) {
+      context.handle(
+        _masterReadingIdMeta,
+        masterReadingId.isAcceptableOrUnknown(
+          data['master_reading_id']!,
+          _masterReadingIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_masterReadingIdMeta);
+    }
+    if (data.containsKey('is_added')) {
+      context.handle(
+        _isAddedMeta,
+        isAdded.isAcceptableOrUnknown(data['is_added']!, _isAddedMeta),
+      );
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('custom_notes')) {
+      context.handle(
+        _customNotesMeta,
+        customNotes.isAcceptableOrUnknown(
+          data['custom_notes']!,
+          _customNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserReading map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserReading(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      masterReadingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}master_reading_id'],
+      )!,
+      isAdded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_added'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      customNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_notes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserReadingsTable createAlias(String alias) {
+    return $UserReadingsTable(attachedDatabase, alias);
+  }
+}
+
+class UserReading extends DataClass implements Insertable<UserReading> {
+  final String id;
+  final String masterReadingId;
+  final bool isAdded;
+  final bool isFavorite;
+  final String status;
+  final String customNotes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const UserReading({
+    required this.id,
+    required this.masterReadingId,
+    required this.isAdded,
+    required this.isFavorite,
+    required this.status,
+    required this.customNotes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['master_reading_id'] = Variable<String>(masterReadingId);
+    map['is_added'] = Variable<bool>(isAdded);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['status'] = Variable<String>(status);
+    map['custom_notes'] = Variable<String>(customNotes);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  UserReadingsCompanion toCompanion(bool nullToAbsent) {
+    return UserReadingsCompanion(
+      id: Value(id),
+      masterReadingId: Value(masterReadingId),
+      isAdded: Value(isAdded),
+      isFavorite: Value(isFavorite),
+      status: Value(status),
+      customNotes: Value(customNotes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserReading.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserReading(
+      id: serializer.fromJson<String>(json['id']),
+      masterReadingId: serializer.fromJson<String>(json['masterReadingId']),
+      isAdded: serializer.fromJson<bool>(json['isAdded']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      status: serializer.fromJson<String>(json['status']),
+      customNotes: serializer.fromJson<String>(json['customNotes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'masterReadingId': serializer.toJson<String>(masterReadingId),
+      'isAdded': serializer.toJson<bool>(isAdded),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'status': serializer.toJson<String>(status),
+      'customNotes': serializer.toJson<String>(customNotes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  UserReading copyWith({
+    String? id,
+    String? masterReadingId,
+    bool? isAdded,
+    bool? isFavorite,
+    String? status,
+    String? customNotes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => UserReading(
+    id: id ?? this.id,
+    masterReadingId: masterReadingId ?? this.masterReadingId,
+    isAdded: isAdded ?? this.isAdded,
+    isFavorite: isFavorite ?? this.isFavorite,
+    status: status ?? this.status,
+    customNotes: customNotes ?? this.customNotes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  UserReading copyWithCompanion(UserReadingsCompanion data) {
+    return UserReading(
+      id: data.id.present ? data.id.value : this.id,
+      masterReadingId: data.masterReadingId.present
+          ? data.masterReadingId.value
+          : this.masterReadingId,
+      isAdded: data.isAdded.present ? data.isAdded.value : this.isAdded,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+      status: data.status.present ? data.status.value : this.status,
+      customNotes: data.customNotes.present
+          ? data.customNotes.value
+          : this.customNotes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserReading(')
+          ..write('id: $id, ')
+          ..write('masterReadingId: $masterReadingId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
           ..write('status: $status, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    masterReadingId,
+    isAdded,
+    isFavorite,
+    status,
+    customNotes,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserReading &&
+          other.id == this.id &&
+          other.masterReadingId == this.masterReadingId &&
+          other.isAdded == this.isAdded &&
+          other.isFavorite == this.isFavorite &&
+          other.status == this.status &&
+          other.customNotes == this.customNotes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserReadingsCompanion extends UpdateCompanion<UserReading> {
+  final Value<String> id;
+  final Value<String> masterReadingId;
+  final Value<bool> isAdded;
+  final Value<bool> isFavorite;
+  final Value<String> status;
+  final Value<String> customNotes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const UserReadingsCompanion({
+    this.id = const Value.absent(),
+    this.masterReadingId = const Value.absent(),
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserReadingsCompanion.insert({
+    required String id,
+    required String masterReadingId,
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       masterReadingId = Value(masterReadingId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<UserReading> custom({
+    Expression<String>? id,
+    Expression<String>? masterReadingId,
+    Expression<bool>? isAdded,
+    Expression<bool>? isFavorite,
+    Expression<String>? status,
+    Expression<String>? customNotes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (masterReadingId != null) 'master_reading_id': masterReadingId,
+      if (isAdded != null) 'is_added': isAdded,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (status != null) 'status': status,
+      if (customNotes != null) 'custom_notes': customNotes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserReadingsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? masterReadingId,
+    Value<bool>? isAdded,
+    Value<bool>? isFavorite,
+    Value<String>? status,
+    Value<String>? customNotes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserReadingsCompanion(
+      id: id ?? this.id,
+      masterReadingId: masterReadingId ?? this.masterReadingId,
+      isAdded: isAdded ?? this.isAdded,
+      isFavorite: isFavorite ?? this.isFavorite,
+      status: status ?? this.status,
+      customNotes: customNotes ?? this.customNotes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (masterReadingId.present) {
+      map['master_reading_id'] = Variable<String>(masterReadingId.value);
+    }
+    if (isAdded.present) {
+      map['is_added'] = Variable<bool>(isAdded.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (customNotes.present) {
+      map['custom_notes'] = Variable<String>(customNotes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserReadingsCompanion(')
+          ..write('id: $id, ')
+          ..write('masterReadingId: $masterReadingId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MasterListeningsTable extends MasterListenings
+    with TableInfo<$MasterListeningsTable, MasterListening> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MasterListeningsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _transcriptMeta = const VerificationMeta(
+    'transcript',
+  );
+  @override
+  late final GeneratedColumn<String> transcript = GeneratedColumn<String>(
+    'transcript',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _audioPathMeta = const VerificationMeta(
+    'audioPath',
+  );
+  @override
+  late final GeneratedColumn<String> audioPath = GeneratedColumn<String>(
+    'audio_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lengthMeta = const VerificationMeta('length');
+  @override
+  late final GeneratedColumn<int> length = GeneratedColumn<int>(
+    'length',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _difficultyMeta = const VerificationMeta(
+    'difficulty',
+  );
+  @override
+  late final GeneratedColumn<String> difficulty = GeneratedColumn<String>(
+    'difficulty',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _kanjiIdsMeta = const VerificationMeta(
+    'kanjiIds',
+  );
+  @override
+  late final GeneratedColumn<String> kanjiIds = GeneratedColumn<String>(
+    'kanji_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _vocabularyIdsMeta = const VerificationMeta(
+    'vocabularyIds',
+  );
+  @override
+  late final GeneratedColumn<String> vocabularyIds = GeneratedColumn<String>(
+    'vocabulary_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _grammarIdsMeta = const VerificationMeta(
+    'grammarIds',
+  );
+  @override
+  late final GeneratedColumn<String> grammarIds = GeneratedColumn<String>(
+    'grammar_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _questionMeta = const VerificationMeta(
+    'question',
+  );
+  @override
+  late final GeneratedColumn<String> question = GeneratedColumn<String>(
+    'question',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
+  @override
+  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
+    'answer',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _explanationMeta = const VerificationMeta(
+    'explanation',
+  );
+  @override
+  late final GeneratedColumn<String> explanation = GeneratedColumn<String>(
+    'explanation',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    transcript,
+    audioPath,
+    length,
+    difficulty,
+    kanjiIds,
+    vocabularyIds,
+    grammarIds,
+    question,
+    answer,
+    explanation,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'master_listenings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MasterListening> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('transcript')) {
+      context.handle(
+        _transcriptMeta,
+        transcript.isAcceptableOrUnknown(data['transcript']!, _transcriptMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_transcriptMeta);
+    }
+    if (data.containsKey('audio_path')) {
+      context.handle(
+        _audioPathMeta,
+        audioPath.isAcceptableOrUnknown(data['audio_path']!, _audioPathMeta),
+      );
+    }
+    if (data.containsKey('length')) {
+      context.handle(
+        _lengthMeta,
+        length.isAcceptableOrUnknown(data['length']!, _lengthMeta),
+      );
+    }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+        _difficultyMeta,
+        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
+      );
+    }
+    if (data.containsKey('kanji_ids')) {
+      context.handle(
+        _kanjiIdsMeta,
+        kanjiIds.isAcceptableOrUnknown(data['kanji_ids']!, _kanjiIdsMeta),
+      );
+    }
+    if (data.containsKey('vocabulary_ids')) {
+      context.handle(
+        _vocabularyIdsMeta,
+        vocabularyIds.isAcceptableOrUnknown(
+          data['vocabulary_ids']!,
+          _vocabularyIdsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('grammar_ids')) {
+      context.handle(
+        _grammarIdsMeta,
+        grammarIds.isAcceptableOrUnknown(data['grammar_ids']!, _grammarIdsMeta),
+      );
+    }
+    if (data.containsKey('question')) {
+      context.handle(
+        _questionMeta,
+        question.isAcceptableOrUnknown(data['question']!, _questionMeta),
+      );
+    }
+    if (data.containsKey('answer')) {
+      context.handle(
+        _answerMeta,
+        answer.isAcceptableOrUnknown(data['answer']!, _answerMeta),
+      );
+    }
+    if (data.containsKey('explanation')) {
+      context.handle(
+        _explanationMeta,
+        explanation.isAcceptableOrUnknown(
+          data['explanation']!,
+          _explanationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MasterListening map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MasterListening(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      transcript: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transcript'],
+      )!,
+      audioPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audio_path'],
+      ),
+      length: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}length'],
+      ),
+      difficulty: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}difficulty'],
+      ),
+      kanjiIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kanji_ids'],
+      ),
+      vocabularyIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vocabulary_ids'],
+      ),
+      grammarIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammar_ids'],
+      ),
+      question: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}question'],
+      ),
+      answer: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}answer'],
+      ),
+      explanation: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}explanation'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $MasterListeningsTable createAlias(String alias) {
+    return $MasterListeningsTable(attachedDatabase, alias);
+  }
+}
+
+class MasterListening extends DataClass implements Insertable<MasterListening> {
+  final String id;
+  final String title;
+  final String transcript;
+  final String? audioPath;
+  final int? length;
+  final String? difficulty;
+  final String? kanjiIds;
+  final String? vocabularyIds;
+  final String? grammarIds;
+  final String? question;
+  final String? answer;
+  final String? explanation;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const MasterListening({
+    required this.id,
+    required this.title,
+    required this.transcript,
+    this.audioPath,
+    this.length,
+    this.difficulty,
+    this.kanjiIds,
+    this.vocabularyIds,
+    this.grammarIds,
+    this.question,
+    this.answer,
+    this.explanation,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['title'] = Variable<String>(title);
+    map['transcript'] = Variable<String>(transcript);
+    if (!nullToAbsent || audioPath != null) {
+      map['audio_path'] = Variable<String>(audioPath);
+    }
+    if (!nullToAbsent || length != null) {
+      map['length'] = Variable<int>(length);
+    }
+    if (!nullToAbsent || difficulty != null) {
+      map['difficulty'] = Variable<String>(difficulty);
+    }
+    if (!nullToAbsent || kanjiIds != null) {
+      map['kanji_ids'] = Variable<String>(kanjiIds);
+    }
+    if (!nullToAbsent || vocabularyIds != null) {
+      map['vocabulary_ids'] = Variable<String>(vocabularyIds);
+    }
+    if (!nullToAbsent || grammarIds != null) {
+      map['grammar_ids'] = Variable<String>(grammarIds);
+    }
+    if (!nullToAbsent || question != null) {
+      map['question'] = Variable<String>(question);
+    }
+    if (!nullToAbsent || answer != null) {
+      map['answer'] = Variable<String>(answer);
+    }
+    if (!nullToAbsent || explanation != null) {
+      map['explanation'] = Variable<String>(explanation);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  MasterListeningsCompanion toCompanion(bool nullToAbsent) {
+    return MasterListeningsCompanion(
+      id: Value(id),
+      title: Value(title),
+      transcript: Value(transcript),
+      audioPath: audioPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(audioPath),
+      length: length == null && nullToAbsent
+          ? const Value.absent()
+          : Value(length),
+      difficulty: difficulty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(difficulty),
+      kanjiIds: kanjiIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(kanjiIds),
+      vocabularyIds: vocabularyIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(vocabularyIds),
+      grammarIds: grammarIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grammarIds),
+      question: question == null && nullToAbsent
+          ? const Value.absent()
+          : Value(question),
+      answer: answer == null && nullToAbsent
+          ? const Value.absent()
+          : Value(answer),
+      explanation: explanation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(explanation),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory MasterListening.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MasterListening(
+      id: serializer.fromJson<String>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      transcript: serializer.fromJson<String>(json['transcript']),
+      audioPath: serializer.fromJson<String?>(json['audioPath']),
+      length: serializer.fromJson<int?>(json['length']),
+      difficulty: serializer.fromJson<String?>(json['difficulty']),
+      kanjiIds: serializer.fromJson<String?>(json['kanjiIds']),
+      vocabularyIds: serializer.fromJson<String?>(json['vocabularyIds']),
+      grammarIds: serializer.fromJson<String?>(json['grammarIds']),
+      question: serializer.fromJson<String?>(json['question']),
+      answer: serializer.fromJson<String?>(json['answer']),
+      explanation: serializer.fromJson<String?>(json['explanation']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'title': serializer.toJson<String>(title),
+      'transcript': serializer.toJson<String>(transcript),
+      'audioPath': serializer.toJson<String?>(audioPath),
+      'length': serializer.toJson<int?>(length),
+      'difficulty': serializer.toJson<String?>(difficulty),
+      'kanjiIds': serializer.toJson<String?>(kanjiIds),
+      'vocabularyIds': serializer.toJson<String?>(vocabularyIds),
+      'grammarIds': serializer.toJson<String?>(grammarIds),
+      'question': serializer.toJson<String?>(question),
+      'answer': serializer.toJson<String?>(answer),
+      'explanation': serializer.toJson<String?>(explanation),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  MasterListening copyWith({
+    String? id,
+    String? title,
+    String? transcript,
+    Value<String?> audioPath = const Value.absent(),
+    Value<int?> length = const Value.absent(),
+    Value<String?> difficulty = const Value.absent(),
+    Value<String?> kanjiIds = const Value.absent(),
+    Value<String?> vocabularyIds = const Value.absent(),
+    Value<String?> grammarIds = const Value.absent(),
+    Value<String?> question = const Value.absent(),
+    Value<String?> answer = const Value.absent(),
+    Value<String?> explanation = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => MasterListening(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    transcript: transcript ?? this.transcript,
+    audioPath: audioPath.present ? audioPath.value : this.audioPath,
+    length: length.present ? length.value : this.length,
+    difficulty: difficulty.present ? difficulty.value : this.difficulty,
+    kanjiIds: kanjiIds.present ? kanjiIds.value : this.kanjiIds,
+    vocabularyIds: vocabularyIds.present
+        ? vocabularyIds.value
+        : this.vocabularyIds,
+    grammarIds: grammarIds.present ? grammarIds.value : this.grammarIds,
+    question: question.present ? question.value : this.question,
+    answer: answer.present ? answer.value : this.answer,
+    explanation: explanation.present ? explanation.value : this.explanation,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  MasterListening copyWithCompanion(MasterListeningsCompanion data) {
+    return MasterListening(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      transcript: data.transcript.present
+          ? data.transcript.value
+          : this.transcript,
+      audioPath: data.audioPath.present ? data.audioPath.value : this.audioPath,
+      length: data.length.present ? data.length.value : this.length,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
+      kanjiIds: data.kanjiIds.present ? data.kanjiIds.value : this.kanjiIds,
+      vocabularyIds: data.vocabularyIds.present
+          ? data.vocabularyIds.value
+          : this.vocabularyIds,
+      grammarIds: data.grammarIds.present
+          ? data.grammarIds.value
+          : this.grammarIds,
+      question: data.question.present ? data.question.value : this.question,
+      answer: data.answer.present ? data.answer.value : this.answer,
+      explanation: data.explanation.present
+          ? data.explanation.value
+          : this.explanation,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MasterListening(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('transcript: $transcript, ')
+          ..write('audioPath: $audioPath, ')
+          ..write('length: $length, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('kanjiIds: $kanjiIds, ')
+          ..write('vocabularyIds: $vocabularyIds, ')
+          ..write('grammarIds: $grammarIds, ')
+          ..write('question: $question, ')
+          ..write('answer: $answer, ')
+          ..write('explanation: $explanation, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    transcript,
+    audioPath,
+    length,
+    difficulty,
+    kanjiIds,
+    vocabularyIds,
+    grammarIds,
+    question,
+    answer,
+    explanation,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MasterListening &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.transcript == this.transcript &&
+          other.audioPath == this.audioPath &&
+          other.length == this.length &&
+          other.difficulty == this.difficulty &&
+          other.kanjiIds == this.kanjiIds &&
+          other.vocabularyIds == this.vocabularyIds &&
+          other.grammarIds == this.grammarIds &&
+          other.question == this.question &&
+          other.answer == this.answer &&
+          other.explanation == this.explanation &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class MasterListeningsCompanion extends UpdateCompanion<MasterListening> {
+  final Value<String> id;
+  final Value<String> title;
+  final Value<String> transcript;
+  final Value<String?> audioPath;
+  final Value<int?> length;
+  final Value<String?> difficulty;
+  final Value<String?> kanjiIds;
+  final Value<String?> vocabularyIds;
+  final Value<String?> grammarIds;
+  final Value<String?> question;
+  final Value<String?> answer;
+  final Value<String?> explanation;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const MasterListeningsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.transcript = const Value.absent(),
+    this.audioPath = const Value.absent(),
+    this.length = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.kanjiIds = const Value.absent(),
+    this.vocabularyIds = const Value.absent(),
+    this.grammarIds = const Value.absent(),
+    this.question = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.explanation = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  MasterListeningsCompanion.insert({
+    required String id,
+    required String title,
+    required String transcript,
+    this.audioPath = const Value.absent(),
+    this.length = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.kanjiIds = const Value.absent(),
+    this.vocabularyIds = const Value.absent(),
+    this.grammarIds = const Value.absent(),
+    this.question = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.explanation = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       transcript = Value(transcript),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<MasterListening> custom({
+    Expression<String>? id,
+    Expression<String>? title,
+    Expression<String>? transcript,
+    Expression<String>? audioPath,
+    Expression<int>? length,
+    Expression<String>? difficulty,
+    Expression<String>? kanjiIds,
+    Expression<String>? vocabularyIds,
+    Expression<String>? grammarIds,
+    Expression<String>? question,
+    Expression<String>? answer,
+    Expression<String>? explanation,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (transcript != null) 'transcript': transcript,
+      if (audioPath != null) 'audio_path': audioPath,
+      if (length != null) 'length': length,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (kanjiIds != null) 'kanji_ids': kanjiIds,
+      if (vocabularyIds != null) 'vocabulary_ids': vocabularyIds,
+      if (grammarIds != null) 'grammar_ids': grammarIds,
+      if (question != null) 'question': question,
+      if (answer != null) 'answer': answer,
+      if (explanation != null) 'explanation': explanation,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  MasterListeningsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? title,
+    Value<String>? transcript,
+    Value<String?>? audioPath,
+    Value<int?>? length,
+    Value<String?>? difficulty,
+    Value<String?>? kanjiIds,
+    Value<String?>? vocabularyIds,
+    Value<String?>? grammarIds,
+    Value<String?>? question,
+    Value<String?>? answer,
+    Value<String?>? explanation,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return MasterListeningsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      transcript: transcript ?? this.transcript,
+      audioPath: audioPath ?? this.audioPath,
+      length: length ?? this.length,
+      difficulty: difficulty ?? this.difficulty,
+      kanjiIds: kanjiIds ?? this.kanjiIds,
+      vocabularyIds: vocabularyIds ?? this.vocabularyIds,
+      grammarIds: grammarIds ?? this.grammarIds,
+      question: question ?? this.question,
+      answer: answer ?? this.answer,
+      explanation: explanation ?? this.explanation,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (transcript.present) {
+      map['transcript'] = Variable<String>(transcript.value);
+    }
+    if (audioPath.present) {
+      map['audio_path'] = Variable<String>(audioPath.value);
+    }
+    if (length.present) {
+      map['length'] = Variable<int>(length.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<String>(difficulty.value);
+    }
+    if (kanjiIds.present) {
+      map['kanji_ids'] = Variable<String>(kanjiIds.value);
+    }
+    if (vocabularyIds.present) {
+      map['vocabulary_ids'] = Variable<String>(vocabularyIds.value);
+    }
+    if (grammarIds.present) {
+      map['grammar_ids'] = Variable<String>(grammarIds.value);
+    }
+    if (question.present) {
+      map['question'] = Variable<String>(question.value);
+    }
+    if (answer.present) {
+      map['answer'] = Variable<String>(answer.value);
+    }
+    if (explanation.present) {
+      map['explanation'] = Variable<String>(explanation.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MasterListeningsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('transcript: $transcript, ')
+          ..write('audioPath: $audioPath, ')
+          ..write('length: $length, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('kanjiIds: $kanjiIds, ')
+          ..write('vocabularyIds: $vocabularyIds, ')
+          ..write('grammarIds: $grammarIds, ')
+          ..write('question: $question, ')
+          ..write('answer: $answer, ')
+          ..write('explanation: $explanation, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserListeningsTable extends UserListenings
+    with TableInfo<$UserListeningsTable, UserListening> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserListeningsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _masterListeningIdMeta = const VerificationMeta(
+    'masterListeningId',
+  );
+  @override
+  late final GeneratedColumn<String> masterListeningId =
+      GeneratedColumn<String>(
+        'master_listening_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+        $customConstraints:
+            'REFERENCES master_listenings(id) ON DELETE CASCADE NOT NULL',
+      );
+  static const VerificationMeta _isAddedMeta = const VerificationMeta(
+    'isAdded',
+  );
+  @override
+  late final GeneratedColumn<bool> isAdded = GeneratedColumn<bool>(
+    'is_added',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_added" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unlearned'),
+  );
+  static const VerificationMeta _customNotesMeta = const VerificationMeta(
+    'customNotes',
+  );
+  @override
+  late final GeneratedColumn<String> customNotes = GeneratedColumn<String>(
+    'custom_notes',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    masterListeningId,
+    isAdded,
+    isFavorite,
+    status,
+    customNotes,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_listenings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<UserListening> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('master_listening_id')) {
+      context.handle(
+        _masterListeningIdMeta,
+        masterListeningId.isAcceptableOrUnknown(
+          data['master_listening_id']!,
+          _masterListeningIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_masterListeningIdMeta);
+    }
+    if (data.containsKey('is_added')) {
+      context.handle(
+        _isAddedMeta,
+        isAdded.isAcceptableOrUnknown(data['is_added']!, _isAddedMeta),
+      );
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('custom_notes')) {
+      context.handle(
+        _customNotesMeta,
+        customNotes.isAcceptableOrUnknown(
+          data['custom_notes']!,
+          _customNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserListening map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserListening(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      masterListeningId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}master_listening_id'],
+      )!,
+      isAdded: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_added'],
+      )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      customNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}custom_notes'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $UserListeningsTable createAlias(String alias) {
+    return $UserListeningsTable(attachedDatabase, alias);
+  }
+}
+
+class UserListening extends DataClass implements Insertable<UserListening> {
+  final String id;
+  final String masterListeningId;
+  final bool isAdded;
+  final bool isFavorite;
+  final String status;
+  final String customNotes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const UserListening({
+    required this.id,
+    required this.masterListeningId,
+    required this.isAdded,
+    required this.isFavorite,
+    required this.status,
+    required this.customNotes,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['master_listening_id'] = Variable<String>(masterListeningId);
+    map['is_added'] = Variable<bool>(isAdded);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['status'] = Variable<String>(status);
+    map['custom_notes'] = Variable<String>(customNotes);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  UserListeningsCompanion toCompanion(bool nullToAbsent) {
+    return UserListeningsCompanion(
+      id: Value(id),
+      masterListeningId: Value(masterListeningId),
+      isAdded: Value(isAdded),
+      isFavorite: Value(isFavorite),
+      status: Value(status),
+      customNotes: Value(customNotes),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory UserListening.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserListening(
+      id: serializer.fromJson<String>(json['id']),
+      masterListeningId: serializer.fromJson<String>(json['masterListeningId']),
+      isAdded: serializer.fromJson<bool>(json['isAdded']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      status: serializer.fromJson<String>(json['status']),
+      customNotes: serializer.fromJson<String>(json['customNotes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'masterListeningId': serializer.toJson<String>(masterListeningId),
+      'isAdded': serializer.toJson<bool>(isAdded),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'status': serializer.toJson<String>(status),
+      'customNotes': serializer.toJson<String>(customNotes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  UserListening copyWith({
+    String? id,
+    String? masterListeningId,
+    bool? isAdded,
+    bool? isFavorite,
+    String? status,
+    String? customNotes,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => UserListening(
+    id: id ?? this.id,
+    masterListeningId: masterListeningId ?? this.masterListeningId,
+    isAdded: isAdded ?? this.isAdded,
+    isFavorite: isFavorite ?? this.isFavorite,
+    status: status ?? this.status,
+    customNotes: customNotes ?? this.customNotes,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  UserListening copyWithCompanion(UserListeningsCompanion data) {
+    return UserListening(
+      id: data.id.present ? data.id.value : this.id,
+      masterListeningId: data.masterListeningId.present
+          ? data.masterListeningId.value
+          : this.masterListeningId,
+      isAdded: data.isAdded.present ? data.isAdded.value : this.isAdded,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
+      status: data.status.present ? data.status.value : this.status,
+      customNotes: data.customNotes.present
+          ? data.customNotes.value
+          : this.customNotes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserListening(')
+          ..write('id: $id, ')
+          ..write('masterListeningId: $masterListeningId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    masterListeningId,
+    isAdded,
+    isFavorite,
+    status,
+    customNotes,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserListening &&
+          other.id == this.id &&
+          other.masterListeningId == this.masterListeningId &&
+          other.isAdded == this.isAdded &&
+          other.isFavorite == this.isFavorite &&
+          other.status == this.status &&
+          other.customNotes == this.customNotes &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class UserListeningsCompanion extends UpdateCompanion<UserListening> {
+  final Value<String> id;
+  final Value<String> masterListeningId;
+  final Value<bool> isAdded;
+  final Value<bool> isFavorite;
+  final Value<String> status;
+  final Value<String> customNotes;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const UserListeningsCompanion({
+    this.id = const Value.absent(),
+    this.masterListeningId = const Value.absent(),
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserListeningsCompanion.insert({
+    required String id,
+    required String masterListeningId,
+    this.isAdded = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.status = const Value.absent(),
+    this.customNotes = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       masterListeningId = Value(masterListeningId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<UserListening> custom({
+    Expression<String>? id,
+    Expression<String>? masterListeningId,
+    Expression<bool>? isAdded,
+    Expression<bool>? isFavorite,
+    Expression<String>? status,
+    Expression<String>? customNotes,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (masterListeningId != null) 'master_listening_id': masterListeningId,
+      if (isAdded != null) 'is_added': isAdded,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (status != null) 'status': status,
+      if (customNotes != null) 'custom_notes': customNotes,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserListeningsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? masterListeningId,
+    Value<bool>? isAdded,
+    Value<bool>? isFavorite,
+    Value<String>? status,
+    Value<String>? customNotes,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return UserListeningsCompanion(
+      id: id ?? this.id,
+      masterListeningId: masterListeningId ?? this.masterListeningId,
+      isAdded: isAdded ?? this.isAdded,
+      isFavorite: isFavorite ?? this.isFavorite,
+      status: status ?? this.status,
+      customNotes: customNotes ?? this.customNotes,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (masterListeningId.present) {
+      map['master_listening_id'] = Variable<String>(masterListeningId.value);
+    }
+    if (isAdded.present) {
+      map['is_added'] = Variable<bool>(isAdded.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (customNotes.present) {
+      map['custom_notes'] = Variable<String>(customNotes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserListeningsCompanion(')
+          ..write('id: $id, ')
+          ..write('masterListeningId: $masterListeningId, ')
+          ..write('isAdded: $isAdded, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('status: $status, ')
+          ..write('customNotes: $customNotes, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $KanjiVocabsTable extends KanjiVocabs
+    with TableInfo<$KanjiVocabsTable, KanjiVocab> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $KanjiVocabsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _kanjiIdMeta = const VerificationMeta(
+    'kanjiId',
+  );
+  @override
+  late final GeneratedColumn<String> kanjiId = GeneratedColumn<String>(
+    'kanji_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_kanjis(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _vocabIdMeta = const VerificationMeta(
+    'vocabId',
+  );
+  @override
+  late final GeneratedColumn<String> vocabId = GeneratedColumn<String>(
+    'vocab_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [kanjiId, vocabId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'kanji_vocabs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<KanjiVocab> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('kanji_id')) {
+      context.handle(
+        _kanjiIdMeta,
+        kanjiId.isAcceptableOrUnknown(data['kanji_id']!, _kanjiIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kanjiIdMeta);
+    }
+    if (data.containsKey('vocab_id')) {
+      context.handle(
+        _vocabIdMeta,
+        vocabId.isAcceptableOrUnknown(data['vocab_id']!, _vocabIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vocabIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {kanjiId, vocabId};
+  @override
+  KanjiVocab map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return KanjiVocab(
+      kanjiId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kanji_id'],
+      )!,
+      vocabId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vocab_id'],
+      )!,
+    );
+  }
+
+  @override
+  $KanjiVocabsTable createAlias(String alias) {
+    return $KanjiVocabsTable(attachedDatabase, alias);
+  }
+}
+
+class KanjiVocab extends DataClass implements Insertable<KanjiVocab> {
+  final String kanjiId;
+  final String vocabId;
+  const KanjiVocab({required this.kanjiId, required this.vocabId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['kanji_id'] = Variable<String>(kanjiId);
+    map['vocab_id'] = Variable<String>(vocabId);
+    return map;
+  }
+
+  KanjiVocabsCompanion toCompanion(bool nullToAbsent) {
+    return KanjiVocabsCompanion(
+      kanjiId: Value(kanjiId),
+      vocabId: Value(vocabId),
+    );
+  }
+
+  factory KanjiVocab.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return KanjiVocab(
+      kanjiId: serializer.fromJson<String>(json['kanjiId']),
+      vocabId: serializer.fromJson<String>(json['vocabId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'kanjiId': serializer.toJson<String>(kanjiId),
+      'vocabId': serializer.toJson<String>(vocabId),
+    };
+  }
+
+  KanjiVocab copyWith({String? kanjiId, String? vocabId}) => KanjiVocab(
+    kanjiId: kanjiId ?? this.kanjiId,
+    vocabId: vocabId ?? this.vocabId,
+  );
+  KanjiVocab copyWithCompanion(KanjiVocabsCompanion data) {
+    return KanjiVocab(
+      kanjiId: data.kanjiId.present ? data.kanjiId.value : this.kanjiId,
+      vocabId: data.vocabId.present ? data.vocabId.value : this.vocabId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KanjiVocab(')
+          ..write('kanjiId: $kanjiId, ')
+          ..write('vocabId: $vocabId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(kanjiId, vocabId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is KanjiVocab &&
+          other.kanjiId == this.kanjiId &&
+          other.vocabId == this.vocabId);
+}
+
+class KanjiVocabsCompanion extends UpdateCompanion<KanjiVocab> {
+  final Value<String> kanjiId;
+  final Value<String> vocabId;
+  final Value<int> rowid;
+  const KanjiVocabsCompanion({
+    this.kanjiId = const Value.absent(),
+    this.vocabId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  KanjiVocabsCompanion.insert({
+    required String kanjiId,
+    required String vocabId,
+    this.rowid = const Value.absent(),
+  }) : kanjiId = Value(kanjiId),
+       vocabId = Value(vocabId);
+  static Insertable<KanjiVocab> custom({
+    Expression<String>? kanjiId,
+    Expression<String>? vocabId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (kanjiId != null) 'kanji_id': kanjiId,
+      if (vocabId != null) 'vocab_id': vocabId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  KanjiVocabsCompanion copyWith({
+    Value<String>? kanjiId,
+    Value<String>? vocabId,
+    Value<int>? rowid,
+  }) {
+    return KanjiVocabsCompanion(
+      kanjiId: kanjiId ?? this.kanjiId,
+      vocabId: vocabId ?? this.vocabId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (kanjiId.present) {
+      map['kanji_id'] = Variable<String>(kanjiId.value);
+    }
+    if (vocabId.present) {
+      map['vocab_id'] = Variable<String>(vocabId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KanjiVocabsCompanion(')
+          ..write('kanjiId: $kanjiId, ')
+          ..write('vocabId: $vocabId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VocabGrammarsTable extends VocabGrammars
+    with TableInfo<$VocabGrammarsTable, VocabGrammar> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VocabGrammarsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _vocabIdMeta = const VerificationMeta(
+    'vocabId',
+  );
+  @override
+  late final GeneratedColumn<String> vocabId = GeneratedColumn<String>(
+    'vocab_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _grammarIdMeta = const VerificationMeta(
+    'grammarId',
+  );
+  @override
+  late final GeneratedColumn<String> grammarId = GeneratedColumn<String>(
+    'grammar_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_grammars(id) ON DELETE CASCADE NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [vocabId, grammarId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vocab_grammars';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VocabGrammar> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('vocab_id')) {
+      context.handle(
+        _vocabIdMeta,
+        vocabId.isAcceptableOrUnknown(data['vocab_id']!, _vocabIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vocabIdMeta);
+    }
+    if (data.containsKey('grammar_id')) {
+      context.handle(
+        _grammarIdMeta,
+        grammarId.isAcceptableOrUnknown(data['grammar_id']!, _grammarIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_grammarIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {vocabId, grammarId};
+  @override
+  VocabGrammar map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VocabGrammar(
+      vocabId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vocab_id'],
+      )!,
+      grammarId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammar_id'],
+      )!,
+    );
+  }
+
+  @override
+  $VocabGrammarsTable createAlias(String alias) {
+    return $VocabGrammarsTable(attachedDatabase, alias);
+  }
+}
+
+class VocabGrammar extends DataClass implements Insertable<VocabGrammar> {
+  final String vocabId;
+  final String grammarId;
+  const VocabGrammar({required this.vocabId, required this.grammarId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['vocab_id'] = Variable<String>(vocabId);
+    map['grammar_id'] = Variable<String>(grammarId);
+    return map;
+  }
+
+  VocabGrammarsCompanion toCompanion(bool nullToAbsent) {
+    return VocabGrammarsCompanion(
+      vocabId: Value(vocabId),
+      grammarId: Value(grammarId),
+    );
+  }
+
+  factory VocabGrammar.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VocabGrammar(
+      vocabId: serializer.fromJson<String>(json['vocabId']),
+      grammarId: serializer.fromJson<String>(json['grammarId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'vocabId': serializer.toJson<String>(vocabId),
+      'grammarId': serializer.toJson<String>(grammarId),
+    };
+  }
+
+  VocabGrammar copyWith({String? vocabId, String? grammarId}) => VocabGrammar(
+    vocabId: vocabId ?? this.vocabId,
+    grammarId: grammarId ?? this.grammarId,
+  );
+  VocabGrammar copyWithCompanion(VocabGrammarsCompanion data) {
+    return VocabGrammar(
+      vocabId: data.vocabId.present ? data.vocabId.value : this.vocabId,
+      grammarId: data.grammarId.present ? data.grammarId.value : this.grammarId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VocabGrammar(')
+          ..write('vocabId: $vocabId, ')
+          ..write('grammarId: $grammarId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(vocabId, grammarId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VocabGrammar &&
+          other.vocabId == this.vocabId &&
+          other.grammarId == this.grammarId);
+}
+
+class VocabGrammarsCompanion extends UpdateCompanion<VocabGrammar> {
+  final Value<String> vocabId;
+  final Value<String> grammarId;
+  final Value<int> rowid;
+  const VocabGrammarsCompanion({
+    this.vocabId = const Value.absent(),
+    this.grammarId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VocabGrammarsCompanion.insert({
+    required String vocabId,
+    required String grammarId,
+    this.rowid = const Value.absent(),
+  }) : vocabId = Value(vocabId),
+       grammarId = Value(grammarId);
+  static Insertable<VocabGrammar> custom({
+    Expression<String>? vocabId,
+    Expression<String>? grammarId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (vocabId != null) 'vocab_id': vocabId,
+      if (grammarId != null) 'grammar_id': grammarId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VocabGrammarsCompanion copyWith({
+    Value<String>? vocabId,
+    Value<String>? grammarId,
+    Value<int>? rowid,
+  }) {
+    return VocabGrammarsCompanion(
+      vocabId: vocabId ?? this.vocabId,
+      grammarId: grammarId ?? this.grammarId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (vocabId.present) {
+      map['vocab_id'] = Variable<String>(vocabId.value);
+    }
+    if (grammarId.present) {
+      map['grammar_id'] = Variable<String>(grammarId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VocabGrammarsCompanion(')
+          ..write('vocabId: $vocabId, ')
+          ..write('grammarId: $grammarId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GrammarReadingsTable extends GrammarReadings
+    with TableInfo<$GrammarReadingsTable, GrammarReading> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GrammarReadingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _grammarIdMeta = const VerificationMeta(
+    'grammarId',
+  );
+  @override
+  late final GeneratedColumn<String> grammarId = GeneratedColumn<String>(
+    'grammar_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_grammars(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _readingIdMeta = const VerificationMeta(
+    'readingId',
+  );
+  @override
+  late final GeneratedColumn<String> readingId = GeneratedColumn<String>(
+    'reading_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [grammarId, readingId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'grammar_readings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GrammarReading> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('grammar_id')) {
+      context.handle(
+        _grammarIdMeta,
+        grammarId.isAcceptableOrUnknown(data['grammar_id']!, _grammarIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_grammarIdMeta);
+    }
+    if (data.containsKey('reading_id')) {
+      context.handle(
+        _readingIdMeta,
+        readingId.isAcceptableOrUnknown(data['reading_id']!, _readingIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_readingIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {grammarId, readingId};
+  @override
+  GrammarReading map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GrammarReading(
+      grammarId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grammar_id'],
+      )!,
+      readingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reading_id'],
+      )!,
+    );
+  }
+
+  @override
+  $GrammarReadingsTable createAlias(String alias) {
+    return $GrammarReadingsTable(attachedDatabase, alias);
+  }
+}
+
+class GrammarReading extends DataClass implements Insertable<GrammarReading> {
+  final String grammarId;
+  final String readingId;
+  const GrammarReading({required this.grammarId, required this.readingId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['grammar_id'] = Variable<String>(grammarId);
+    map['reading_id'] = Variable<String>(readingId);
+    return map;
+  }
+
+  GrammarReadingsCompanion toCompanion(bool nullToAbsent) {
+    return GrammarReadingsCompanion(
+      grammarId: Value(grammarId),
+      readingId: Value(readingId),
+    );
+  }
+
+  factory GrammarReading.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GrammarReading(
+      grammarId: serializer.fromJson<String>(json['grammarId']),
+      readingId: serializer.fromJson<String>(json['readingId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'grammarId': serializer.toJson<String>(grammarId),
+      'readingId': serializer.toJson<String>(readingId),
+    };
+  }
+
+  GrammarReading copyWith({String? grammarId, String? readingId}) =>
+      GrammarReading(
+        grammarId: grammarId ?? this.grammarId,
+        readingId: readingId ?? this.readingId,
+      );
+  GrammarReading copyWithCompanion(GrammarReadingsCompanion data) {
+    return GrammarReading(
+      grammarId: data.grammarId.present ? data.grammarId.value : this.grammarId,
+      readingId: data.readingId.present ? data.readingId.value : this.readingId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GrammarReading(')
+          ..write('grammarId: $grammarId, ')
+          ..write('readingId: $readingId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(grammarId, readingId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GrammarReading &&
+          other.grammarId == this.grammarId &&
+          other.readingId == this.readingId);
+}
+
+class GrammarReadingsCompanion extends UpdateCompanion<GrammarReading> {
+  final Value<String> grammarId;
+  final Value<String> readingId;
+  final Value<int> rowid;
+  const GrammarReadingsCompanion({
+    this.grammarId = const Value.absent(),
+    this.readingId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GrammarReadingsCompanion.insert({
+    required String grammarId,
+    required String readingId,
+    this.rowid = const Value.absent(),
+  }) : grammarId = Value(grammarId),
+       readingId = Value(readingId);
+  static Insertable<GrammarReading> custom({
+    Expression<String>? grammarId,
+    Expression<String>? readingId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (grammarId != null) 'grammar_id': grammarId,
+      if (readingId != null) 'reading_id': readingId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GrammarReadingsCompanion copyWith({
+    Value<String>? grammarId,
+    Value<String>? readingId,
+    Value<int>? rowid,
+  }) {
+    return GrammarReadingsCompanion(
+      grammarId: grammarId ?? this.grammarId,
+      readingId: readingId ?? this.readingId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (grammarId.present) {
+      map['grammar_id'] = Variable<String>(grammarId.value);
+    }
+    if (readingId.present) {
+      map['reading_id'] = Variable<String>(readingId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GrammarReadingsCompanion(')
+          ..write('grammarId: $grammarId, ')
+          ..write('readingId: $readingId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReadingListeningsTable extends ReadingListenings
+    with TableInfo<$ReadingListeningsTable, ReadingListening> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReadingListeningsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _readingIdMeta = const VerificationMeta(
+    'readingId',
+  );
+  @override
+  late final GeneratedColumn<String> readingId = GeneratedColumn<String>(
+    'reading_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _listeningIdMeta = const VerificationMeta(
+    'listeningId',
+  );
+  @override
+  late final GeneratedColumn<String> listeningId = GeneratedColumn<String>(
+    'listening_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_listenings(id) ON DELETE CASCADE NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [readingId, listeningId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reading_listenings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReadingListening> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('reading_id')) {
+      context.handle(
+        _readingIdMeta,
+        readingId.isAcceptableOrUnknown(data['reading_id']!, _readingIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_readingIdMeta);
+    }
+    if (data.containsKey('listening_id')) {
+      context.handle(
+        _listeningIdMeta,
+        listeningId.isAcceptableOrUnknown(
+          data['listening_id']!,
+          _listeningIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_listeningIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {readingId, listeningId};
+  @override
+  ReadingListening map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReadingListening(
+      readingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reading_id'],
+      )!,
+      listeningId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}listening_id'],
+      )!,
+    );
+  }
+
+  @override
+  $ReadingListeningsTable createAlias(String alias) {
+    return $ReadingListeningsTable(attachedDatabase, alias);
+  }
+}
+
+class ReadingListening extends DataClass
+    implements Insertable<ReadingListening> {
+  final String readingId;
+  final String listeningId;
+  const ReadingListening({required this.readingId, required this.listeningId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['reading_id'] = Variable<String>(readingId);
+    map['listening_id'] = Variable<String>(listeningId);
+    return map;
+  }
+
+  ReadingListeningsCompanion toCompanion(bool nullToAbsent) {
+    return ReadingListeningsCompanion(
+      readingId: Value(readingId),
+      listeningId: Value(listeningId),
+    );
+  }
+
+  factory ReadingListening.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReadingListening(
+      readingId: serializer.fromJson<String>(json['readingId']),
+      listeningId: serializer.fromJson<String>(json['listeningId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'readingId': serializer.toJson<String>(readingId),
+      'listeningId': serializer.toJson<String>(listeningId),
+    };
+  }
+
+  ReadingListening copyWith({String? readingId, String? listeningId}) =>
+      ReadingListening(
+        readingId: readingId ?? this.readingId,
+        listeningId: listeningId ?? this.listeningId,
+      );
+  ReadingListening copyWithCompanion(ReadingListeningsCompanion data) {
+    return ReadingListening(
+      readingId: data.readingId.present ? data.readingId.value : this.readingId,
+      listeningId: data.listeningId.present
+          ? data.listeningId.value
+          : this.listeningId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingListening(')
+          ..write('readingId: $readingId, ')
+          ..write('listeningId: $listeningId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(readingId, listeningId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReadingListening &&
+          other.readingId == this.readingId &&
+          other.listeningId == this.listeningId);
+}
+
+class ReadingListeningsCompanion extends UpdateCompanion<ReadingListening> {
+  final Value<String> readingId;
+  final Value<String> listeningId;
+  final Value<int> rowid;
+  const ReadingListeningsCompanion({
+    this.readingId = const Value.absent(),
+    this.listeningId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReadingListeningsCompanion.insert({
+    required String readingId,
+    required String listeningId,
+    this.rowid = const Value.absent(),
+  }) : readingId = Value(readingId),
+       listeningId = Value(listeningId);
+  static Insertable<ReadingListening> custom({
+    Expression<String>? readingId,
+    Expression<String>? listeningId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (readingId != null) 'reading_id': readingId,
+      if (listeningId != null) 'listening_id': listeningId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReadingListeningsCompanion copyWith({
+    Value<String>? readingId,
+    Value<String>? listeningId,
+    Value<int>? rowid,
+  }) {
+    return ReadingListeningsCompanion(
+      readingId: readingId ?? this.readingId,
+      listeningId: listeningId ?? this.listeningId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (readingId.present) {
+      map['reading_id'] = Variable<String>(readingId.value);
+    }
+    if (listeningId.present) {
+      map['listening_id'] = Variable<String>(listeningId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReadingListeningsCompanion(')
+          ..write('readingId: $readingId, ')
+          ..write('listeningId: $listeningId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $KanjiReadingsTable extends KanjiReadings
+    with TableInfo<$KanjiReadingsTable, KanjiReading> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $KanjiReadingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _kanjiIdMeta = const VerificationMeta(
+    'kanjiId',
+  );
+  @override
+  late final GeneratedColumn<String> kanjiId = GeneratedColumn<String>(
+    'kanji_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_kanjis(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _readingIdMeta = const VerificationMeta(
+    'readingId',
+  );
+  @override
+  late final GeneratedColumn<String> readingId = GeneratedColumn<String>(
+    'reading_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [kanjiId, readingId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'kanji_readings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<KanjiReading> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('kanji_id')) {
+      context.handle(
+        _kanjiIdMeta,
+        kanjiId.isAcceptableOrUnknown(data['kanji_id']!, _kanjiIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kanjiIdMeta);
+    }
+    if (data.containsKey('reading_id')) {
+      context.handle(
+        _readingIdMeta,
+        readingId.isAcceptableOrUnknown(data['reading_id']!, _readingIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_readingIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {kanjiId, readingId};
+  @override
+  KanjiReading map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return KanjiReading(
+      kanjiId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kanji_id'],
+      )!,
+      readingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reading_id'],
+      )!,
+    );
+  }
+
+  @override
+  $KanjiReadingsTable createAlias(String alias) {
+    return $KanjiReadingsTable(attachedDatabase, alias);
+  }
+}
+
+class KanjiReading extends DataClass implements Insertable<KanjiReading> {
+  final String kanjiId;
+  final String readingId;
+  const KanjiReading({required this.kanjiId, required this.readingId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['kanji_id'] = Variable<String>(kanjiId);
+    map['reading_id'] = Variable<String>(readingId);
+    return map;
+  }
+
+  KanjiReadingsCompanion toCompanion(bool nullToAbsent) {
+    return KanjiReadingsCompanion(
+      kanjiId: Value(kanjiId),
+      readingId: Value(readingId),
+    );
+  }
+
+  factory KanjiReading.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return KanjiReading(
+      kanjiId: serializer.fromJson<String>(json['kanjiId']),
+      readingId: serializer.fromJson<String>(json['readingId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'kanjiId': serializer.toJson<String>(kanjiId),
+      'readingId': serializer.toJson<String>(readingId),
+    };
+  }
+
+  KanjiReading copyWith({String? kanjiId, String? readingId}) => KanjiReading(
+    kanjiId: kanjiId ?? this.kanjiId,
+    readingId: readingId ?? this.readingId,
+  );
+  KanjiReading copyWithCompanion(KanjiReadingsCompanion data) {
+    return KanjiReading(
+      kanjiId: data.kanjiId.present ? data.kanjiId.value : this.kanjiId,
+      readingId: data.readingId.present ? data.readingId.value : this.readingId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KanjiReading(')
+          ..write('kanjiId: $kanjiId, ')
+          ..write('readingId: $readingId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(kanjiId, readingId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is KanjiReading &&
+          other.kanjiId == this.kanjiId &&
+          other.readingId == this.readingId);
+}
+
+class KanjiReadingsCompanion extends UpdateCompanion<KanjiReading> {
+  final Value<String> kanjiId;
+  final Value<String> readingId;
+  final Value<int> rowid;
+  const KanjiReadingsCompanion({
+    this.kanjiId = const Value.absent(),
+    this.readingId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  KanjiReadingsCompanion.insert({
+    required String kanjiId,
+    required String readingId,
+    this.rowid = const Value.absent(),
+  }) : kanjiId = Value(kanjiId),
+       readingId = Value(readingId);
+  static Insertable<KanjiReading> custom({
+    Expression<String>? kanjiId,
+    Expression<String>? readingId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (kanjiId != null) 'kanji_id': kanjiId,
+      if (readingId != null) 'reading_id': readingId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  KanjiReadingsCompanion copyWith({
+    Value<String>? kanjiId,
+    Value<String>? readingId,
+    Value<int>? rowid,
+  }) {
+    return KanjiReadingsCompanion(
+      kanjiId: kanjiId ?? this.kanjiId,
+      readingId: readingId ?? this.readingId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (kanjiId.present) {
+      map['kanji_id'] = Variable<String>(kanjiId.value);
+    }
+    if (readingId.present) {
+      map['reading_id'] = Variable<String>(readingId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('KanjiReadingsCompanion(')
+          ..write('kanjiId: $kanjiId, ')
+          ..write('readingId: $readingId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VocabReadingsTable extends VocabReadings
+    with TableInfo<$VocabReadingsTable, VocabReading> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VocabReadingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _vocabIdMeta = const VerificationMeta(
+    'vocabId',
+  );
+  @override
+  late final GeneratedColumn<String> vocabId = GeneratedColumn<String>(
+    'vocab_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_vocabularies(id) ON DELETE CASCADE NOT NULL',
+  );
+  static const VerificationMeta _readingIdMeta = const VerificationMeta(
+    'readingId',
+  );
+  @override
+  late final GeneratedColumn<String> readingId = GeneratedColumn<String>(
+    'reading_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints:
+        'REFERENCES master_readings(id) ON DELETE CASCADE NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [vocabId, readingId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vocab_readings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VocabReading> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('vocab_id')) {
+      context.handle(
+        _vocabIdMeta,
+        vocabId.isAcceptableOrUnknown(data['vocab_id']!, _vocabIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vocabIdMeta);
+    }
+    if (data.containsKey('reading_id')) {
+      context.handle(
+        _readingIdMeta,
+        readingId.isAcceptableOrUnknown(data['reading_id']!, _readingIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_readingIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {vocabId, readingId};
+  @override
+  VocabReading map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VocabReading(
+      vocabId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vocab_id'],
+      )!,
+      readingId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reading_id'],
+      )!,
+    );
+  }
+
+  @override
+  $VocabReadingsTable createAlias(String alias) {
+    return $VocabReadingsTable(attachedDatabase, alias);
+  }
+}
+
+class VocabReading extends DataClass implements Insertable<VocabReading> {
+  final String vocabId;
+  final String readingId;
+  const VocabReading({required this.vocabId, required this.readingId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['vocab_id'] = Variable<String>(vocabId);
+    map['reading_id'] = Variable<String>(readingId);
+    return map;
+  }
+
+  VocabReadingsCompanion toCompanion(bool nullToAbsent) {
+    return VocabReadingsCompanion(
+      vocabId: Value(vocabId),
+      readingId: Value(readingId),
+    );
+  }
+
+  factory VocabReading.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VocabReading(
+      vocabId: serializer.fromJson<String>(json['vocabId']),
+      readingId: serializer.fromJson<String>(json['readingId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'vocabId': serializer.toJson<String>(vocabId),
+      'readingId': serializer.toJson<String>(readingId),
+    };
+  }
+
+  VocabReading copyWith({String? vocabId, String? readingId}) => VocabReading(
+    vocabId: vocabId ?? this.vocabId,
+    readingId: readingId ?? this.readingId,
+  );
+  VocabReading copyWithCompanion(VocabReadingsCompanion data) {
+    return VocabReading(
+      vocabId: data.vocabId.present ? data.vocabId.value : this.vocabId,
+      readingId: data.readingId.present ? data.readingId.value : this.readingId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VocabReading(')
+          ..write('vocabId: $vocabId, ')
+          ..write('readingId: $readingId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(vocabId, readingId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VocabReading &&
+          other.vocabId == this.vocabId &&
+          other.readingId == this.readingId);
+}
+
+class VocabReadingsCompanion extends UpdateCompanion<VocabReading> {
+  final Value<String> vocabId;
+  final Value<String> readingId;
+  final Value<int> rowid;
+  const VocabReadingsCompanion({
+    this.vocabId = const Value.absent(),
+    this.readingId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VocabReadingsCompanion.insert({
+    required String vocabId,
+    required String readingId,
+    this.rowid = const Value.absent(),
+  }) : vocabId = Value(vocabId),
+       readingId = Value(readingId);
+  static Insertable<VocabReading> custom({
+    Expression<String>? vocabId,
+    Expression<String>? readingId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (vocabId != null) 'vocab_id': vocabId,
+      if (readingId != null) 'reading_id': readingId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VocabReadingsCompanion copyWith({
+    Value<String>? vocabId,
+    Value<String>? readingId,
+    Value<int>? rowid,
+  }) {
+    return VocabReadingsCompanion(
+      vocabId: vocabId ?? this.vocabId,
+      readingId: readingId ?? this.readingId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (vocabId.present) {
+      map['vocab_id'] = Variable<String>(vocabId.value);
+    }
+    if (readingId.present) {
+      map['reading_id'] = Variable<String>(readingId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VocabReadingsCompanion(')
+          ..write('vocabId: $vocabId, ')
+          ..write('readingId: $readingId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3887,1020 +10129,6 @@ class QuizResultsCompanion extends UpdateCompanion<QuizResult> {
           ..write('correctCount: $correctCount, ')
           ..write('totalCount: $totalCount, ')
           ..write('quizType: $quizType, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ReadingsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _passageMeta = const VerificationMeta(
-    'passage',
-  );
-  @override
-  late final GeneratedColumn<String> passage = GeneratedColumn<String>(
-    'passage',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _questionMeta = const VerificationMeta(
-    'question',
-  );
-  @override
-  late final GeneratedColumn<String> question = GeneratedColumn<String>(
-    'question',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
-  @override
-  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
-    'answer',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _explanationMeta = const VerificationMeta(
-    'explanation',
-  );
-  @override
-  late final GeneratedColumn<String> explanation = GeneratedColumn<String>(
-    'explanation',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(''),
-  );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('unlearned'),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    title,
-    passage,
-    question,
-    answer,
-    explanation,
-    notes,
-    status,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'readings';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Reading> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('passage')) {
-      context.handle(
-        _passageMeta,
-        passage.isAcceptableOrUnknown(data['passage']!, _passageMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_passageMeta);
-    }
-    if (data.containsKey('question')) {
-      context.handle(
-        _questionMeta,
-        question.isAcceptableOrUnknown(data['question']!, _questionMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_questionMeta);
-    }
-    if (data.containsKey('answer')) {
-      context.handle(
-        _answerMeta,
-        answer.isAcceptableOrUnknown(data['answer']!, _answerMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_answerMeta);
-    }
-    if (data.containsKey('explanation')) {
-      context.handle(
-        _explanationMeta,
-        explanation.isAcceptableOrUnknown(
-          data['explanation']!,
-          _explanationMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_explanationMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Reading map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Reading(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      passage: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}passage'],
-      )!,
-      question: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}question'],
-      )!,
-      answer: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}answer'],
-      )!,
-      explanation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}explanation'],
-      )!,
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      )!,
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
-    );
-  }
-
-  @override
-  $ReadingsTable createAlias(String alias) {
-    return $ReadingsTable(attachedDatabase, alias);
-  }
-}
-
-class Reading extends DataClass implements Insertable<Reading> {
-  final String id;
-  final String title;
-  final String passage;
-  final String question;
-  final String answer;
-  final String explanation;
-  final String notes;
-  final String status;
-  const Reading({
-    required this.id,
-    required this.title,
-    required this.passage,
-    required this.question,
-    required this.answer,
-    required this.explanation,
-    required this.notes,
-    required this.status,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['title'] = Variable<String>(title);
-    map['passage'] = Variable<String>(passage);
-    map['question'] = Variable<String>(question);
-    map['answer'] = Variable<String>(answer);
-    map['explanation'] = Variable<String>(explanation);
-    map['notes'] = Variable<String>(notes);
-    map['status'] = Variable<String>(status);
-    return map;
-  }
-
-  ReadingsCompanion toCompanion(bool nullToAbsent) {
-    return ReadingsCompanion(
-      id: Value(id),
-      title: Value(title),
-      passage: Value(passage),
-      question: Value(question),
-      answer: Value(answer),
-      explanation: Value(explanation),
-      notes: Value(notes),
-      status: Value(status),
-    );
-  }
-
-  factory Reading.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Reading(
-      id: serializer.fromJson<String>(json['id']),
-      title: serializer.fromJson<String>(json['title']),
-      passage: serializer.fromJson<String>(json['passage']),
-      question: serializer.fromJson<String>(json['question']),
-      answer: serializer.fromJson<String>(json['answer']),
-      explanation: serializer.fromJson<String>(json['explanation']),
-      notes: serializer.fromJson<String>(json['notes']),
-      status: serializer.fromJson<String>(json['status']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'title': serializer.toJson<String>(title),
-      'passage': serializer.toJson<String>(passage),
-      'question': serializer.toJson<String>(question),
-      'answer': serializer.toJson<String>(answer),
-      'explanation': serializer.toJson<String>(explanation),
-      'notes': serializer.toJson<String>(notes),
-      'status': serializer.toJson<String>(status),
-    };
-  }
-
-  Reading copyWith({
-    String? id,
-    String? title,
-    String? passage,
-    String? question,
-    String? answer,
-    String? explanation,
-    String? notes,
-    String? status,
-  }) => Reading(
-    id: id ?? this.id,
-    title: title ?? this.title,
-    passage: passage ?? this.passage,
-    question: question ?? this.question,
-    answer: answer ?? this.answer,
-    explanation: explanation ?? this.explanation,
-    notes: notes ?? this.notes,
-    status: status ?? this.status,
-  );
-  Reading copyWithCompanion(ReadingsCompanion data) {
-    return Reading(
-      id: data.id.present ? data.id.value : this.id,
-      title: data.title.present ? data.title.value : this.title,
-      passage: data.passage.present ? data.passage.value : this.passage,
-      question: data.question.present ? data.question.value : this.question,
-      answer: data.answer.present ? data.answer.value : this.answer,
-      explanation: data.explanation.present
-          ? data.explanation.value
-          : this.explanation,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      status: data.status.present ? data.status.value : this.status,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Reading(')
-          ..write('id: $id, ')
-          ..write('title: $title, ')
-          ..write('passage: $passage, ')
-          ..write('question: $question, ')
-          ..write('answer: $answer, ')
-          ..write('explanation: $explanation, ')
-          ..write('notes: $notes, ')
-          ..write('status: $status')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    title,
-    passage,
-    question,
-    answer,
-    explanation,
-    notes,
-    status,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Reading &&
-          other.id == this.id &&
-          other.title == this.title &&
-          other.passage == this.passage &&
-          other.question == this.question &&
-          other.answer == this.answer &&
-          other.explanation == this.explanation &&
-          other.notes == this.notes &&
-          other.status == this.status);
-}
-
-class ReadingsCompanion extends UpdateCompanion<Reading> {
-  final Value<String> id;
-  final Value<String> title;
-  final Value<String> passage;
-  final Value<String> question;
-  final Value<String> answer;
-  final Value<String> explanation;
-  final Value<String> notes;
-  final Value<String> status;
-  final Value<int> rowid;
-  const ReadingsCompanion({
-    this.id = const Value.absent(),
-    this.title = const Value.absent(),
-    this.passage = const Value.absent(),
-    this.question = const Value.absent(),
-    this.answer = const Value.absent(),
-    this.explanation = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.status = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ReadingsCompanion.insert({
-    required String id,
-    required String title,
-    required String passage,
-    required String question,
-    required String answer,
-    required String explanation,
-    this.notes = const Value.absent(),
-    this.status = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       title = Value(title),
-       passage = Value(passage),
-       question = Value(question),
-       answer = Value(answer),
-       explanation = Value(explanation);
-  static Insertable<Reading> custom({
-    Expression<String>? id,
-    Expression<String>? title,
-    Expression<String>? passage,
-    Expression<String>? question,
-    Expression<String>? answer,
-    Expression<String>? explanation,
-    Expression<String>? notes,
-    Expression<String>? status,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (title != null) 'title': title,
-      if (passage != null) 'passage': passage,
-      if (question != null) 'question': question,
-      if (answer != null) 'answer': answer,
-      if (explanation != null) 'explanation': explanation,
-      if (notes != null) 'notes': notes,
-      if (status != null) 'status': status,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ReadingsCompanion copyWith({
-    Value<String>? id,
-    Value<String>? title,
-    Value<String>? passage,
-    Value<String>? question,
-    Value<String>? answer,
-    Value<String>? explanation,
-    Value<String>? notes,
-    Value<String>? status,
-    Value<int>? rowid,
-  }) {
-    return ReadingsCompanion(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      passage: passage ?? this.passage,
-      question: question ?? this.question,
-      answer: answer ?? this.answer,
-      explanation: explanation ?? this.explanation,
-      notes: notes ?? this.notes,
-      status: status ?? this.status,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (passage.present) {
-      map['passage'] = Variable<String>(passage.value);
-    }
-    if (question.present) {
-      map['question'] = Variable<String>(question.value);
-    }
-    if (answer.present) {
-      map['answer'] = Variable<String>(answer.value);
-    }
-    if (explanation.present) {
-      map['explanation'] = Variable<String>(explanation.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ReadingsCompanion(')
-          ..write('id: $id, ')
-          ..write('title: $title, ')
-          ..write('passage: $passage, ')
-          ..write('question: $question, ')
-          ..write('answer: $answer, ')
-          ..write('explanation: $explanation, ')
-          ..write('notes: $notes, ')
-          ..write('status: $status, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $ListeningsTable extends Listenings
-    with TableInfo<$ListeningsTable, Listening> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ListeningsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-    'title',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _audioScriptMeta = const VerificationMeta(
-    'audioScript',
-  );
-  @override
-  late final GeneratedColumn<String> audioScript = GeneratedColumn<String>(
-    'audio_script',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _questionMeta = const VerificationMeta(
-    'question',
-  );
-  @override
-  late final GeneratedColumn<String> question = GeneratedColumn<String>(
-    'question',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
-  @override
-  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
-    'answer',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _explanationMeta = const VerificationMeta(
-    'explanation',
-  );
-  @override
-  late final GeneratedColumn<String> explanation = GeneratedColumn<String>(
-    'explanation',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
-  @override
-  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
-    'notes',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(''),
-  );
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    defaultValue: const Constant('unlearned'),
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    title,
-    audioScript,
-    question,
-    answer,
-    explanation,
-    notes,
-    status,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'listenings';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Listening> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-        _titleMeta,
-        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('audio_script')) {
-      context.handle(
-        _audioScriptMeta,
-        audioScript.isAcceptableOrUnknown(
-          data['audio_script']!,
-          _audioScriptMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_audioScriptMeta);
-    }
-    if (data.containsKey('question')) {
-      context.handle(
-        _questionMeta,
-        question.isAcceptableOrUnknown(data['question']!, _questionMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_questionMeta);
-    }
-    if (data.containsKey('answer')) {
-      context.handle(
-        _answerMeta,
-        answer.isAcceptableOrUnknown(data['answer']!, _answerMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_answerMeta);
-    }
-    if (data.containsKey('explanation')) {
-      context.handle(
-        _explanationMeta,
-        explanation.isAcceptableOrUnknown(
-          data['explanation']!,
-          _explanationMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_explanationMeta);
-    }
-    if (data.containsKey('notes')) {
-      context.handle(
-        _notesMeta,
-        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
-      );
-    }
-    if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Listening map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Listening(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      title: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}title'],
-      )!,
-      audioScript: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}audio_script'],
-      )!,
-      question: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}question'],
-      )!,
-      answer: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}answer'],
-      )!,
-      explanation: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}explanation'],
-      )!,
-      notes: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}notes'],
-      )!,
-      status: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}status'],
-      )!,
-    );
-  }
-
-  @override
-  $ListeningsTable createAlias(String alias) {
-    return $ListeningsTable(attachedDatabase, alias);
-  }
-}
-
-class Listening extends DataClass implements Insertable<Listening> {
-  final String id;
-  final String title;
-  final String audioScript;
-  final String question;
-  final String answer;
-  final String explanation;
-  final String notes;
-  final String status;
-  const Listening({
-    required this.id,
-    required this.title,
-    required this.audioScript,
-    required this.question,
-    required this.answer,
-    required this.explanation,
-    required this.notes,
-    required this.status,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['title'] = Variable<String>(title);
-    map['audio_script'] = Variable<String>(audioScript);
-    map['question'] = Variable<String>(question);
-    map['answer'] = Variable<String>(answer);
-    map['explanation'] = Variable<String>(explanation);
-    map['notes'] = Variable<String>(notes);
-    map['status'] = Variable<String>(status);
-    return map;
-  }
-
-  ListeningsCompanion toCompanion(bool nullToAbsent) {
-    return ListeningsCompanion(
-      id: Value(id),
-      title: Value(title),
-      audioScript: Value(audioScript),
-      question: Value(question),
-      answer: Value(answer),
-      explanation: Value(explanation),
-      notes: Value(notes),
-      status: Value(status),
-    );
-  }
-
-  factory Listening.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Listening(
-      id: serializer.fromJson<String>(json['id']),
-      title: serializer.fromJson<String>(json['title']),
-      audioScript: serializer.fromJson<String>(json['audioScript']),
-      question: serializer.fromJson<String>(json['question']),
-      answer: serializer.fromJson<String>(json['answer']),
-      explanation: serializer.fromJson<String>(json['explanation']),
-      notes: serializer.fromJson<String>(json['notes']),
-      status: serializer.fromJson<String>(json['status']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'title': serializer.toJson<String>(title),
-      'audioScript': serializer.toJson<String>(audioScript),
-      'question': serializer.toJson<String>(question),
-      'answer': serializer.toJson<String>(answer),
-      'explanation': serializer.toJson<String>(explanation),
-      'notes': serializer.toJson<String>(notes),
-      'status': serializer.toJson<String>(status),
-    };
-  }
-
-  Listening copyWith({
-    String? id,
-    String? title,
-    String? audioScript,
-    String? question,
-    String? answer,
-    String? explanation,
-    String? notes,
-    String? status,
-  }) => Listening(
-    id: id ?? this.id,
-    title: title ?? this.title,
-    audioScript: audioScript ?? this.audioScript,
-    question: question ?? this.question,
-    answer: answer ?? this.answer,
-    explanation: explanation ?? this.explanation,
-    notes: notes ?? this.notes,
-    status: status ?? this.status,
-  );
-  Listening copyWithCompanion(ListeningsCompanion data) {
-    return Listening(
-      id: data.id.present ? data.id.value : this.id,
-      title: data.title.present ? data.title.value : this.title,
-      audioScript: data.audioScript.present
-          ? data.audioScript.value
-          : this.audioScript,
-      question: data.question.present ? data.question.value : this.question,
-      answer: data.answer.present ? data.answer.value : this.answer,
-      explanation: data.explanation.present
-          ? data.explanation.value
-          : this.explanation,
-      notes: data.notes.present ? data.notes.value : this.notes,
-      status: data.status.present ? data.status.value : this.status,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Listening(')
-          ..write('id: $id, ')
-          ..write('title: $title, ')
-          ..write('audioScript: $audioScript, ')
-          ..write('question: $question, ')
-          ..write('answer: $answer, ')
-          ..write('explanation: $explanation, ')
-          ..write('notes: $notes, ')
-          ..write('status: $status')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    title,
-    audioScript,
-    question,
-    answer,
-    explanation,
-    notes,
-    status,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Listening &&
-          other.id == this.id &&
-          other.title == this.title &&
-          other.audioScript == this.audioScript &&
-          other.question == this.question &&
-          other.answer == this.answer &&
-          other.explanation == this.explanation &&
-          other.notes == this.notes &&
-          other.status == this.status);
-}
-
-class ListeningsCompanion extends UpdateCompanion<Listening> {
-  final Value<String> id;
-  final Value<String> title;
-  final Value<String> audioScript;
-  final Value<String> question;
-  final Value<String> answer;
-  final Value<String> explanation;
-  final Value<String> notes;
-  final Value<String> status;
-  final Value<int> rowid;
-  const ListeningsCompanion({
-    this.id = const Value.absent(),
-    this.title = const Value.absent(),
-    this.audioScript = const Value.absent(),
-    this.question = const Value.absent(),
-    this.answer = const Value.absent(),
-    this.explanation = const Value.absent(),
-    this.notes = const Value.absent(),
-    this.status = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ListeningsCompanion.insert({
-    required String id,
-    required String title,
-    required String audioScript,
-    required String question,
-    required String answer,
-    required String explanation,
-    this.notes = const Value.absent(),
-    this.status = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       title = Value(title),
-       audioScript = Value(audioScript),
-       question = Value(question),
-       answer = Value(answer),
-       explanation = Value(explanation);
-  static Insertable<Listening> custom({
-    Expression<String>? id,
-    Expression<String>? title,
-    Expression<String>? audioScript,
-    Expression<String>? question,
-    Expression<String>? answer,
-    Expression<String>? explanation,
-    Expression<String>? notes,
-    Expression<String>? status,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (title != null) 'title': title,
-      if (audioScript != null) 'audio_script': audioScript,
-      if (question != null) 'question': question,
-      if (answer != null) 'answer': answer,
-      if (explanation != null) 'explanation': explanation,
-      if (notes != null) 'notes': notes,
-      if (status != null) 'status': status,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ListeningsCompanion copyWith({
-    Value<String>? id,
-    Value<String>? title,
-    Value<String>? audioScript,
-    Value<String>? question,
-    Value<String>? answer,
-    Value<String>? explanation,
-    Value<String>? notes,
-    Value<String>? status,
-    Value<int>? rowid,
-  }) {
-    return ListeningsCompanion(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      audioScript: audioScript ?? this.audioScript,
-      question: question ?? this.question,
-      answer: answer ?? this.answer,
-      explanation: explanation ?? this.explanation,
-      notes: notes ?? this.notes,
-      status: status ?? this.status,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (audioScript.present) {
-      map['audio_script'] = Variable<String>(audioScript.value);
-    }
-    if (question.present) {
-      map['question'] = Variable<String>(question.value);
-    }
-    if (answer.present) {
-      map['answer'] = Variable<String>(answer.value);
-    }
-    if (explanation.present) {
-      map['explanation'] = Variable<String>(explanation.value);
-    }
-    if (notes.present) {
-      map['notes'] = Variable<String>(notes.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ListeningsCompanion(')
-          ..write('id: $id, ')
-          ..write('title: $title, ')
-          ..write('audioScript: $audioScript, ')
-          ..write('question: $question, ')
-          ..write('answer: $answer, ')
-          ..write('explanation: $explanation, ')
-          ..write('notes: $notes, ')
-          ..write('status: $status, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7265,13 +12493,31 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $MasterKanjisTable masterKanjis = $MasterKanjisTable(this);
   late final $UserKanjisTable userKanjis = $UserKanjisTable(this);
-  late final $VocabulariesTable vocabularies = $VocabulariesTable(this);
-  late final $GrammarsTable grammars = $GrammarsTable(this);
+  late final $MasterVocabulariesTable masterVocabularies =
+      $MasterVocabulariesTable(this);
+  late final $UserVocabulariesTable userVocabularies = $UserVocabulariesTable(
+    this,
+  );
+  late final $MasterGrammarsTable masterGrammars = $MasterGrammarsTable(this);
+  late final $UserGrammarsTable userGrammars = $UserGrammarsTable(this);
+  late final $MasterReadingsTable masterReadings = $MasterReadingsTable(this);
+  late final $UserReadingsTable userReadings = $UserReadingsTable(this);
+  late final $MasterListeningsTable masterListenings = $MasterListeningsTable(
+    this,
+  );
+  late final $UserListeningsTable userListenings = $UserListeningsTable(this);
+  late final $KanjiVocabsTable kanjiVocabs = $KanjiVocabsTable(this);
+  late final $VocabGrammarsTable vocabGrammars = $VocabGrammarsTable(this);
+  late final $GrammarReadingsTable grammarReadings = $GrammarReadingsTable(
+    this,
+  );
+  late final $ReadingListeningsTable readingListenings =
+      $ReadingListeningsTable(this);
+  late final $KanjiReadingsTable kanjiReadings = $KanjiReadingsTable(this);
+  late final $VocabReadingsTable vocabReadings = $VocabReadingsTable(this);
   late final $StudySessionsTable studySessions = $StudySessionsTable(this);
   late final $DailyGoalsTable dailyGoals = $DailyGoalsTable(this);
   late final $QuizResultsTable quizResults = $QuizResultsTable(this);
-  late final $ReadingsTable readings = $ReadingsTable(this);
-  late final $ListeningsTable listenings = $ListeningsTable(this);
   late final $StudyPlansTable studyPlans = $StudyPlansTable(this);
   late final $PlannerTasksTable plannerTasks = $PlannerTasksTable(this);
   late final $ReviewItemsTable reviewItems = $ReviewItemsTable(this);
@@ -7317,13 +12563,23 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     masterKanjis,
     userKanjis,
-    vocabularies,
-    grammars,
+    masterVocabularies,
+    userVocabularies,
+    masterGrammars,
+    userGrammars,
+    masterReadings,
+    userReadings,
+    masterListenings,
+    userListenings,
+    kanjiVocabs,
+    vocabGrammars,
+    grammarReadings,
+    readingListenings,
+    kanjiReadings,
+    vocabReadings,
     studySessions,
     dailyGoals,
     quizResults,
-    readings,
-    listenings,
     studyPlans,
     plannerTasks,
     reviewItems,
@@ -7348,6 +12604,118 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ),
       result: [TableUpdate('user_kanjis', kind: UpdateKind.delete)],
     ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_vocabularies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_vocabularies', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_grammars',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_grammars', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_readings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_readings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_listenings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('user_listenings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_kanjis',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('kanji_vocabs', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_vocabularies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('kanji_vocabs', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_vocabularies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('vocab_grammars', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_grammars',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('vocab_grammars', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_grammars',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('grammar_readings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_readings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('grammar_readings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_readings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('reading_listenings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_listenings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('reading_listenings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_kanjis',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('kanji_readings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_readings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('kanji_readings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_vocabularies',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('vocab_readings', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'master_readings',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('vocab_readings', kind: UpdateKind.delete)],
+    ),
   ]);
 }
 
@@ -7370,6 +12738,7 @@ typedef $$MasterKanjisTableCreateCompanionBuilder =
       Value<String> tags,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<String> status,
       Value<int?> rtkNumber,
       Value<int?> frequencyRank,
       Value<String?> pitchAccent,
@@ -7398,6 +12767,7 @@ typedef $$MasterKanjisTableUpdateCompanionBuilder =
       Value<String> tags,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<String> status,
       Value<int?> rtkNumber,
       Value<int?> frequencyRank,
       Value<String?> pitchAccent,
@@ -7425,6 +12795,42 @@ final class $$MasterKanjisTableReferences
     ).filter((f) => f.masterKanjiId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_userKanjisRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$KanjiVocabsTable, List<KanjiVocab>>
+  _kanjiVocabsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.kanjiVocabs,
+    aliasName: 'master_kanjis__id__kanji_vocabs__kanji_id',
+  );
+
+  $$KanjiVocabsTableProcessedTableManager get kanjiVocabsRefs {
+    final manager = $$KanjiVocabsTableTableManager(
+      $_db,
+      $_db.kanjiVocabs,
+    ).filter((f) => f.kanjiId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_kanjiVocabsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$KanjiReadingsTable, List<KanjiReading>>
+  _kanjiReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.kanjiReadings,
+    aliasName: 'master_kanjis__id__kanji_readings__kanji_id',
+  );
+
+  $$KanjiReadingsTableProcessedTableManager get kanjiReadingsRefs {
+    final manager = $$KanjiReadingsTableTableManager(
+      $_db,
+      $_db.kanjiReadings,
+    ).filter((f) => f.kanjiId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_kanjiReadingsRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7525,6 +12931,11 @@ class $$MasterKanjisTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get rtkNumber => $composableBuilder(
     column: $table.rtkNumber,
     builder: (column) => ColumnFilters(column),
@@ -7576,6 +12987,56 @@ class $$MasterKanjisTableFilterComposer
           }) => $$UserKanjisTableFilterComposer(
             $db: $db,
             $table: $db.userKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> kanjiVocabsRefs(
+    Expression<bool> Function($$KanjiVocabsTableFilterComposer f) f,
+  ) {
+    final $$KanjiVocabsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiVocabs,
+      getReferencedColumn: (t) => t.kanjiId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiVocabsTableFilterComposer(
+            $db: $db,
+            $table: $db.kanjiVocabs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> kanjiReadingsRefs(
+    Expression<bool> Function($$KanjiReadingsTableFilterComposer f) f,
+  ) {
+    final $$KanjiReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiReadings,
+      getReferencedColumn: (t) => t.kanjiId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.kanjiReadings,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7677,6 +13138,11 @@ class $$MasterKanjisTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -7786,6 +13252,9 @@ class $$MasterKanjisTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
   GeneratedColumn<int> get rtkNumber =>
       $composableBuilder(column: $table.rtkNumber, builder: (column) => column);
 
@@ -7841,6 +13310,56 @@ class $$MasterKanjisTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> kanjiVocabsRefs<T extends Object>(
+    Expression<T> Function($$KanjiVocabsTableAnnotationComposer a) f,
+  ) {
+    final $$KanjiVocabsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiVocabs,
+      getReferencedColumn: (t) => t.kanjiId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiVocabsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.kanjiVocabs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> kanjiReadingsRefs<T extends Object>(
+    Expression<T> Function($$KanjiReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$KanjiReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiReadings,
+      getReferencedColumn: (t) => t.kanjiId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.kanjiReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$MasterKanjisTableTableManager
@@ -7856,7 +13375,11 @@ class $$MasterKanjisTableTableManager
           $$MasterKanjisTableUpdateCompanionBuilder,
           (MasterKanji, $$MasterKanjisTableReferences),
           MasterKanji,
-          PrefetchHooks Function({bool userKanjisRefs})
+          PrefetchHooks Function({
+            bool userKanjisRefs,
+            bool kanjiVocabsRefs,
+            bool kanjiReadingsRefs,
+          })
         > {
   $$MasterKanjisTableTableManager(_$AppDatabase db, $MasterKanjisTable table)
     : super(
@@ -7888,6 +13411,7 @@ class $$MasterKanjisTableTableManager
                 Value<String> tags = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String> status = const Value.absent(),
                 Value<int?> rtkNumber = const Value.absent(),
                 Value<int?> frequencyRank = const Value.absent(),
                 Value<String?> pitchAccent = const Value.absent(),
@@ -7914,6 +13438,7 @@ class $$MasterKanjisTableTableManager
                 tags: tags,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rtkNumber: rtkNumber,
                 frequencyRank: frequencyRank,
                 pitchAccent: pitchAccent,
@@ -7942,6 +13467,7 @@ class $$MasterKanjisTableTableManager
                 Value<String> tags = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String> status = const Value.absent(),
                 Value<int?> rtkNumber = const Value.absent(),
                 Value<int?> frequencyRank = const Value.absent(),
                 Value<String?> pitchAccent = const Value.absent(),
@@ -7968,6 +13494,7 @@ class $$MasterKanjisTableTableManager
                 tags: tags,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                status: status,
                 rtkNumber: rtkNumber,
                 frequencyRank: frequencyRank,
                 pitchAccent: pitchAccent,
@@ -7985,38 +13512,89 @@ class $$MasterKanjisTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({userKanjisRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (userKanjisRefs) db.userKanjis],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (userKanjisRefs)
-                    await $_getPrefetchedData<
-                      MasterKanji,
-                      $MasterKanjisTable,
-                      UserKanji
-                    >(
-                      currentTable: table,
-                      referencedTable: $$MasterKanjisTableReferences
-                          ._userKanjisRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$MasterKanjisTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).userKanjisRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.masterKanjiId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                userKanjisRefs = false,
+                kanjiVocabsRefs = false,
+                kanjiReadingsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (userKanjisRefs) db.userKanjis,
+                    if (kanjiVocabsRefs) db.kanjiVocabs,
+                    if (kanjiReadingsRefs) db.kanjiReadings,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (userKanjisRefs)
+                        await $_getPrefetchedData<
+                          MasterKanji,
+                          $MasterKanjisTable,
+                          UserKanji
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterKanjisTableReferences
+                              ._userKanjisRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterKanjisTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userKanjisRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.masterKanjiId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (kanjiVocabsRefs)
+                        await $_getPrefetchedData<
+                          MasterKanji,
+                          $MasterKanjisTable,
+                          KanjiVocab
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterKanjisTableReferences
+                              ._kanjiVocabsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterKanjisTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).kanjiVocabsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.kanjiId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (kanjiReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterKanji,
+                          $MasterKanjisTable,
+                          KanjiReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterKanjisTableReferences
+                              ._kanjiReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterKanjisTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).kanjiReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.kanjiId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -8033,7 +13611,11 @@ typedef $$MasterKanjisTableProcessedTableManager =
       $$MasterKanjisTableUpdateCompanionBuilder,
       (MasterKanji, $$MasterKanjisTableReferences),
       MasterKanji,
-      PrefetchHooks Function({bool userKanjisRefs})
+      PrefetchHooks Function({
+        bool userKanjisRefs,
+        bool kanjiVocabsRefs,
+        bool kanjiReadingsRefs,
+      })
     >;
 typedef $$UserKanjisTableCreateCompanionBuilder =
     UserKanjisCompanion Function({
@@ -8498,28 +14080,136 @@ typedef $$UserKanjisTableProcessedTableManager =
       UserKanji,
       PrefetchHooks Function({bool masterKanjiId})
     >;
-typedef $$VocabulariesTableCreateCompanionBuilder =
-    VocabulariesCompanion Function({
+typedef $$MasterVocabulariesTableCreateCompanionBuilder =
+    MasterVocabulariesCompanion Function({
       required String id,
       required String word,
-      required String reading,
+      required String kana,
       required String meaning,
-      Value<String> status,
+      Value<String?> partOfSpeech,
+      Value<int?> jlptLevel,
+      Value<int?> frequency,
+      Value<String?> relatedKanji,
+      Value<String?> exampleSentences,
+      Value<String?> synonyms,
+      Value<String?> antonyms,
+      Value<String?> tags,
+      Value<String?> notes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
       Value<int> rowid,
     });
-typedef $$VocabulariesTableUpdateCompanionBuilder =
-    VocabulariesCompanion Function({
+typedef $$MasterVocabulariesTableUpdateCompanionBuilder =
+    MasterVocabulariesCompanion Function({
       Value<String> id,
       Value<String> word,
-      Value<String> reading,
+      Value<String> kana,
       Value<String> meaning,
-      Value<String> status,
+      Value<String?> partOfSpeech,
+      Value<int?> jlptLevel,
+      Value<int?> frequency,
+      Value<String?> relatedKanji,
+      Value<String?> exampleSentences,
+      Value<String?> synonyms,
+      Value<String?> antonyms,
+      Value<String?> tags,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
       Value<int> rowid,
     });
 
-class $$VocabulariesTableFilterComposer
-    extends Composer<_$AppDatabase, $VocabulariesTable> {
-  $$VocabulariesTableFilterComposer({
+final class $$MasterVocabulariesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $MasterVocabulariesTable,
+          MasterVocabulary
+        > {
+  $$MasterVocabulariesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$UserVocabulariesTable, List<UserVocabulary>>
+  _userVocabulariesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userVocabularies,
+    aliasName: 'master_vocabularies__id__user_vocabularies__master_vocab_id',
+  );
+
+  $$UserVocabulariesTableProcessedTableManager get userVocabulariesRefs {
+    final manager = $$UserVocabulariesTableTableManager(
+      $_db,
+      $_db.userVocabularies,
+    ).filter((f) => f.masterVocabId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _userVocabulariesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$KanjiVocabsTable, List<KanjiVocab>>
+  _kanjiVocabsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.kanjiVocabs,
+    aliasName: 'master_vocabularies__id__kanji_vocabs__vocab_id',
+  );
+
+  $$KanjiVocabsTableProcessedTableManager get kanjiVocabsRefs {
+    final manager = $$KanjiVocabsTableTableManager(
+      $_db,
+      $_db.kanjiVocabs,
+    ).filter((f) => f.vocabId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_kanjiVocabsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$VocabGrammarsTable, List<VocabGrammar>>
+  _vocabGrammarsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vocabGrammars,
+    aliasName: 'master_vocabularies__id__vocab_grammars__vocab_id',
+  );
+
+  $$VocabGrammarsTableProcessedTableManager get vocabGrammarsRefs {
+    final manager = $$VocabGrammarsTableTableManager(
+      $_db,
+      $_db.vocabGrammars,
+    ).filter((f) => f.vocabId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vocabGrammarsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$VocabReadingsTable, List<VocabReading>>
+  _vocabReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vocabReadings,
+    aliasName: 'master_vocabularies__id__vocab_readings__vocab_id',
+  );
+
+  $$VocabReadingsTableProcessedTableManager get vocabReadingsRefs {
+    final manager = $$VocabReadingsTableTableManager(
+      $_db,
+      $_db.vocabReadings,
+    ).filter((f) => f.vocabId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vocabReadingsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$MasterVocabulariesTableFilterComposer
+    extends Composer<_$AppDatabase, $MasterVocabulariesTable> {
+  $$MasterVocabulariesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8536,8 +14226,8 @@ class $$VocabulariesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get reading => $composableBuilder(
-    column: $table.reading,
+  ColumnFilters<String> get kana => $composableBuilder(
+    column: $table.kana,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8546,15 +14236,165 @@ class $$VocabulariesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnFilters<String> get partOfSpeech => $composableBuilder(
+    column: $table.partOfSpeech,
     builder: (column) => ColumnFilters(column),
   );
+
+  ColumnFilters<int> get jlptLevel => $composableBuilder(
+    column: $table.jlptLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relatedKanji => $composableBuilder(
+    column: $table.relatedKanji,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get exampleSentences => $composableBuilder(
+    column: $table.exampleSentences,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get synonyms => $composableBuilder(
+    column: $table.synonyms,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get antonyms => $composableBuilder(
+    column: $table.antonyms,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> userVocabulariesRefs(
+    Expression<bool> Function($$UserVocabulariesTableFilterComposer f) f,
+  ) {
+    final $$UserVocabulariesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userVocabularies,
+      getReferencedColumn: (t) => t.masterVocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserVocabulariesTableFilterComposer(
+            $db: $db,
+            $table: $db.userVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> kanjiVocabsRefs(
+    Expression<bool> Function($$KanjiVocabsTableFilterComposer f) f,
+  ) {
+    final $$KanjiVocabsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiVocabs,
+      getReferencedColumn: (t) => t.vocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiVocabsTableFilterComposer(
+            $db: $db,
+            $table: $db.kanjiVocabs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> vocabGrammarsRefs(
+    Expression<bool> Function($$VocabGrammarsTableFilterComposer f) f,
+  ) {
+    final $$VocabGrammarsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabGrammars,
+      getReferencedColumn: (t) => t.vocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabGrammarsTableFilterComposer(
+            $db: $db,
+            $table: $db.vocabGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> vocabReadingsRefs(
+    Expression<bool> Function($$VocabReadingsTableFilterComposer f) f,
+  ) {
+    final $$VocabReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabReadings,
+      getReferencedColumn: (t) => t.vocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.vocabReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
-class $$VocabulariesTableOrderingComposer
-    extends Composer<_$AppDatabase, $VocabulariesTable> {
-  $$VocabulariesTableOrderingComposer({
+class $$MasterVocabulariesTableOrderingComposer
+    extends Composer<_$AppDatabase, $MasterVocabulariesTable> {
+  $$MasterVocabulariesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8571,8 +14411,8 @@ class $$VocabulariesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get reading => $composableBuilder(
-    column: $table.reading,
+  ColumnOrderings<String> get kana => $composableBuilder(
+    column: $table.kana,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -8581,15 +14421,65 @@ class $$VocabulariesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnOrderings<String> get partOfSpeech => $composableBuilder(
+    column: $table.partOfSpeech,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get jlptLevel => $composableBuilder(
+    column: $table.jlptLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get frequency => $composableBuilder(
+    column: $table.frequency,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relatedKanji => $composableBuilder(
+    column: $table.relatedKanji,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get exampleSentences => $composableBuilder(
+    column: $table.exampleSentences,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get synonyms => $composableBuilder(
+    column: $table.synonyms,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get antonyms => $composableBuilder(
+    column: $table.antonyms,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$VocabulariesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $VocabulariesTable> {
-  $$VocabulariesTableAnnotationComposer({
+class $$MasterVocabulariesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MasterVocabulariesTable> {
+  $$MasterVocabulariesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8602,126 +14492,2058 @@ class $$VocabulariesTableAnnotationComposer
   GeneratedColumn<String> get word =>
       $composableBuilder(column: $table.word, builder: (column) => column);
 
-  GeneratedColumn<String> get reading =>
-      $composableBuilder(column: $table.reading, builder: (column) => column);
+  GeneratedColumn<String> get kana =>
+      $composableBuilder(column: $table.kana, builder: (column) => column);
 
   GeneratedColumn<String> get meaning =>
       $composableBuilder(column: $table.meaning, builder: (column) => column);
 
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  GeneratedColumn<String> get partOfSpeech => $composableBuilder(
+    column: $table.partOfSpeech,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get jlptLevel =>
+      $composableBuilder(column: $table.jlptLevel, builder: (column) => column);
+
+  GeneratedColumn<int> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<String> get relatedKanji => $composableBuilder(
+    column: $table.relatedKanji,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get exampleSentences => $composableBuilder(
+    column: $table.exampleSentences,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get synonyms =>
+      $composableBuilder(column: $table.synonyms, builder: (column) => column);
+
+  GeneratedColumn<String> get antonyms =>
+      $composableBuilder(column: $table.antonyms, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> userVocabulariesRefs<T extends Object>(
+    Expression<T> Function($$UserVocabulariesTableAnnotationComposer a) f,
+  ) {
+    final $$UserVocabulariesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userVocabularies,
+      getReferencedColumn: (t) => t.masterVocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserVocabulariesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> kanjiVocabsRefs<T extends Object>(
+    Expression<T> Function($$KanjiVocabsTableAnnotationComposer a) f,
+  ) {
+    final $$KanjiVocabsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiVocabs,
+      getReferencedColumn: (t) => t.vocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiVocabsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.kanjiVocabs,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> vocabGrammarsRefs<T extends Object>(
+    Expression<T> Function($$VocabGrammarsTableAnnotationComposer a) f,
+  ) {
+    final $$VocabGrammarsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabGrammars,
+      getReferencedColumn: (t) => t.vocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabGrammarsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vocabGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> vocabReadingsRefs<T extends Object>(
+    Expression<T> Function($$VocabReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$VocabReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabReadings,
+      getReferencedColumn: (t) => t.vocabId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vocabReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
-class $$VocabulariesTableTableManager
+class $$MasterVocabulariesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $VocabulariesTable,
-          Vocabulary,
-          $$VocabulariesTableFilterComposer,
-          $$VocabulariesTableOrderingComposer,
-          $$VocabulariesTableAnnotationComposer,
-          $$VocabulariesTableCreateCompanionBuilder,
-          $$VocabulariesTableUpdateCompanionBuilder,
-          (
-            Vocabulary,
-            BaseReferences<_$AppDatabase, $VocabulariesTable, Vocabulary>,
-          ),
-          Vocabulary,
-          PrefetchHooks Function()
+          $MasterVocabulariesTable,
+          MasterVocabulary,
+          $$MasterVocabulariesTableFilterComposer,
+          $$MasterVocabulariesTableOrderingComposer,
+          $$MasterVocabulariesTableAnnotationComposer,
+          $$MasterVocabulariesTableCreateCompanionBuilder,
+          $$MasterVocabulariesTableUpdateCompanionBuilder,
+          (MasterVocabulary, $$MasterVocabulariesTableReferences),
+          MasterVocabulary,
+          PrefetchHooks Function({
+            bool userVocabulariesRefs,
+            bool kanjiVocabsRefs,
+            bool vocabGrammarsRefs,
+            bool vocabReadingsRefs,
+          })
         > {
-  $$VocabulariesTableTableManager(_$AppDatabase db, $VocabulariesTable table)
-    : super(
+  $$MasterVocabulariesTableTableManager(
+    _$AppDatabase db,
+    $MasterVocabulariesTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$VocabulariesTableFilterComposer($db: db, $table: table),
+              $$MasterVocabulariesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$VocabulariesTableOrderingComposer($db: db, $table: table),
+              $$MasterVocabulariesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$VocabulariesTableAnnotationComposer($db: db, $table: table),
+              $$MasterVocabulariesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> word = const Value.absent(),
-                Value<String> reading = const Value.absent(),
+                Value<String> kana = const Value.absent(),
                 Value<String> meaning = const Value.absent(),
-                Value<String> status = const Value.absent(),
+                Value<String?> partOfSpeech = const Value.absent(),
+                Value<int?> jlptLevel = const Value.absent(),
+                Value<int?> frequency = const Value.absent(),
+                Value<String?> relatedKanji = const Value.absent(),
+                Value<String?> exampleSentences = const Value.absent(),
+                Value<String?> synonyms = const Value.absent(),
+                Value<String?> antonyms = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => VocabulariesCompanion(
+              }) => MasterVocabulariesCompanion(
                 id: id,
                 word: word,
-                reading: reading,
+                kana: kana,
                 meaning: meaning,
-                status: status,
+                partOfSpeech: partOfSpeech,
+                jlptLevel: jlptLevel,
+                frequency: frequency,
+                relatedKanji: relatedKanji,
+                exampleSentences: exampleSentences,
+                synonyms: synonyms,
+                antonyms: antonyms,
+                tags: tags,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
                 required String word,
-                required String reading,
+                required String kana,
                 required String meaning,
-                Value<String> status = const Value.absent(),
+                Value<String?> partOfSpeech = const Value.absent(),
+                Value<int?> jlptLevel = const Value.absent(),
+                Value<int?> frequency = const Value.absent(),
+                Value<String?> relatedKanji = const Value.absent(),
+                Value<String?> exampleSentences = const Value.absent(),
+                Value<String?> synonyms = const Value.absent(),
+                Value<String?> antonyms = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
-              }) => VocabulariesCompanion.insert(
+              }) => MasterVocabulariesCompanion.insert(
                 id: id,
                 word: word,
-                reading: reading,
+                kana: kana,
                 meaning: meaning,
-                status: status,
+                partOfSpeech: partOfSpeech,
+                jlptLevel: jlptLevel,
+                frequency: frequency,
+                relatedKanji: relatedKanji,
+                exampleSentences: exampleSentences,
+                synonyms: synonyms,
+                antonyms: antonyms,
+                tags: tags,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MasterVocabulariesTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback:
+              ({
+                userVocabulariesRefs = false,
+                kanjiVocabsRefs = false,
+                vocabGrammarsRefs = false,
+                vocabReadingsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (userVocabulariesRefs) db.userVocabularies,
+                    if (kanjiVocabsRefs) db.kanjiVocabs,
+                    if (vocabGrammarsRefs) db.vocabGrammars,
+                    if (vocabReadingsRefs) db.vocabReadings,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (userVocabulariesRefs)
+                        await $_getPrefetchedData<
+                          MasterVocabulary,
+                          $MasterVocabulariesTable,
+                          UserVocabulary
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterVocabulariesTableReferences
+                              ._userVocabulariesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterVocabulariesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userVocabulariesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.masterVocabId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (kanjiVocabsRefs)
+                        await $_getPrefetchedData<
+                          MasterVocabulary,
+                          $MasterVocabulariesTable,
+                          KanjiVocab
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterVocabulariesTableReferences
+                              ._kanjiVocabsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterVocabulariesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).kanjiVocabsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.vocabId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (vocabGrammarsRefs)
+                        await $_getPrefetchedData<
+                          MasterVocabulary,
+                          $MasterVocabulariesTable,
+                          VocabGrammar
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterVocabulariesTableReferences
+                              ._vocabGrammarsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterVocabulariesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vocabGrammarsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.vocabId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (vocabReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterVocabulary,
+                          $MasterVocabulariesTable,
+                          VocabReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterVocabulariesTableReferences
+                              ._vocabReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterVocabulariesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vocabReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.vocabId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
         ),
       );
 }
 
-typedef $$VocabulariesTableProcessedTableManager =
+typedef $$MasterVocabulariesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $VocabulariesTable,
-      Vocabulary,
-      $$VocabulariesTableFilterComposer,
-      $$VocabulariesTableOrderingComposer,
-      $$VocabulariesTableAnnotationComposer,
-      $$VocabulariesTableCreateCompanionBuilder,
-      $$VocabulariesTableUpdateCompanionBuilder,
-      (
-        Vocabulary,
-        BaseReferences<_$AppDatabase, $VocabulariesTable, Vocabulary>,
-      ),
-      Vocabulary,
-      PrefetchHooks Function()
+      $MasterVocabulariesTable,
+      MasterVocabulary,
+      $$MasterVocabulariesTableFilterComposer,
+      $$MasterVocabulariesTableOrderingComposer,
+      $$MasterVocabulariesTableAnnotationComposer,
+      $$MasterVocabulariesTableCreateCompanionBuilder,
+      $$MasterVocabulariesTableUpdateCompanionBuilder,
+      (MasterVocabulary, $$MasterVocabulariesTableReferences),
+      MasterVocabulary,
+      PrefetchHooks Function({
+        bool userVocabulariesRefs,
+        bool kanjiVocabsRefs,
+        bool vocabGrammarsRefs,
+        bool vocabReadingsRefs,
+      })
     >;
-typedef $$GrammarsTableCreateCompanionBuilder =
-    GrammarsCompanion Function({
+typedef $$UserVocabulariesTableCreateCompanionBuilder =
+    UserVocabulariesCompanion Function({
       required String id,
-      required String title,
-      required String explanation,
-      required String structure,
-      required String examplesJson,
+      required String masterVocabId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
       Value<String> status,
+      Value<int> reviewCount,
+      Value<DateTime?> nextReview,
+      Value<DateTime?> lastReviewed,
+      Value<double> easeFactor,
+      Value<String> customNotes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
       Value<int> rowid,
     });
-typedef $$GrammarsTableUpdateCompanionBuilder =
-    GrammarsCompanion Function({
+typedef $$UserVocabulariesTableUpdateCompanionBuilder =
+    UserVocabulariesCompanion Function({
       Value<String> id,
-      Value<String> title,
-      Value<String> explanation,
-      Value<String> structure,
-      Value<String> examplesJson,
+      Value<String> masterVocabId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
       Value<String> status,
+      Value<int> reviewCount,
+      Value<DateTime?> nextReview,
+      Value<DateTime?> lastReviewed,
+      Value<double> easeFactor,
+      Value<String> customNotes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
       Value<int> rowid,
     });
 
-class $$GrammarsTableFilterComposer
-    extends Composer<_$AppDatabase, $GrammarsTable> {
-  $$GrammarsTableFilterComposer({
+final class $$UserVocabulariesTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $UserVocabulariesTable, UserVocabulary> {
+  $$UserVocabulariesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterVocabulariesTable _masterVocabIdTable(_$AppDatabase db) =>
+      db.masterVocabularies.createAlias(
+        'user_vocabularies__master_vocab_id__master_vocabularies__id',
+      );
+
+  $$MasterVocabulariesTableProcessedTableManager get masterVocabId {
+    final $_column = $_itemColumn<String>('master_vocab_id')!;
+
+    final manager = $$MasterVocabulariesTableTableManager(
+      $_db,
+      $_db.masterVocabularies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_masterVocabIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UserVocabulariesTableFilterComposer
+    extends Composer<_$AppDatabase, $UserVocabulariesTable> {
+  $$UserVocabulariesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reviewCount => $composableBuilder(
+    column: $table.reviewCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextReview => $composableBuilder(
+    column: $table.nextReview,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastReviewed => $composableBuilder(
+    column: $table.lastReviewed,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get easeFactor => $composableBuilder(
+    column: $table.easeFactor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MasterVocabulariesTableFilterComposer get masterVocabId {
+    final $$MasterVocabulariesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterVocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableFilterComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserVocabulariesTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserVocabulariesTable> {
+  $$UserVocabulariesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reviewCount => $composableBuilder(
+    column: $table.reviewCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextReview => $composableBuilder(
+    column: $table.nextReview,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastReviewed => $composableBuilder(
+    column: $table.lastReviewed,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get easeFactor => $composableBuilder(
+    column: $table.easeFactor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MasterVocabulariesTableOrderingComposer get masterVocabId {
+    final $$MasterVocabulariesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterVocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserVocabulariesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserVocabulariesTable> {
+  $$UserVocabulariesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAdded =>
+      $composableBuilder(column: $table.isAdded, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get reviewCount => $composableBuilder(
+    column: $table.reviewCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get nextReview => $composableBuilder(
+    column: $table.nextReview,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastReviewed => $composableBuilder(
+    column: $table.lastReviewed,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get easeFactor => $composableBuilder(
+    column: $table.easeFactor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$MasterVocabulariesTableAnnotationComposer get masterVocabId {
+    final $$MasterVocabulariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.masterVocabId,
+          referencedTable: $db.masterVocabularies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MasterVocabulariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.masterVocabularies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$UserVocabulariesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserVocabulariesTable,
+          UserVocabulary,
+          $$UserVocabulariesTableFilterComposer,
+          $$UserVocabulariesTableOrderingComposer,
+          $$UserVocabulariesTableAnnotationComposer,
+          $$UserVocabulariesTableCreateCompanionBuilder,
+          $$UserVocabulariesTableUpdateCompanionBuilder,
+          (UserVocabulary, $$UserVocabulariesTableReferences),
+          UserVocabulary,
+          PrefetchHooks Function({bool masterVocabId})
+        > {
+  $$UserVocabulariesTableTableManager(
+    _$AppDatabase db,
+    $UserVocabulariesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserVocabulariesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserVocabulariesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserVocabulariesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> masterVocabId = const Value.absent(),
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> reviewCount = const Value.absent(),
+                Value<DateTime?> nextReview = const Value.absent(),
+                Value<DateTime?> lastReviewed = const Value.absent(),
+                Value<double> easeFactor = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserVocabulariesCompanion(
+                id: id,
+                masterVocabId: masterVocabId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                reviewCount: reviewCount,
+                nextReview: nextReview,
+                lastReviewed: lastReviewed,
+                easeFactor: easeFactor,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String masterVocabId,
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> reviewCount = const Value.absent(),
+                Value<DateTime?> nextReview = const Value.absent(),
+                Value<DateTime?> lastReviewed = const Value.absent(),
+                Value<double> easeFactor = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => UserVocabulariesCompanion.insert(
+                id: id,
+                masterVocabId: masterVocabId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                reviewCount: reviewCount,
+                nextReview: nextReview,
+                lastReviewed: lastReviewed,
+                easeFactor: easeFactor,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UserVocabulariesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({masterVocabId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (masterVocabId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.masterVocabId,
+                                referencedTable:
+                                    $$UserVocabulariesTableReferences
+                                        ._masterVocabIdTable(db),
+                                referencedColumn:
+                                    $$UserVocabulariesTableReferences
+                                        ._masterVocabIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UserVocabulariesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserVocabulariesTable,
+      UserVocabulary,
+      $$UserVocabulariesTableFilterComposer,
+      $$UserVocabulariesTableOrderingComposer,
+      $$UserVocabulariesTableAnnotationComposer,
+      $$UserVocabulariesTableCreateCompanionBuilder,
+      $$UserVocabulariesTableUpdateCompanionBuilder,
+      (UserVocabulary, $$UserVocabulariesTableReferences),
+      UserVocabulary,
+      PrefetchHooks Function({bool masterVocabId})
+    >;
+typedef $$MasterGrammarsTableCreateCompanionBuilder =
+    MasterGrammarsCompanion Function({
+      required String id,
+      required String pattern,
+      required String meaning,
+      Value<String?> formation,
+      Value<String?> usage,
+      Value<String?> examples,
+      Value<String?> commonMistakes,
+      Value<String?> relatedGrammar,
+      Value<int?> jlptLevel,
+      Value<String?> tags,
+      Value<String?> notes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$MasterGrammarsTableUpdateCompanionBuilder =
+    MasterGrammarsCompanion Function({
+      Value<String> id,
+      Value<String> pattern,
+      Value<String> meaning,
+      Value<String?> formation,
+      Value<String?> usage,
+      Value<String?> examples,
+      Value<String?> commonMistakes,
+      Value<String?> relatedGrammar,
+      Value<int?> jlptLevel,
+      Value<String?> tags,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$MasterGrammarsTableReferences
+    extends BaseReferences<_$AppDatabase, $MasterGrammarsTable, MasterGrammar> {
+  $$MasterGrammarsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$UserGrammarsTable, List<UserGrammar>>
+  _userGrammarsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userGrammars,
+    aliasName: 'master_grammars__id__user_grammars__master_grammar_id',
+  );
+
+  $$UserGrammarsTableProcessedTableManager get userGrammarsRefs {
+    final manager = $$UserGrammarsTableTableManager($_db, $_db.userGrammars)
+        .filter(
+          (f) => f.masterGrammarId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_userGrammarsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$VocabGrammarsTable, List<VocabGrammar>>
+  _vocabGrammarsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vocabGrammars,
+    aliasName: 'master_grammars__id__vocab_grammars__grammar_id',
+  );
+
+  $$VocabGrammarsTableProcessedTableManager get vocabGrammarsRefs {
+    final manager = $$VocabGrammarsTableTableManager(
+      $_db,
+      $_db.vocabGrammars,
+    ).filter((f) => f.grammarId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vocabGrammarsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$GrammarReadingsTable, List<GrammarReading>>
+  _grammarReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.grammarReadings,
+    aliasName: 'master_grammars__id__grammar_readings__grammar_id',
+  );
+
+  $$GrammarReadingsTableProcessedTableManager get grammarReadingsRefs {
+    final manager = $$GrammarReadingsTableTableManager(
+      $_db,
+      $_db.grammarReadings,
+    ).filter((f) => f.grammarId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _grammarReadingsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$MasterGrammarsTableFilterComposer
+    extends Composer<_$AppDatabase, $MasterGrammarsTable> {
+  $$MasterGrammarsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get meaning => $composableBuilder(
+    column: $table.meaning,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get formation => $composableBuilder(
+    column: $table.formation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get usage => $composableBuilder(
+    column: $table.usage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get examples => $composableBuilder(
+    column: $table.examples,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get commonMistakes => $composableBuilder(
+    column: $table.commonMistakes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relatedGrammar => $composableBuilder(
+    column: $table.relatedGrammar,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get jlptLevel => $composableBuilder(
+    column: $table.jlptLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> userGrammarsRefs(
+    Expression<bool> Function($$UserGrammarsTableFilterComposer f) f,
+  ) {
+    final $$UserGrammarsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userGrammars,
+      getReferencedColumn: (t) => t.masterGrammarId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGrammarsTableFilterComposer(
+            $db: $db,
+            $table: $db.userGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> vocabGrammarsRefs(
+    Expression<bool> Function($$VocabGrammarsTableFilterComposer f) f,
+  ) {
+    final $$VocabGrammarsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabGrammars,
+      getReferencedColumn: (t) => t.grammarId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabGrammarsTableFilterComposer(
+            $db: $db,
+            $table: $db.vocabGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> grammarReadingsRefs(
+    Expression<bool> Function($$GrammarReadingsTableFilterComposer f) f,
+  ) {
+    final $$GrammarReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.grammarReadings,
+      getReferencedColumn: (t) => t.grammarId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrammarReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.grammarReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$MasterGrammarsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MasterGrammarsTable> {
+  $$MasterGrammarsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get meaning => $composableBuilder(
+    column: $table.meaning,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get formation => $composableBuilder(
+    column: $table.formation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get usage => $composableBuilder(
+    column: $table.usage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get examples => $composableBuilder(
+    column: $table.examples,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get commonMistakes => $composableBuilder(
+    column: $table.commonMistakes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relatedGrammar => $composableBuilder(
+    column: $table.relatedGrammar,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get jlptLevel => $composableBuilder(
+    column: $table.jlptLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MasterGrammarsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MasterGrammarsTable> {
+  $$MasterGrammarsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get pattern =>
+      $composableBuilder(column: $table.pattern, builder: (column) => column);
+
+  GeneratedColumn<String> get meaning =>
+      $composableBuilder(column: $table.meaning, builder: (column) => column);
+
+  GeneratedColumn<String> get formation =>
+      $composableBuilder(column: $table.formation, builder: (column) => column);
+
+  GeneratedColumn<String> get usage =>
+      $composableBuilder(column: $table.usage, builder: (column) => column);
+
+  GeneratedColumn<String> get examples =>
+      $composableBuilder(column: $table.examples, builder: (column) => column);
+
+  GeneratedColumn<String> get commonMistakes => $composableBuilder(
+    column: $table.commonMistakes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get relatedGrammar => $composableBuilder(
+    column: $table.relatedGrammar,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get jlptLevel =>
+      $composableBuilder(column: $table.jlptLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> userGrammarsRefs<T extends Object>(
+    Expression<T> Function($$UserGrammarsTableAnnotationComposer a) f,
+  ) {
+    final $$UserGrammarsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userGrammars,
+      getReferencedColumn: (t) => t.masterGrammarId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserGrammarsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> vocabGrammarsRefs<T extends Object>(
+    Expression<T> Function($$VocabGrammarsTableAnnotationComposer a) f,
+  ) {
+    final $$VocabGrammarsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabGrammars,
+      getReferencedColumn: (t) => t.grammarId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabGrammarsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vocabGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> grammarReadingsRefs<T extends Object>(
+    Expression<T> Function($$GrammarReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$GrammarReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.grammarReadings,
+      getReferencedColumn: (t) => t.grammarId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrammarReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.grammarReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$MasterGrammarsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MasterGrammarsTable,
+          MasterGrammar,
+          $$MasterGrammarsTableFilterComposer,
+          $$MasterGrammarsTableOrderingComposer,
+          $$MasterGrammarsTableAnnotationComposer,
+          $$MasterGrammarsTableCreateCompanionBuilder,
+          $$MasterGrammarsTableUpdateCompanionBuilder,
+          (MasterGrammar, $$MasterGrammarsTableReferences),
+          MasterGrammar,
+          PrefetchHooks Function({
+            bool userGrammarsRefs,
+            bool vocabGrammarsRefs,
+            bool grammarReadingsRefs,
+          })
+        > {
+  $$MasterGrammarsTableTableManager(
+    _$AppDatabase db,
+    $MasterGrammarsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MasterGrammarsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MasterGrammarsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MasterGrammarsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> pattern = const Value.absent(),
+                Value<String> meaning = const Value.absent(),
+                Value<String?> formation = const Value.absent(),
+                Value<String?> usage = const Value.absent(),
+                Value<String?> examples = const Value.absent(),
+                Value<String?> commonMistakes = const Value.absent(),
+                Value<String?> relatedGrammar = const Value.absent(),
+                Value<int?> jlptLevel = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MasterGrammarsCompanion(
+                id: id,
+                pattern: pattern,
+                meaning: meaning,
+                formation: formation,
+                usage: usage,
+                examples: examples,
+                commonMistakes: commonMistakes,
+                relatedGrammar: relatedGrammar,
+                jlptLevel: jlptLevel,
+                tags: tags,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String pattern,
+                required String meaning,
+                Value<String?> formation = const Value.absent(),
+                Value<String?> usage = const Value.absent(),
+                Value<String?> examples = const Value.absent(),
+                Value<String?> commonMistakes = const Value.absent(),
+                Value<String?> relatedGrammar = const Value.absent(),
+                Value<int?> jlptLevel = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => MasterGrammarsCompanion.insert(
+                id: id,
+                pattern: pattern,
+                meaning: meaning,
+                formation: formation,
+                usage: usage,
+                examples: examples,
+                commonMistakes: commonMistakes,
+                relatedGrammar: relatedGrammar,
+                jlptLevel: jlptLevel,
+                tags: tags,
+                notes: notes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MasterGrammarsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                userGrammarsRefs = false,
+                vocabGrammarsRefs = false,
+                grammarReadingsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (userGrammarsRefs) db.userGrammars,
+                    if (vocabGrammarsRefs) db.vocabGrammars,
+                    if (grammarReadingsRefs) db.grammarReadings,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (userGrammarsRefs)
+                        await $_getPrefetchedData<
+                          MasterGrammar,
+                          $MasterGrammarsTable,
+                          UserGrammar
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterGrammarsTableReferences
+                              ._userGrammarsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterGrammarsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userGrammarsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.masterGrammarId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (vocabGrammarsRefs)
+                        await $_getPrefetchedData<
+                          MasterGrammar,
+                          $MasterGrammarsTable,
+                          VocabGrammar
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterGrammarsTableReferences
+                              ._vocabGrammarsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterGrammarsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vocabGrammarsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.grammarId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (grammarReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterGrammar,
+                          $MasterGrammarsTable,
+                          GrammarReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterGrammarsTableReferences
+                              ._grammarReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterGrammarsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).grammarReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.grammarId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$MasterGrammarsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MasterGrammarsTable,
+      MasterGrammar,
+      $$MasterGrammarsTableFilterComposer,
+      $$MasterGrammarsTableOrderingComposer,
+      $$MasterGrammarsTableAnnotationComposer,
+      $$MasterGrammarsTableCreateCompanionBuilder,
+      $$MasterGrammarsTableUpdateCompanionBuilder,
+      (MasterGrammar, $$MasterGrammarsTableReferences),
+      MasterGrammar,
+      PrefetchHooks Function({
+        bool userGrammarsRefs,
+        bool vocabGrammarsRefs,
+        bool grammarReadingsRefs,
+      })
+    >;
+typedef $$UserGrammarsTableCreateCompanionBuilder =
+    UserGrammarsCompanion Function({
+      required String id,
+      required String masterGrammarId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
+      Value<String> status,
+      Value<String> customNotes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$UserGrammarsTableUpdateCompanionBuilder =
+    UserGrammarsCompanion Function({
+      Value<String> id,
+      Value<String> masterGrammarId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
+      Value<String> status,
+      Value<String> customNotes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$UserGrammarsTableReferences
+    extends BaseReferences<_$AppDatabase, $UserGrammarsTable, UserGrammar> {
+  $$UserGrammarsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $MasterGrammarsTable _masterGrammarIdTable(_$AppDatabase db) => db
+      .masterGrammars
+      .createAlias('user_grammars__master_grammar_id__master_grammars__id');
+
+  $$MasterGrammarsTableProcessedTableManager get masterGrammarId {
+    final $_column = $_itemColumn<String>('master_grammar_id')!;
+
+    final manager = $$MasterGrammarsTableTableManager(
+      $_db,
+      $_db.masterGrammars,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_masterGrammarIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UserGrammarsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserGrammarsTable> {
+  $$UserGrammarsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MasterGrammarsTableFilterComposer get masterGrammarId {
+    final $$MasterGrammarsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterGrammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserGrammarsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserGrammarsTable> {
+  $$UserGrammarsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MasterGrammarsTableOrderingComposer get masterGrammarId {
+    final $$MasterGrammarsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterGrammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserGrammarsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserGrammarsTable> {
+  $$UserGrammarsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAdded =>
+      $composableBuilder(column: $table.isAdded, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$MasterGrammarsTableAnnotationComposer get masterGrammarId {
+    final $$MasterGrammarsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterGrammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserGrammarsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserGrammarsTable,
+          UserGrammar,
+          $$UserGrammarsTableFilterComposer,
+          $$UserGrammarsTableOrderingComposer,
+          $$UserGrammarsTableAnnotationComposer,
+          $$UserGrammarsTableCreateCompanionBuilder,
+          $$UserGrammarsTableUpdateCompanionBuilder,
+          (UserGrammar, $$UserGrammarsTableReferences),
+          UserGrammar,
+          PrefetchHooks Function({bool masterGrammarId})
+        > {
+  $$UserGrammarsTableTableManager(_$AppDatabase db, $UserGrammarsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserGrammarsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserGrammarsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserGrammarsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> masterGrammarId = const Value.absent(),
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserGrammarsCompanion(
+                id: id,
+                masterGrammarId: masterGrammarId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String masterGrammarId,
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => UserGrammarsCompanion.insert(
+                id: id,
+                masterGrammarId: masterGrammarId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UserGrammarsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({masterGrammarId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (masterGrammarId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.masterGrammarId,
+                                referencedTable: $$UserGrammarsTableReferences
+                                    ._masterGrammarIdTable(db),
+                                referencedColumn: $$UserGrammarsTableReferences
+                                    ._masterGrammarIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UserGrammarsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserGrammarsTable,
+      UserGrammar,
+      $$UserGrammarsTableFilterComposer,
+      $$UserGrammarsTableOrderingComposer,
+      $$UserGrammarsTableAnnotationComposer,
+      $$UserGrammarsTableCreateCompanionBuilder,
+      $$UserGrammarsTableUpdateCompanionBuilder,
+      (UserGrammar, $$UserGrammarsTableReferences),
+      UserGrammar,
+      PrefetchHooks Function({bool masterGrammarId})
+    >;
+typedef $$MasterReadingsTableCreateCompanionBuilder =
+    MasterReadingsCompanion Function({
+      required String id,
+      required String title,
+      Value<int?> level,
+      required String passage,
+      Value<String?> translation,
+      Value<String?> kanjiIds,
+      Value<String?> vocabularyIds,
+      Value<String?> grammarIds,
+      Value<int?> estimatedReadingTime,
+      Value<String?> difficulty,
+      Value<String?> question,
+      Value<String?> answer,
+      Value<String?> explanation,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$MasterReadingsTableUpdateCompanionBuilder =
+    MasterReadingsCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<int?> level,
+      Value<String> passage,
+      Value<String?> translation,
+      Value<String?> kanjiIds,
+      Value<String?> vocabularyIds,
+      Value<String?> grammarIds,
+      Value<int?> estimatedReadingTime,
+      Value<String?> difficulty,
+      Value<String?> question,
+      Value<String?> answer,
+      Value<String?> explanation,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$MasterReadingsTableReferences
+    extends BaseReferences<_$AppDatabase, $MasterReadingsTable, MasterReading> {
+  $$MasterReadingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$UserReadingsTable, List<UserReading>>
+  _userReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userReadings,
+    aliasName: 'master_readings__id__user_readings__master_reading_id',
+  );
+
+  $$UserReadingsTableProcessedTableManager get userReadingsRefs {
+    final manager = $$UserReadingsTableTableManager($_db, $_db.userReadings)
+        .filter(
+          (f) => f.masterReadingId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_userReadingsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$GrammarReadingsTable, List<GrammarReading>>
+  _grammarReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.grammarReadings,
+    aliasName: 'master_readings__id__grammar_readings__reading_id',
+  );
+
+  $$GrammarReadingsTableProcessedTableManager get grammarReadingsRefs {
+    final manager = $$GrammarReadingsTableTableManager(
+      $_db,
+      $_db.grammarReadings,
+    ).filter((f) => f.readingId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _grammarReadingsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ReadingListeningsTable, List<ReadingListening>>
+  _readingListeningsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.readingListenings,
+        aliasName: 'master_readings__id__reading_listenings__reading_id',
+      );
+
+  $$ReadingListeningsTableProcessedTableManager get readingListeningsRefs {
+    final manager = $$ReadingListeningsTableTableManager(
+      $_db,
+      $_db.readingListenings,
+    ).filter((f) => f.readingId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _readingListeningsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$KanjiReadingsTable, List<KanjiReading>>
+  _kanjiReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.kanjiReadings,
+    aliasName: 'master_readings__id__kanji_readings__reading_id',
+  );
+
+  $$KanjiReadingsTableProcessedTableManager get kanjiReadingsRefs {
+    final manager = $$KanjiReadingsTableTableManager(
+      $_db,
+      $_db.kanjiReadings,
+    ).filter((f) => f.readingId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_kanjiReadingsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$VocabReadingsTable, List<VocabReading>>
+  _vocabReadingsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vocabReadings,
+    aliasName: 'master_readings__id__vocab_readings__reading_id',
+  );
+
+  $$VocabReadingsTableProcessedTableManager get vocabReadingsRefs {
+    final manager = $$VocabReadingsTableTableManager(
+      $_db,
+      $_db.vocabReadings,
+    ).filter((f) => f.readingId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vocabReadingsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$MasterReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $MasterReadingsTable> {
+  $$MasterReadingsTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8738,30 +16560,200 @@ class $$GrammarsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get passage => $composableBuilder(
+    column: $table.passage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get translation => $composableBuilder(
+    column: $table.translation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kanjiIds => $composableBuilder(
+    column: $table.kanjiIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vocabularyIds => $composableBuilder(
+    column: $table.vocabularyIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grammarIds => $composableBuilder(
+    column: $table.grammarIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get estimatedReadingTime => $composableBuilder(
+    column: $table.estimatedReadingTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get question => $composableBuilder(
+    column: $table.question,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get answer => $composableBuilder(
+    column: $table.answer,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get explanation => $composableBuilder(
     column: $table.explanation,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get structure => $composableBuilder(
-    column: $table.structure,
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get examplesJson => $composableBuilder(
-    column: $table.examplesJson,
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
+  Expression<bool> userReadingsRefs(
+    Expression<bool> Function($$UserReadingsTableFilterComposer f) f,
+  ) {
+    final $$UserReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userReadings,
+      getReferencedColumn: (t) => t.masterReadingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.userReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> grammarReadingsRefs(
+    Expression<bool> Function($$GrammarReadingsTableFilterComposer f) f,
+  ) {
+    final $$GrammarReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.grammarReadings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrammarReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.grammarReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> readingListeningsRefs(
+    Expression<bool> Function($$ReadingListeningsTableFilterComposer f) f,
+  ) {
+    final $$ReadingListeningsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingListenings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingListeningsTableFilterComposer(
+            $db: $db,
+            $table: $db.readingListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> kanjiReadingsRefs(
+    Expression<bool> Function($$KanjiReadingsTableFilterComposer f) f,
+  ) {
+    final $$KanjiReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiReadings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.kanjiReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> vocabReadingsRefs(
+    Expression<bool> Function($$VocabReadingsTableFilterComposer f) f,
+  ) {
+    final $$VocabReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabReadings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.vocabReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
-class $$GrammarsTableOrderingComposer
-    extends Composer<_$AppDatabase, $GrammarsTable> {
-  $$GrammarsTableOrderingComposer({
+class $$MasterReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MasterReadingsTable> {
+  $$MasterReadingsTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8778,30 +16770,75 @@ class $$GrammarsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get passage => $composableBuilder(
+    column: $table.passage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get translation => $composableBuilder(
+    column: $table.translation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kanjiIds => $composableBuilder(
+    column: $table.kanjiIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vocabularyIds => $composableBuilder(
+    column: $table.vocabularyIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grammarIds => $composableBuilder(
+    column: $table.grammarIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get estimatedReadingTime => $composableBuilder(
+    column: $table.estimatedReadingTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get question => $composableBuilder(
+    column: $table.question,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get answer => $composableBuilder(
+    column: $table.answer,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get explanation => $composableBuilder(
     column: $table.explanation,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get structure => $composableBuilder(
-    column: $table.structure,
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get examplesJson => $composableBuilder(
-    column: $table.examplesJson,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$GrammarsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $GrammarsTable> {
-  $$GrammarsTableAnnotationComposer({
+class $$MasterReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MasterReadingsTable> {
+  $$MasterReadingsTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -8814,106 +16851,3940 @@ class $$GrammarsTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
+  GeneratedColumn<int> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<String> get passage =>
+      $composableBuilder(column: $table.passage, builder: (column) => column);
+
+  GeneratedColumn<String> get translation => $composableBuilder(
+    column: $table.translation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get kanjiIds =>
+      $composableBuilder(column: $table.kanjiIds, builder: (column) => column);
+
+  GeneratedColumn<String> get vocabularyIds => $composableBuilder(
+    column: $table.vocabularyIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grammarIds => $composableBuilder(
+    column: $table.grammarIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get estimatedReadingTime => $composableBuilder(
+    column: $table.estimatedReadingTime,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get question =>
+      $composableBuilder(column: $table.question, builder: (column) => column);
+
+  GeneratedColumn<String> get answer =>
+      $composableBuilder(column: $table.answer, builder: (column) => column);
+
   GeneratedColumn<String> get explanation => $composableBuilder(
     column: $table.explanation,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get structure =>
-      $composableBuilder(column: $table.structure, builder: (column) => column);
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<String> get examplesJson => $composableBuilder(
-    column: $table.examplesJson,
-    builder: (column) => column,
-  );
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
+  Expression<T> userReadingsRefs<T extends Object>(
+    Expression<T> Function($$UserReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$UserReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userReadings,
+      getReferencedColumn: (t) => t.masterReadingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> grammarReadingsRefs<T extends Object>(
+    Expression<T> Function($$GrammarReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$GrammarReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.grammarReadings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$GrammarReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.grammarReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> readingListeningsRefs<T extends Object>(
+    Expression<T> Function($$ReadingListeningsTableAnnotationComposer a) f,
+  ) {
+    final $$ReadingListeningsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.readingListenings,
+          getReferencedColumn: (t) => t.readingId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ReadingListeningsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.readingListenings,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> kanjiReadingsRefs<T extends Object>(
+    Expression<T> Function($$KanjiReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$KanjiReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.kanjiReadings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$KanjiReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.kanjiReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> vocabReadingsRefs<T extends Object>(
+    Expression<T> Function($$VocabReadingsTableAnnotationComposer a) f,
+  ) {
+    final $$VocabReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vocabReadings,
+      getReferencedColumn: (t) => t.readingId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VocabReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vocabReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
-class $$GrammarsTableTableManager
+class $$MasterReadingsTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $GrammarsTable,
-          Grammar,
-          $$GrammarsTableFilterComposer,
-          $$GrammarsTableOrderingComposer,
-          $$GrammarsTableAnnotationComposer,
-          $$GrammarsTableCreateCompanionBuilder,
-          $$GrammarsTableUpdateCompanionBuilder,
-          (Grammar, BaseReferences<_$AppDatabase, $GrammarsTable, Grammar>),
-          Grammar,
-          PrefetchHooks Function()
+          $MasterReadingsTable,
+          MasterReading,
+          $$MasterReadingsTableFilterComposer,
+          $$MasterReadingsTableOrderingComposer,
+          $$MasterReadingsTableAnnotationComposer,
+          $$MasterReadingsTableCreateCompanionBuilder,
+          $$MasterReadingsTableUpdateCompanionBuilder,
+          (MasterReading, $$MasterReadingsTableReferences),
+          MasterReading,
+          PrefetchHooks Function({
+            bool userReadingsRefs,
+            bool grammarReadingsRefs,
+            bool readingListeningsRefs,
+            bool kanjiReadingsRefs,
+            bool vocabReadingsRefs,
+          })
         > {
-  $$GrammarsTableTableManager(_$AppDatabase db, $GrammarsTable table)
-    : super(
+  $$MasterReadingsTableTableManager(
+    _$AppDatabase db,
+    $MasterReadingsTable table,
+  ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$GrammarsTableFilterComposer($db: db, $table: table),
+              $$MasterReadingsTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$GrammarsTableOrderingComposer($db: db, $table: table),
+              $$MasterReadingsTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$GrammarsTableAnnotationComposer($db: db, $table: table),
+              $$MasterReadingsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
-                Value<String> explanation = const Value.absent(),
-                Value<String> structure = const Value.absent(),
-                Value<String> examplesJson = const Value.absent(),
-                Value<String> status = const Value.absent(),
+                Value<int?> level = const Value.absent(),
+                Value<String> passage = const Value.absent(),
+                Value<String?> translation = const Value.absent(),
+                Value<String?> kanjiIds = const Value.absent(),
+                Value<String?> vocabularyIds = const Value.absent(),
+                Value<String?> grammarIds = const Value.absent(),
+                Value<int?> estimatedReadingTime = const Value.absent(),
+                Value<String?> difficulty = const Value.absent(),
+                Value<String?> question = const Value.absent(),
+                Value<String?> answer = const Value.absent(),
+                Value<String?> explanation = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => GrammarsCompanion(
+              }) => MasterReadingsCompanion(
                 id: id,
                 title: title,
+                level: level,
+                passage: passage,
+                translation: translation,
+                kanjiIds: kanjiIds,
+                vocabularyIds: vocabularyIds,
+                grammarIds: grammarIds,
+                estimatedReadingTime: estimatedReadingTime,
+                difficulty: difficulty,
+                question: question,
+                answer: answer,
                 explanation: explanation,
-                structure: structure,
-                examplesJson: examplesJson,
-                status: status,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
                 required String title,
-                required String explanation,
-                required String structure,
-                required String examplesJson,
-                Value<String> status = const Value.absent(),
+                Value<int?> level = const Value.absent(),
+                required String passage,
+                Value<String?> translation = const Value.absent(),
+                Value<String?> kanjiIds = const Value.absent(),
+                Value<String?> vocabularyIds = const Value.absent(),
+                Value<String?> grammarIds = const Value.absent(),
+                Value<int?> estimatedReadingTime = const Value.absent(),
+                Value<String?> difficulty = const Value.absent(),
+                Value<String?> question = const Value.absent(),
+                Value<String?> answer = const Value.absent(),
+                Value<String?> explanation = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
-              }) => GrammarsCompanion.insert(
+              }) => MasterReadingsCompanion.insert(
                 id: id,
                 title: title,
+                level: level,
+                passage: passage,
+                translation: translation,
+                kanjiIds: kanjiIds,
+                vocabularyIds: vocabularyIds,
+                grammarIds: grammarIds,
+                estimatedReadingTime: estimatedReadingTime,
+                difficulty: difficulty,
+                question: question,
+                answer: answer,
                 explanation: explanation,
-                structure: structure,
-                examplesJson: examplesJson,
-                status: status,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MasterReadingsTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback:
+              ({
+                userReadingsRefs = false,
+                grammarReadingsRefs = false,
+                readingListeningsRefs = false,
+                kanjiReadingsRefs = false,
+                vocabReadingsRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (userReadingsRefs) db.userReadings,
+                    if (grammarReadingsRefs) db.grammarReadings,
+                    if (readingListeningsRefs) db.readingListenings,
+                    if (kanjiReadingsRefs) db.kanjiReadings,
+                    if (vocabReadingsRefs) db.vocabReadings,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (userReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterReading,
+                          $MasterReadingsTable,
+                          UserReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterReadingsTableReferences
+                              ._userReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterReadingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.masterReadingId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (grammarReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterReading,
+                          $MasterReadingsTable,
+                          GrammarReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterReadingsTableReferences
+                              ._grammarReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterReadingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).grammarReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.readingId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (readingListeningsRefs)
+                        await $_getPrefetchedData<
+                          MasterReading,
+                          $MasterReadingsTable,
+                          ReadingListening
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterReadingsTableReferences
+                              ._readingListeningsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterReadingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).readingListeningsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.readingId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (kanjiReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterReading,
+                          $MasterReadingsTable,
+                          KanjiReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterReadingsTableReferences
+                              ._kanjiReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterReadingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).kanjiReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.readingId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (vocabReadingsRefs)
+                        await $_getPrefetchedData<
+                          MasterReading,
+                          $MasterReadingsTable,
+                          VocabReading
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterReadingsTableReferences
+                              ._vocabReadingsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterReadingsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).vocabReadingsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.readingId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
         ),
       );
 }
 
-typedef $$GrammarsTableProcessedTableManager =
+typedef $$MasterReadingsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $GrammarsTable,
-      Grammar,
-      $$GrammarsTableFilterComposer,
-      $$GrammarsTableOrderingComposer,
-      $$GrammarsTableAnnotationComposer,
-      $$GrammarsTableCreateCompanionBuilder,
-      $$GrammarsTableUpdateCompanionBuilder,
-      (Grammar, BaseReferences<_$AppDatabase, $GrammarsTable, Grammar>),
-      Grammar,
-      PrefetchHooks Function()
+      $MasterReadingsTable,
+      MasterReading,
+      $$MasterReadingsTableFilterComposer,
+      $$MasterReadingsTableOrderingComposer,
+      $$MasterReadingsTableAnnotationComposer,
+      $$MasterReadingsTableCreateCompanionBuilder,
+      $$MasterReadingsTableUpdateCompanionBuilder,
+      (MasterReading, $$MasterReadingsTableReferences),
+      MasterReading,
+      PrefetchHooks Function({
+        bool userReadingsRefs,
+        bool grammarReadingsRefs,
+        bool readingListeningsRefs,
+        bool kanjiReadingsRefs,
+        bool vocabReadingsRefs,
+      })
+    >;
+typedef $$UserReadingsTableCreateCompanionBuilder =
+    UserReadingsCompanion Function({
+      required String id,
+      required String masterReadingId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
+      Value<String> status,
+      Value<String> customNotes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$UserReadingsTableUpdateCompanionBuilder =
+    UserReadingsCompanion Function({
+      Value<String> id,
+      Value<String> masterReadingId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
+      Value<String> status,
+      Value<String> customNotes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$UserReadingsTableReferences
+    extends BaseReferences<_$AppDatabase, $UserReadingsTable, UserReading> {
+  $$UserReadingsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $MasterReadingsTable _masterReadingIdTable(_$AppDatabase db) => db
+      .masterReadings
+      .createAlias('user_readings__master_reading_id__master_readings__id');
+
+  $$MasterReadingsTableProcessedTableManager get masterReadingId {
+    final $_column = $_itemColumn<String>('master_reading_id')!;
+
+    final manager = $$MasterReadingsTableTableManager(
+      $_db,
+      $_db.masterReadings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_masterReadingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UserReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserReadingsTable> {
+  $$UserReadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MasterReadingsTableFilterComposer get masterReadingId {
+    final $$MasterReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterReadingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserReadingsTable> {
+  $$UserReadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MasterReadingsTableOrderingComposer get masterReadingId {
+    final $$MasterReadingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterReadingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserReadingsTable> {
+  $$UserReadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAdded =>
+      $composableBuilder(column: $table.isAdded, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$MasterReadingsTableAnnotationComposer get masterReadingId {
+    final $$MasterReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterReadingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserReadingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserReadingsTable,
+          UserReading,
+          $$UserReadingsTableFilterComposer,
+          $$UserReadingsTableOrderingComposer,
+          $$UserReadingsTableAnnotationComposer,
+          $$UserReadingsTableCreateCompanionBuilder,
+          $$UserReadingsTableUpdateCompanionBuilder,
+          (UserReading, $$UserReadingsTableReferences),
+          UserReading,
+          PrefetchHooks Function({bool masterReadingId})
+        > {
+  $$UserReadingsTableTableManager(_$AppDatabase db, $UserReadingsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserReadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserReadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserReadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> masterReadingId = const Value.absent(),
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserReadingsCompanion(
+                id: id,
+                masterReadingId: masterReadingId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String masterReadingId,
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => UserReadingsCompanion.insert(
+                id: id,
+                masterReadingId: masterReadingId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UserReadingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({masterReadingId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (masterReadingId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.masterReadingId,
+                                referencedTable: $$UserReadingsTableReferences
+                                    ._masterReadingIdTable(db),
+                                referencedColumn: $$UserReadingsTableReferences
+                                    ._masterReadingIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UserReadingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserReadingsTable,
+      UserReading,
+      $$UserReadingsTableFilterComposer,
+      $$UserReadingsTableOrderingComposer,
+      $$UserReadingsTableAnnotationComposer,
+      $$UserReadingsTableCreateCompanionBuilder,
+      $$UserReadingsTableUpdateCompanionBuilder,
+      (UserReading, $$UserReadingsTableReferences),
+      UserReading,
+      PrefetchHooks Function({bool masterReadingId})
+    >;
+typedef $$MasterListeningsTableCreateCompanionBuilder =
+    MasterListeningsCompanion Function({
+      required String id,
+      required String title,
+      required String transcript,
+      Value<String?> audioPath,
+      Value<int?> length,
+      Value<String?> difficulty,
+      Value<String?> kanjiIds,
+      Value<String?> vocabularyIds,
+      Value<String?> grammarIds,
+      Value<String?> question,
+      Value<String?> answer,
+      Value<String?> explanation,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$MasterListeningsTableUpdateCompanionBuilder =
+    MasterListeningsCompanion Function({
+      Value<String> id,
+      Value<String> title,
+      Value<String> transcript,
+      Value<String?> audioPath,
+      Value<int?> length,
+      Value<String?> difficulty,
+      Value<String?> kanjiIds,
+      Value<String?> vocabularyIds,
+      Value<String?> grammarIds,
+      Value<String?> question,
+      Value<String?> answer,
+      Value<String?> explanation,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$MasterListeningsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $MasterListeningsTable, MasterListening> {
+  $$MasterListeningsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$UserListeningsTable, List<UserListening>>
+  _userListeningsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.userListenings,
+    aliasName: 'master_listenings__id__user_listenings__master_listening_id',
+  );
+
+  $$UserListeningsTableProcessedTableManager get userListeningsRefs {
+    final manager = $$UserListeningsTableTableManager($_db, $_db.userListenings)
+        .filter(
+          (f) => f.masterListeningId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(_userListeningsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$ReadingListeningsTable, List<ReadingListening>>
+  _readingListeningsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.readingListenings,
+        aliasName: 'master_listenings__id__reading_listenings__listening_id',
+      );
+
+  $$ReadingListeningsTableProcessedTableManager get readingListeningsRefs {
+    final manager = $$ReadingListeningsTableTableManager(
+      $_db,
+      $_db.readingListenings,
+    ).filter((f) => f.listeningId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _readingListeningsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$MasterListeningsTableFilterComposer
+    extends Composer<_$AppDatabase, $MasterListeningsTable> {
+  $$MasterListeningsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get transcript => $composableBuilder(
+    column: $table.transcript,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get audioPath => $composableBuilder(
+    column: $table.audioPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get length => $composableBuilder(
+    column: $table.length,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kanjiIds => $composableBuilder(
+    column: $table.kanjiIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get vocabularyIds => $composableBuilder(
+    column: $table.vocabularyIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grammarIds => $composableBuilder(
+    column: $table.grammarIds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get question => $composableBuilder(
+    column: $table.question,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get answer => $composableBuilder(
+    column: $table.answer,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get explanation => $composableBuilder(
+    column: $table.explanation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> userListeningsRefs(
+    Expression<bool> Function($$UserListeningsTableFilterComposer f) f,
+  ) {
+    final $$UserListeningsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userListenings,
+      getReferencedColumn: (t) => t.masterListeningId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserListeningsTableFilterComposer(
+            $db: $db,
+            $table: $db.userListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> readingListeningsRefs(
+    Expression<bool> Function($$ReadingListeningsTableFilterComposer f) f,
+  ) {
+    final $$ReadingListeningsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.readingListenings,
+      getReferencedColumn: (t) => t.listeningId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ReadingListeningsTableFilterComposer(
+            $db: $db,
+            $table: $db.readingListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$MasterListeningsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MasterListeningsTable> {
+  $$MasterListeningsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get transcript => $composableBuilder(
+    column: $table.transcript,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get audioPath => $composableBuilder(
+    column: $table.audioPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get length => $composableBuilder(
+    column: $table.length,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kanjiIds => $composableBuilder(
+    column: $table.kanjiIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get vocabularyIds => $composableBuilder(
+    column: $table.vocabularyIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grammarIds => $composableBuilder(
+    column: $table.grammarIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get question => $composableBuilder(
+    column: $table.question,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get answer => $composableBuilder(
+    column: $table.answer,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get explanation => $composableBuilder(
+    column: $table.explanation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MasterListeningsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MasterListeningsTable> {
+  $$MasterListeningsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get transcript => $composableBuilder(
+    column: $table.transcript,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get audioPath =>
+      $composableBuilder(column: $table.audioPath, builder: (column) => column);
+
+  GeneratedColumn<int> get length =>
+      $composableBuilder(column: $table.length, builder: (column) => column);
+
+  GeneratedColumn<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get kanjiIds =>
+      $composableBuilder(column: $table.kanjiIds, builder: (column) => column);
+
+  GeneratedColumn<String> get vocabularyIds => $composableBuilder(
+    column: $table.vocabularyIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get grammarIds => $composableBuilder(
+    column: $table.grammarIds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get question =>
+      $composableBuilder(column: $table.question, builder: (column) => column);
+
+  GeneratedColumn<String> get answer =>
+      $composableBuilder(column: $table.answer, builder: (column) => column);
+
+  GeneratedColumn<String> get explanation => $composableBuilder(
+    column: $table.explanation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> userListeningsRefs<T extends Object>(
+    Expression<T> Function($$UserListeningsTableAnnotationComposer a) f,
+  ) {
+    final $$UserListeningsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.userListenings,
+      getReferencedColumn: (t) => t.masterListeningId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$UserListeningsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.userListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> readingListeningsRefs<T extends Object>(
+    Expression<T> Function($$ReadingListeningsTableAnnotationComposer a) f,
+  ) {
+    final $$ReadingListeningsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.readingListenings,
+          getReferencedColumn: (t) => t.listeningId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ReadingListeningsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.readingListenings,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$MasterListeningsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MasterListeningsTable,
+          MasterListening,
+          $$MasterListeningsTableFilterComposer,
+          $$MasterListeningsTableOrderingComposer,
+          $$MasterListeningsTableAnnotationComposer,
+          $$MasterListeningsTableCreateCompanionBuilder,
+          $$MasterListeningsTableUpdateCompanionBuilder,
+          (MasterListening, $$MasterListeningsTableReferences),
+          MasterListening,
+          PrefetchHooks Function({
+            bool userListeningsRefs,
+            bool readingListeningsRefs,
+          })
+        > {
+  $$MasterListeningsTableTableManager(
+    _$AppDatabase db,
+    $MasterListeningsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MasterListeningsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MasterListeningsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MasterListeningsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> transcript = const Value.absent(),
+                Value<String?> audioPath = const Value.absent(),
+                Value<int?> length = const Value.absent(),
+                Value<String?> difficulty = const Value.absent(),
+                Value<String?> kanjiIds = const Value.absent(),
+                Value<String?> vocabularyIds = const Value.absent(),
+                Value<String?> grammarIds = const Value.absent(),
+                Value<String?> question = const Value.absent(),
+                Value<String?> answer = const Value.absent(),
+                Value<String?> explanation = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => MasterListeningsCompanion(
+                id: id,
+                title: title,
+                transcript: transcript,
+                audioPath: audioPath,
+                length: length,
+                difficulty: difficulty,
+                kanjiIds: kanjiIds,
+                vocabularyIds: vocabularyIds,
+                grammarIds: grammarIds,
+                question: question,
+                answer: answer,
+                explanation: explanation,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String title,
+                required String transcript,
+                Value<String?> audioPath = const Value.absent(),
+                Value<int?> length = const Value.absent(),
+                Value<String?> difficulty = const Value.absent(),
+                Value<String?> kanjiIds = const Value.absent(),
+                Value<String?> vocabularyIds = const Value.absent(),
+                Value<String?> grammarIds = const Value.absent(),
+                Value<String?> question = const Value.absent(),
+                Value<String?> answer = const Value.absent(),
+                Value<String?> explanation = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => MasterListeningsCompanion.insert(
+                id: id,
+                title: title,
+                transcript: transcript,
+                audioPath: audioPath,
+                length: length,
+                difficulty: difficulty,
+                kanjiIds: kanjiIds,
+                vocabularyIds: vocabularyIds,
+                grammarIds: grammarIds,
+                question: question,
+                answer: answer,
+                explanation: explanation,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$MasterListeningsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({userListeningsRefs = false, readingListeningsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (userListeningsRefs) db.userListenings,
+                    if (readingListeningsRefs) db.readingListenings,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (userListeningsRefs)
+                        await $_getPrefetchedData<
+                          MasterListening,
+                          $MasterListeningsTable,
+                          UserListening
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterListeningsTableReferences
+                              ._userListeningsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterListeningsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).userListeningsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.masterListeningId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (readingListeningsRefs)
+                        await $_getPrefetchedData<
+                          MasterListening,
+                          $MasterListeningsTable,
+                          ReadingListening
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MasterListeningsTableReferences
+                              ._readingListeningsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MasterListeningsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).readingListeningsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.listeningId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$MasterListeningsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MasterListeningsTable,
+      MasterListening,
+      $$MasterListeningsTableFilterComposer,
+      $$MasterListeningsTableOrderingComposer,
+      $$MasterListeningsTableAnnotationComposer,
+      $$MasterListeningsTableCreateCompanionBuilder,
+      $$MasterListeningsTableUpdateCompanionBuilder,
+      (MasterListening, $$MasterListeningsTableReferences),
+      MasterListening,
+      PrefetchHooks Function({
+        bool userListeningsRefs,
+        bool readingListeningsRefs,
+      })
+    >;
+typedef $$UserListeningsTableCreateCompanionBuilder =
+    UserListeningsCompanion Function({
+      required String id,
+      required String masterListeningId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
+      Value<String> status,
+      Value<String> customNotes,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$UserListeningsTableUpdateCompanionBuilder =
+    UserListeningsCompanion Function({
+      Value<String> id,
+      Value<String> masterListeningId,
+      Value<bool> isAdded,
+      Value<bool> isFavorite,
+      Value<String> status,
+      Value<String> customNotes,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$UserListeningsTableReferences
+    extends BaseReferences<_$AppDatabase, $UserListeningsTable, UserListening> {
+  $$UserListeningsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterListeningsTable _masterListeningIdTable(_$AppDatabase db) =>
+      db.masterListenings.createAlias(
+        'user_listenings__master_listening_id__master_listenings__id',
+      );
+
+  $$MasterListeningsTableProcessedTableManager get masterListeningId {
+    final $_column = $_itemColumn<String>('master_listening_id')!;
+
+    final manager = $$MasterListeningsTableTableManager(
+      $_db,
+      $_db.masterListenings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_masterListeningIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$UserListeningsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserListeningsTable> {
+  $$UserListeningsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MasterListeningsTableFilterComposer get masterListeningId {
+    final $$MasterListeningsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterListeningId,
+      referencedTable: $db.masterListenings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterListeningsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserListeningsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserListeningsTable> {
+  $$UserListeningsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isAdded => $composableBuilder(
+    column: $table.isAdded,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MasterListeningsTableOrderingComposer get masterListeningId {
+    final $$MasterListeningsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterListeningId,
+      referencedTable: $db.masterListenings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterListeningsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserListeningsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserListeningsTable> {
+  $$UserListeningsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get isAdded =>
+      $composableBuilder(column: $table.isAdded, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get customNotes => $composableBuilder(
+    column: $table.customNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$MasterListeningsTableAnnotationComposer get masterListeningId {
+    final $$MasterListeningsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.masterListeningId,
+      referencedTable: $db.masterListenings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterListeningsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$UserListeningsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $UserListeningsTable,
+          UserListening,
+          $$UserListeningsTableFilterComposer,
+          $$UserListeningsTableOrderingComposer,
+          $$UserListeningsTableAnnotationComposer,
+          $$UserListeningsTableCreateCompanionBuilder,
+          $$UserListeningsTableUpdateCompanionBuilder,
+          (UserListening, $$UserListeningsTableReferences),
+          UserListening,
+          PrefetchHooks Function({bool masterListeningId})
+        > {
+  $$UserListeningsTableTableManager(
+    _$AppDatabase db,
+    $UserListeningsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserListeningsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserListeningsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserListeningsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> masterListeningId = const Value.absent(),
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => UserListeningsCompanion(
+                id: id,
+                masterListeningId: masterListeningId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String masterListeningId,
+                Value<bool> isAdded = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> customNotes = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => UserListeningsCompanion.insert(
+                id: id,
+                masterListeningId: masterListeningId,
+                isAdded: isAdded,
+                isFavorite: isFavorite,
+                status: status,
+                customNotes: customNotes,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$UserListeningsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({masterListeningId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (masterListeningId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.masterListeningId,
+                                referencedTable: $$UserListeningsTableReferences
+                                    ._masterListeningIdTable(db),
+                                referencedColumn:
+                                    $$UserListeningsTableReferences
+                                        ._masterListeningIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$UserListeningsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $UserListeningsTable,
+      UserListening,
+      $$UserListeningsTableFilterComposer,
+      $$UserListeningsTableOrderingComposer,
+      $$UserListeningsTableAnnotationComposer,
+      $$UserListeningsTableCreateCompanionBuilder,
+      $$UserListeningsTableUpdateCompanionBuilder,
+      (UserListening, $$UserListeningsTableReferences),
+      UserListening,
+      PrefetchHooks Function({bool masterListeningId})
+    >;
+typedef $$KanjiVocabsTableCreateCompanionBuilder =
+    KanjiVocabsCompanion Function({
+      required String kanjiId,
+      required String vocabId,
+      Value<int> rowid,
+    });
+typedef $$KanjiVocabsTableUpdateCompanionBuilder =
+    KanjiVocabsCompanion Function({
+      Value<String> kanjiId,
+      Value<String> vocabId,
+      Value<int> rowid,
+    });
+
+final class $$KanjiVocabsTableReferences
+    extends BaseReferences<_$AppDatabase, $KanjiVocabsTable, KanjiVocab> {
+  $$KanjiVocabsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $MasterKanjisTable _kanjiIdTable(_$AppDatabase db) =>
+      db.masterKanjis.createAlias('kanji_vocabs__kanji_id__master_kanjis__id');
+
+  $$MasterKanjisTableProcessedTableManager get kanjiId {
+    final $_column = $_itemColumn<String>('kanji_id')!;
+
+    final manager = $$MasterKanjisTableTableManager(
+      $_db,
+      $_db.masterKanjis,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_kanjiIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MasterVocabulariesTable _vocabIdTable(_$AppDatabase db) => db
+      .masterVocabularies
+      .createAlias('kanji_vocabs__vocab_id__master_vocabularies__id');
+
+  $$MasterVocabulariesTableProcessedTableManager get vocabId {
+    final $_column = $_itemColumn<String>('vocab_id')!;
+
+    final manager = $$MasterVocabulariesTableTableManager(
+      $_db,
+      $_db.masterVocabularies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_vocabIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$KanjiVocabsTableFilterComposer
+    extends Composer<_$AppDatabase, $KanjiVocabsTable> {
+  $$KanjiVocabsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterKanjisTableFilterComposer get kanjiId {
+    final $$MasterKanjisTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.kanjiId,
+      referencedTable: $db.masterKanjis,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterKanjisTableFilterComposer(
+            $db: $db,
+            $table: $db.masterKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterVocabulariesTableFilterComposer get vocabId {
+    final $$MasterVocabulariesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableFilterComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$KanjiVocabsTableOrderingComposer
+    extends Composer<_$AppDatabase, $KanjiVocabsTable> {
+  $$KanjiVocabsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterKanjisTableOrderingComposer get kanjiId {
+    final $$MasterKanjisTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.kanjiId,
+      referencedTable: $db.masterKanjis,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterKanjisTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterVocabulariesTableOrderingComposer get vocabId {
+    final $$MasterVocabulariesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$KanjiVocabsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $KanjiVocabsTable> {
+  $$KanjiVocabsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterKanjisTableAnnotationComposer get kanjiId {
+    final $$MasterKanjisTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.kanjiId,
+      referencedTable: $db.masterKanjis,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterKanjisTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterVocabulariesTableAnnotationComposer get vocabId {
+    final $$MasterVocabulariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.vocabId,
+          referencedTable: $db.masterVocabularies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MasterVocabulariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.masterVocabularies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$KanjiVocabsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $KanjiVocabsTable,
+          KanjiVocab,
+          $$KanjiVocabsTableFilterComposer,
+          $$KanjiVocabsTableOrderingComposer,
+          $$KanjiVocabsTableAnnotationComposer,
+          $$KanjiVocabsTableCreateCompanionBuilder,
+          $$KanjiVocabsTableUpdateCompanionBuilder,
+          (KanjiVocab, $$KanjiVocabsTableReferences),
+          KanjiVocab,
+          PrefetchHooks Function({bool kanjiId, bool vocabId})
+        > {
+  $$KanjiVocabsTableTableManager(_$AppDatabase db, $KanjiVocabsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$KanjiVocabsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$KanjiVocabsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$KanjiVocabsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> kanjiId = const Value.absent(),
+                Value<String> vocabId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => KanjiVocabsCompanion(
+                kanjiId: kanjiId,
+                vocabId: vocabId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String kanjiId,
+                required String vocabId,
+                Value<int> rowid = const Value.absent(),
+              }) => KanjiVocabsCompanion.insert(
+                kanjiId: kanjiId,
+                vocabId: vocabId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$KanjiVocabsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({kanjiId = false, vocabId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (kanjiId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.kanjiId,
+                                referencedTable: $$KanjiVocabsTableReferences
+                                    ._kanjiIdTable(db),
+                                referencedColumn: $$KanjiVocabsTableReferences
+                                    ._kanjiIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (vocabId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.vocabId,
+                                referencedTable: $$KanjiVocabsTableReferences
+                                    ._vocabIdTable(db),
+                                referencedColumn: $$KanjiVocabsTableReferences
+                                    ._vocabIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$KanjiVocabsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $KanjiVocabsTable,
+      KanjiVocab,
+      $$KanjiVocabsTableFilterComposer,
+      $$KanjiVocabsTableOrderingComposer,
+      $$KanjiVocabsTableAnnotationComposer,
+      $$KanjiVocabsTableCreateCompanionBuilder,
+      $$KanjiVocabsTableUpdateCompanionBuilder,
+      (KanjiVocab, $$KanjiVocabsTableReferences),
+      KanjiVocab,
+      PrefetchHooks Function({bool kanjiId, bool vocabId})
+    >;
+typedef $$VocabGrammarsTableCreateCompanionBuilder =
+    VocabGrammarsCompanion Function({
+      required String vocabId,
+      required String grammarId,
+      Value<int> rowid,
+    });
+typedef $$VocabGrammarsTableUpdateCompanionBuilder =
+    VocabGrammarsCompanion Function({
+      Value<String> vocabId,
+      Value<String> grammarId,
+      Value<int> rowid,
+    });
+
+final class $$VocabGrammarsTableReferences
+    extends BaseReferences<_$AppDatabase, $VocabGrammarsTable, VocabGrammar> {
+  $$VocabGrammarsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterVocabulariesTable _vocabIdTable(_$AppDatabase db) => db
+      .masterVocabularies
+      .createAlias('vocab_grammars__vocab_id__master_vocabularies__id');
+
+  $$MasterVocabulariesTableProcessedTableManager get vocabId {
+    final $_column = $_itemColumn<String>('vocab_id')!;
+
+    final manager = $$MasterVocabulariesTableTableManager(
+      $_db,
+      $_db.masterVocabularies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_vocabIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MasterGrammarsTable _grammarIdTable(_$AppDatabase db) => db
+      .masterGrammars
+      .createAlias('vocab_grammars__grammar_id__master_grammars__id');
+
+  $$MasterGrammarsTableProcessedTableManager get grammarId {
+    final $_column = $_itemColumn<String>('grammar_id')!;
+
+    final manager = $$MasterGrammarsTableTableManager(
+      $_db,
+      $_db.masterGrammars,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_grammarIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$VocabGrammarsTableFilterComposer
+    extends Composer<_$AppDatabase, $VocabGrammarsTable> {
+  $$VocabGrammarsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterVocabulariesTableFilterComposer get vocabId {
+    final $$MasterVocabulariesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableFilterComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterGrammarsTableFilterComposer get grammarId {
+    final $$MasterGrammarsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VocabGrammarsTableOrderingComposer
+    extends Composer<_$AppDatabase, $VocabGrammarsTable> {
+  $$VocabGrammarsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterVocabulariesTableOrderingComposer get vocabId {
+    final $$MasterVocabulariesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterGrammarsTableOrderingComposer get grammarId {
+    final $$MasterGrammarsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VocabGrammarsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VocabGrammarsTable> {
+  $$VocabGrammarsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterVocabulariesTableAnnotationComposer get vocabId {
+    final $$MasterVocabulariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.vocabId,
+          referencedTable: $db.masterVocabularies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MasterVocabulariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.masterVocabularies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$MasterGrammarsTableAnnotationComposer get grammarId {
+    final $$MasterGrammarsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VocabGrammarsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VocabGrammarsTable,
+          VocabGrammar,
+          $$VocabGrammarsTableFilterComposer,
+          $$VocabGrammarsTableOrderingComposer,
+          $$VocabGrammarsTableAnnotationComposer,
+          $$VocabGrammarsTableCreateCompanionBuilder,
+          $$VocabGrammarsTableUpdateCompanionBuilder,
+          (VocabGrammar, $$VocabGrammarsTableReferences),
+          VocabGrammar,
+          PrefetchHooks Function({bool vocabId, bool grammarId})
+        > {
+  $$VocabGrammarsTableTableManager(_$AppDatabase db, $VocabGrammarsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VocabGrammarsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VocabGrammarsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VocabGrammarsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> vocabId = const Value.absent(),
+                Value<String> grammarId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VocabGrammarsCompanion(
+                vocabId: vocabId,
+                grammarId: grammarId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String vocabId,
+                required String grammarId,
+                Value<int> rowid = const Value.absent(),
+              }) => VocabGrammarsCompanion.insert(
+                vocabId: vocabId,
+                grammarId: grammarId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$VocabGrammarsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({vocabId = false, grammarId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (vocabId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.vocabId,
+                                referencedTable: $$VocabGrammarsTableReferences
+                                    ._vocabIdTable(db),
+                                referencedColumn: $$VocabGrammarsTableReferences
+                                    ._vocabIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (grammarId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.grammarId,
+                                referencedTable: $$VocabGrammarsTableReferences
+                                    ._grammarIdTable(db),
+                                referencedColumn: $$VocabGrammarsTableReferences
+                                    ._grammarIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$VocabGrammarsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VocabGrammarsTable,
+      VocabGrammar,
+      $$VocabGrammarsTableFilterComposer,
+      $$VocabGrammarsTableOrderingComposer,
+      $$VocabGrammarsTableAnnotationComposer,
+      $$VocabGrammarsTableCreateCompanionBuilder,
+      $$VocabGrammarsTableUpdateCompanionBuilder,
+      (VocabGrammar, $$VocabGrammarsTableReferences),
+      VocabGrammar,
+      PrefetchHooks Function({bool vocabId, bool grammarId})
+    >;
+typedef $$GrammarReadingsTableCreateCompanionBuilder =
+    GrammarReadingsCompanion Function({
+      required String grammarId,
+      required String readingId,
+      Value<int> rowid,
+    });
+typedef $$GrammarReadingsTableUpdateCompanionBuilder =
+    GrammarReadingsCompanion Function({
+      Value<String> grammarId,
+      Value<String> readingId,
+      Value<int> rowid,
+    });
+
+final class $$GrammarReadingsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $GrammarReadingsTable, GrammarReading> {
+  $$GrammarReadingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterGrammarsTable _grammarIdTable(_$AppDatabase db) => db
+      .masterGrammars
+      .createAlias('grammar_readings__grammar_id__master_grammars__id');
+
+  $$MasterGrammarsTableProcessedTableManager get grammarId {
+    final $_column = $_itemColumn<String>('grammar_id')!;
+
+    final manager = $$MasterGrammarsTableTableManager(
+      $_db,
+      $_db.masterGrammars,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_grammarIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MasterReadingsTable _readingIdTable(_$AppDatabase db) => db
+      .masterReadings
+      .createAlias('grammar_readings__reading_id__master_readings__id');
+
+  $$MasterReadingsTableProcessedTableManager get readingId {
+    final $_column = $_itemColumn<String>('reading_id')!;
+
+    final manager = $$MasterReadingsTableTableManager(
+      $_db,
+      $_db.masterReadings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_readingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$GrammarReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $GrammarReadingsTable> {
+  $$GrammarReadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterGrammarsTableFilterComposer get grammarId {
+    final $$MasterGrammarsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableFilterComposer get readingId {
+    final $$MasterReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GrammarReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GrammarReadingsTable> {
+  $$GrammarReadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterGrammarsTableOrderingComposer get grammarId {
+    final $$MasterGrammarsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableOrderingComposer get readingId {
+    final $$MasterReadingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GrammarReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GrammarReadingsTable> {
+  $$GrammarReadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterGrammarsTableAnnotationComposer get grammarId {
+    final $$MasterGrammarsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.grammarId,
+      referencedTable: $db.masterGrammars,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterGrammarsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterGrammars,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableAnnotationComposer get readingId {
+    final $$MasterReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$GrammarReadingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GrammarReadingsTable,
+          GrammarReading,
+          $$GrammarReadingsTableFilterComposer,
+          $$GrammarReadingsTableOrderingComposer,
+          $$GrammarReadingsTableAnnotationComposer,
+          $$GrammarReadingsTableCreateCompanionBuilder,
+          $$GrammarReadingsTableUpdateCompanionBuilder,
+          (GrammarReading, $$GrammarReadingsTableReferences),
+          GrammarReading,
+          PrefetchHooks Function({bool grammarId, bool readingId})
+        > {
+  $$GrammarReadingsTableTableManager(
+    _$AppDatabase db,
+    $GrammarReadingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GrammarReadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GrammarReadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GrammarReadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> grammarId = const Value.absent(),
+                Value<String> readingId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GrammarReadingsCompanion(
+                grammarId: grammarId,
+                readingId: readingId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String grammarId,
+                required String readingId,
+                Value<int> rowid = const Value.absent(),
+              }) => GrammarReadingsCompanion.insert(
+                grammarId: grammarId,
+                readingId: readingId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$GrammarReadingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({grammarId = false, readingId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (grammarId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.grammarId,
+                                referencedTable:
+                                    $$GrammarReadingsTableReferences
+                                        ._grammarIdTable(db),
+                                referencedColumn:
+                                    $$GrammarReadingsTableReferences
+                                        ._grammarIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (readingId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.readingId,
+                                referencedTable:
+                                    $$GrammarReadingsTableReferences
+                                        ._readingIdTable(db),
+                                referencedColumn:
+                                    $$GrammarReadingsTableReferences
+                                        ._readingIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$GrammarReadingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GrammarReadingsTable,
+      GrammarReading,
+      $$GrammarReadingsTableFilterComposer,
+      $$GrammarReadingsTableOrderingComposer,
+      $$GrammarReadingsTableAnnotationComposer,
+      $$GrammarReadingsTableCreateCompanionBuilder,
+      $$GrammarReadingsTableUpdateCompanionBuilder,
+      (GrammarReading, $$GrammarReadingsTableReferences),
+      GrammarReading,
+      PrefetchHooks Function({bool grammarId, bool readingId})
+    >;
+typedef $$ReadingListeningsTableCreateCompanionBuilder =
+    ReadingListeningsCompanion Function({
+      required String readingId,
+      required String listeningId,
+      Value<int> rowid,
+    });
+typedef $$ReadingListeningsTableUpdateCompanionBuilder =
+    ReadingListeningsCompanion Function({
+      Value<String> readingId,
+      Value<String> listeningId,
+      Value<int> rowid,
+    });
+
+final class $$ReadingListeningsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ReadingListeningsTable,
+          ReadingListening
+        > {
+  $$ReadingListeningsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterReadingsTable _readingIdTable(_$AppDatabase db) => db
+      .masterReadings
+      .createAlias('reading_listenings__reading_id__master_readings__id');
+
+  $$MasterReadingsTableProcessedTableManager get readingId {
+    final $_column = $_itemColumn<String>('reading_id')!;
+
+    final manager = $$MasterReadingsTableTableManager(
+      $_db,
+      $_db.masterReadings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_readingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MasterListeningsTable _listeningIdTable(_$AppDatabase db) => db
+      .masterListenings
+      .createAlias('reading_listenings__listening_id__master_listenings__id');
+
+  $$MasterListeningsTableProcessedTableManager get listeningId {
+    final $_column = $_itemColumn<String>('listening_id')!;
+
+    final manager = $$MasterListeningsTableTableManager(
+      $_db,
+      $_db.masterListenings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_listeningIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ReadingListeningsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReadingListeningsTable> {
+  $$ReadingListeningsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterReadingsTableFilterComposer get readingId {
+    final $$MasterReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterListeningsTableFilterComposer get listeningId {
+    final $$MasterListeningsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.listeningId,
+      referencedTable: $db.masterListenings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterListeningsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingListeningsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReadingListeningsTable> {
+  $$ReadingListeningsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterReadingsTableOrderingComposer get readingId {
+    final $$MasterReadingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterListeningsTableOrderingComposer get listeningId {
+    final $$MasterListeningsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.listeningId,
+      referencedTable: $db.masterListenings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterListeningsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingListeningsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReadingListeningsTable> {
+  $$ReadingListeningsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterReadingsTableAnnotationComposer get readingId {
+    final $$MasterReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterListeningsTableAnnotationComposer get listeningId {
+    final $$MasterListeningsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.listeningId,
+      referencedTable: $db.masterListenings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterListeningsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterListenings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ReadingListeningsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReadingListeningsTable,
+          ReadingListening,
+          $$ReadingListeningsTableFilterComposer,
+          $$ReadingListeningsTableOrderingComposer,
+          $$ReadingListeningsTableAnnotationComposer,
+          $$ReadingListeningsTableCreateCompanionBuilder,
+          $$ReadingListeningsTableUpdateCompanionBuilder,
+          (ReadingListening, $$ReadingListeningsTableReferences),
+          ReadingListening,
+          PrefetchHooks Function({bool readingId, bool listeningId})
+        > {
+  $$ReadingListeningsTableTableManager(
+    _$AppDatabase db,
+    $ReadingListeningsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReadingListeningsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReadingListeningsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReadingListeningsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> readingId = const Value.absent(),
+                Value<String> listeningId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingListeningsCompanion(
+                readingId: readingId,
+                listeningId: listeningId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String readingId,
+                required String listeningId,
+                Value<int> rowid = const Value.absent(),
+              }) => ReadingListeningsCompanion.insert(
+                readingId: readingId,
+                listeningId: listeningId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ReadingListeningsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({readingId = false, listeningId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (readingId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.readingId,
+                                referencedTable:
+                                    $$ReadingListeningsTableReferences
+                                        ._readingIdTable(db),
+                                referencedColumn:
+                                    $$ReadingListeningsTableReferences
+                                        ._readingIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+                    if (listeningId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.listeningId,
+                                referencedTable:
+                                    $$ReadingListeningsTableReferences
+                                        ._listeningIdTable(db),
+                                referencedColumn:
+                                    $$ReadingListeningsTableReferences
+                                        ._listeningIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ReadingListeningsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReadingListeningsTable,
+      ReadingListening,
+      $$ReadingListeningsTableFilterComposer,
+      $$ReadingListeningsTableOrderingComposer,
+      $$ReadingListeningsTableAnnotationComposer,
+      $$ReadingListeningsTableCreateCompanionBuilder,
+      $$ReadingListeningsTableUpdateCompanionBuilder,
+      (ReadingListening, $$ReadingListeningsTableReferences),
+      ReadingListening,
+      PrefetchHooks Function({bool readingId, bool listeningId})
+    >;
+typedef $$KanjiReadingsTableCreateCompanionBuilder =
+    KanjiReadingsCompanion Function({
+      required String kanjiId,
+      required String readingId,
+      Value<int> rowid,
+    });
+typedef $$KanjiReadingsTableUpdateCompanionBuilder =
+    KanjiReadingsCompanion Function({
+      Value<String> kanjiId,
+      Value<String> readingId,
+      Value<int> rowid,
+    });
+
+final class $$KanjiReadingsTableReferences
+    extends BaseReferences<_$AppDatabase, $KanjiReadingsTable, KanjiReading> {
+  $$KanjiReadingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterKanjisTable _kanjiIdTable(_$AppDatabase db) => db.masterKanjis
+      .createAlias('kanji_readings__kanji_id__master_kanjis__id');
+
+  $$MasterKanjisTableProcessedTableManager get kanjiId {
+    final $_column = $_itemColumn<String>('kanji_id')!;
+
+    final manager = $$MasterKanjisTableTableManager(
+      $_db,
+      $_db.masterKanjis,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_kanjiIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MasterReadingsTable _readingIdTable(_$AppDatabase db) => db
+      .masterReadings
+      .createAlias('kanji_readings__reading_id__master_readings__id');
+
+  $$MasterReadingsTableProcessedTableManager get readingId {
+    final $_column = $_itemColumn<String>('reading_id')!;
+
+    final manager = $$MasterReadingsTableTableManager(
+      $_db,
+      $_db.masterReadings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_readingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$KanjiReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $KanjiReadingsTable> {
+  $$KanjiReadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterKanjisTableFilterComposer get kanjiId {
+    final $$MasterKanjisTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.kanjiId,
+      referencedTable: $db.masterKanjis,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterKanjisTableFilterComposer(
+            $db: $db,
+            $table: $db.masterKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableFilterComposer get readingId {
+    final $$MasterReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$KanjiReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $KanjiReadingsTable> {
+  $$KanjiReadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterKanjisTableOrderingComposer get kanjiId {
+    final $$MasterKanjisTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.kanjiId,
+      referencedTable: $db.masterKanjis,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterKanjisTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableOrderingComposer get readingId {
+    final $$MasterReadingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$KanjiReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $KanjiReadingsTable> {
+  $$KanjiReadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterKanjisTableAnnotationComposer get kanjiId {
+    final $$MasterKanjisTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.kanjiId,
+      referencedTable: $db.masterKanjis,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterKanjisTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterKanjis,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableAnnotationComposer get readingId {
+    final $$MasterReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$KanjiReadingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $KanjiReadingsTable,
+          KanjiReading,
+          $$KanjiReadingsTableFilterComposer,
+          $$KanjiReadingsTableOrderingComposer,
+          $$KanjiReadingsTableAnnotationComposer,
+          $$KanjiReadingsTableCreateCompanionBuilder,
+          $$KanjiReadingsTableUpdateCompanionBuilder,
+          (KanjiReading, $$KanjiReadingsTableReferences),
+          KanjiReading,
+          PrefetchHooks Function({bool kanjiId, bool readingId})
+        > {
+  $$KanjiReadingsTableTableManager(_$AppDatabase db, $KanjiReadingsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$KanjiReadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$KanjiReadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$KanjiReadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> kanjiId = const Value.absent(),
+                Value<String> readingId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => KanjiReadingsCompanion(
+                kanjiId: kanjiId,
+                readingId: readingId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String kanjiId,
+                required String readingId,
+                Value<int> rowid = const Value.absent(),
+              }) => KanjiReadingsCompanion.insert(
+                kanjiId: kanjiId,
+                readingId: readingId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$KanjiReadingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({kanjiId = false, readingId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (kanjiId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.kanjiId,
+                                referencedTable: $$KanjiReadingsTableReferences
+                                    ._kanjiIdTable(db),
+                                referencedColumn: $$KanjiReadingsTableReferences
+                                    ._kanjiIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (readingId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.readingId,
+                                referencedTable: $$KanjiReadingsTableReferences
+                                    ._readingIdTable(db),
+                                referencedColumn: $$KanjiReadingsTableReferences
+                                    ._readingIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$KanjiReadingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $KanjiReadingsTable,
+      KanjiReading,
+      $$KanjiReadingsTableFilterComposer,
+      $$KanjiReadingsTableOrderingComposer,
+      $$KanjiReadingsTableAnnotationComposer,
+      $$KanjiReadingsTableCreateCompanionBuilder,
+      $$KanjiReadingsTableUpdateCompanionBuilder,
+      (KanjiReading, $$KanjiReadingsTableReferences),
+      KanjiReading,
+      PrefetchHooks Function({bool kanjiId, bool readingId})
+    >;
+typedef $$VocabReadingsTableCreateCompanionBuilder =
+    VocabReadingsCompanion Function({
+      required String vocabId,
+      required String readingId,
+      Value<int> rowid,
+    });
+typedef $$VocabReadingsTableUpdateCompanionBuilder =
+    VocabReadingsCompanion Function({
+      Value<String> vocabId,
+      Value<String> readingId,
+      Value<int> rowid,
+    });
+
+final class $$VocabReadingsTableReferences
+    extends BaseReferences<_$AppDatabase, $VocabReadingsTable, VocabReading> {
+  $$VocabReadingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MasterVocabulariesTable _vocabIdTable(_$AppDatabase db) => db
+      .masterVocabularies
+      .createAlias('vocab_readings__vocab_id__master_vocabularies__id');
+
+  $$MasterVocabulariesTableProcessedTableManager get vocabId {
+    final $_column = $_itemColumn<String>('vocab_id')!;
+
+    final manager = $$MasterVocabulariesTableTableManager(
+      $_db,
+      $_db.masterVocabularies,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_vocabIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $MasterReadingsTable _readingIdTable(_$AppDatabase db) => db
+      .masterReadings
+      .createAlias('vocab_readings__reading_id__master_readings__id');
+
+  $$MasterReadingsTableProcessedTableManager get readingId {
+    final $_column = $_itemColumn<String>('reading_id')!;
+
+    final manager = $$MasterReadingsTableTableManager(
+      $_db,
+      $_db.masterReadings,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_readingIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$VocabReadingsTableFilterComposer
+    extends Composer<_$AppDatabase, $VocabReadingsTable> {
+  $$VocabReadingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterVocabulariesTableFilterComposer get vocabId {
+    final $$MasterVocabulariesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableFilterComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableFilterComposer get readingId {
+    final $$MasterReadingsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableFilterComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VocabReadingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $VocabReadingsTable> {
+  $$VocabReadingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterVocabulariesTableOrderingComposer get vocabId {
+    final $$MasterVocabulariesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.vocabId,
+      referencedTable: $db.masterVocabularies,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterVocabulariesTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterVocabularies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$MasterReadingsTableOrderingComposer get readingId {
+    final $$MasterReadingsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableOrderingComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VocabReadingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VocabReadingsTable> {
+  $$VocabReadingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$MasterVocabulariesTableAnnotationComposer get vocabId {
+    final $$MasterVocabulariesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.vocabId,
+          referencedTable: $db.masterVocabularies,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$MasterVocabulariesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.masterVocabularies,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+
+  $$MasterReadingsTableAnnotationComposer get readingId {
+    final $$MasterReadingsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.readingId,
+      referencedTable: $db.masterReadings,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MasterReadingsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.masterReadings,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VocabReadingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VocabReadingsTable,
+          VocabReading,
+          $$VocabReadingsTableFilterComposer,
+          $$VocabReadingsTableOrderingComposer,
+          $$VocabReadingsTableAnnotationComposer,
+          $$VocabReadingsTableCreateCompanionBuilder,
+          $$VocabReadingsTableUpdateCompanionBuilder,
+          (VocabReading, $$VocabReadingsTableReferences),
+          VocabReading,
+          PrefetchHooks Function({bool vocabId, bool readingId})
+        > {
+  $$VocabReadingsTableTableManager(_$AppDatabase db, $VocabReadingsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VocabReadingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VocabReadingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VocabReadingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> vocabId = const Value.absent(),
+                Value<String> readingId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VocabReadingsCompanion(
+                vocabId: vocabId,
+                readingId: readingId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String vocabId,
+                required String readingId,
+                Value<int> rowid = const Value.absent(),
+              }) => VocabReadingsCompanion.insert(
+                vocabId: vocabId,
+                readingId: readingId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$VocabReadingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({vocabId = false, readingId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (vocabId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.vocabId,
+                                referencedTable: $$VocabReadingsTableReferences
+                                    ._vocabIdTable(db),
+                                referencedColumn: $$VocabReadingsTableReferences
+                                    ._vocabIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (readingId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.readingId,
+                                referencedTable: $$VocabReadingsTableReferences
+                                    ._readingIdTable(db),
+                                referencedColumn: $$VocabReadingsTableReferences
+                                    ._readingIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$VocabReadingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VocabReadingsTable,
+      VocabReading,
+      $$VocabReadingsTableFilterComposer,
+      $$VocabReadingsTableOrderingComposer,
+      $$VocabReadingsTableAnnotationComposer,
+      $$VocabReadingsTableCreateCompanionBuilder,
+      $$VocabReadingsTableUpdateCompanionBuilder,
+      (VocabReading, $$VocabReadingsTableReferences),
+      VocabReading,
+      PrefetchHooks Function({bool vocabId, bool readingId})
     >;
 typedef $$StudySessionsTableCreateCompanionBuilder =
     StudySessionsCompanion Function({
@@ -9505,517 +21376,6 @@ typedef $$QuizResultsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $QuizResultsTable, QuizResult>,
       ),
       QuizResult,
-      PrefetchHooks Function()
-    >;
-typedef $$ReadingsTableCreateCompanionBuilder =
-    ReadingsCompanion Function({
-      required String id,
-      required String title,
-      required String passage,
-      required String question,
-      required String answer,
-      required String explanation,
-      Value<String> notes,
-      Value<String> status,
-      Value<int> rowid,
-    });
-typedef $$ReadingsTableUpdateCompanionBuilder =
-    ReadingsCompanion Function({
-      Value<String> id,
-      Value<String> title,
-      Value<String> passage,
-      Value<String> question,
-      Value<String> answer,
-      Value<String> explanation,
-      Value<String> notes,
-      Value<String> status,
-      Value<int> rowid,
-    });
-
-class $$ReadingsTableFilterComposer
-    extends Composer<_$AppDatabase, $ReadingsTable> {
-  $$ReadingsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get passage => $composableBuilder(
-    column: $table.passage,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get question => $composableBuilder(
-    column: $table.question,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get answer => $composableBuilder(
-    column: $table.answer,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get explanation => $composableBuilder(
-    column: $table.explanation,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$ReadingsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ReadingsTable> {
-  $$ReadingsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get passage => $composableBuilder(
-    column: $table.passage,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get question => $composableBuilder(
-    column: $table.question,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get answer => $composableBuilder(
-    column: $table.answer,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get explanation => $composableBuilder(
-    column: $table.explanation,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$ReadingsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ReadingsTable> {
-  $$ReadingsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get passage =>
-      $composableBuilder(column: $table.passage, builder: (column) => column);
-
-  GeneratedColumn<String> get question =>
-      $composableBuilder(column: $table.question, builder: (column) => column);
-
-  GeneratedColumn<String> get answer =>
-      $composableBuilder(column: $table.answer, builder: (column) => column);
-
-  GeneratedColumn<String> get explanation => $composableBuilder(
-    column: $table.explanation,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-}
-
-class $$ReadingsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $ReadingsTable,
-          Reading,
-          $$ReadingsTableFilterComposer,
-          $$ReadingsTableOrderingComposer,
-          $$ReadingsTableAnnotationComposer,
-          $$ReadingsTableCreateCompanionBuilder,
-          $$ReadingsTableUpdateCompanionBuilder,
-          (Reading, BaseReferences<_$AppDatabase, $ReadingsTable, Reading>),
-          Reading,
-          PrefetchHooks Function()
-        > {
-  $$ReadingsTableTableManager(_$AppDatabase db, $ReadingsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ReadingsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ReadingsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ReadingsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String> passage = const Value.absent(),
-                Value<String> question = const Value.absent(),
-                Value<String> answer = const Value.absent(),
-                Value<String> explanation = const Value.absent(),
-                Value<String> notes = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ReadingsCompanion(
-                id: id,
-                title: title,
-                passage: passage,
-                question: question,
-                answer: answer,
-                explanation: explanation,
-                notes: notes,
-                status: status,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                required String title,
-                required String passage,
-                required String question,
-                required String answer,
-                required String explanation,
-                Value<String> notes = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ReadingsCompanion.insert(
-                id: id,
-                title: title,
-                passage: passage,
-                question: question,
-                answer: answer,
-                explanation: explanation,
-                notes: notes,
-                status: status,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$ReadingsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $ReadingsTable,
-      Reading,
-      $$ReadingsTableFilterComposer,
-      $$ReadingsTableOrderingComposer,
-      $$ReadingsTableAnnotationComposer,
-      $$ReadingsTableCreateCompanionBuilder,
-      $$ReadingsTableUpdateCompanionBuilder,
-      (Reading, BaseReferences<_$AppDatabase, $ReadingsTable, Reading>),
-      Reading,
-      PrefetchHooks Function()
-    >;
-typedef $$ListeningsTableCreateCompanionBuilder =
-    ListeningsCompanion Function({
-      required String id,
-      required String title,
-      required String audioScript,
-      required String question,
-      required String answer,
-      required String explanation,
-      Value<String> notes,
-      Value<String> status,
-      Value<int> rowid,
-    });
-typedef $$ListeningsTableUpdateCompanionBuilder =
-    ListeningsCompanion Function({
-      Value<String> id,
-      Value<String> title,
-      Value<String> audioScript,
-      Value<String> question,
-      Value<String> answer,
-      Value<String> explanation,
-      Value<String> notes,
-      Value<String> status,
-      Value<int> rowid,
-    });
-
-class $$ListeningsTableFilterComposer
-    extends Composer<_$AppDatabase, $ListeningsTable> {
-  $$ListeningsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get audioScript => $composableBuilder(
-    column: $table.audioScript,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get question => $composableBuilder(
-    column: $table.question,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get answer => $composableBuilder(
-    column: $table.answer,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get explanation => $composableBuilder(
-    column: $table.explanation,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$ListeningsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ListeningsTable> {
-  $$ListeningsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get title => $composableBuilder(
-    column: $table.title,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get audioScript => $composableBuilder(
-    column: $table.audioScript,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get question => $composableBuilder(
-    column: $table.question,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get answer => $composableBuilder(
-    column: $table.answer,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get explanation => $composableBuilder(
-    column: $table.explanation,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get notes => $composableBuilder(
-    column: $table.notes,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$ListeningsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ListeningsTable> {
-  $$ListeningsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get audioScript => $composableBuilder(
-    column: $table.audioScript,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get question =>
-      $composableBuilder(column: $table.question, builder: (column) => column);
-
-  GeneratedColumn<String> get answer =>
-      $composableBuilder(column: $table.answer, builder: (column) => column);
-
-  GeneratedColumn<String> get explanation => $composableBuilder(
-    column: $table.explanation,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get notes =>
-      $composableBuilder(column: $table.notes, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-}
-
-class $$ListeningsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $ListeningsTable,
-          Listening,
-          $$ListeningsTableFilterComposer,
-          $$ListeningsTableOrderingComposer,
-          $$ListeningsTableAnnotationComposer,
-          $$ListeningsTableCreateCompanionBuilder,
-          $$ListeningsTableUpdateCompanionBuilder,
-          (
-            Listening,
-            BaseReferences<_$AppDatabase, $ListeningsTable, Listening>,
-          ),
-          Listening,
-          PrefetchHooks Function()
-        > {
-  $$ListeningsTableTableManager(_$AppDatabase db, $ListeningsTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ListeningsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ListeningsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ListeningsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<String> title = const Value.absent(),
-                Value<String> audioScript = const Value.absent(),
-                Value<String> question = const Value.absent(),
-                Value<String> answer = const Value.absent(),
-                Value<String> explanation = const Value.absent(),
-                Value<String> notes = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ListeningsCompanion(
-                id: id,
-                title: title,
-                audioScript: audioScript,
-                question: question,
-                answer: answer,
-                explanation: explanation,
-                notes: notes,
-                status: status,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String id,
-                required String title,
-                required String audioScript,
-                required String question,
-                required String answer,
-                required String explanation,
-                Value<String> notes = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ListeningsCompanion.insert(
-                id: id,
-                title: title,
-                audioScript: audioScript,
-                question: question,
-                answer: answer,
-                explanation: explanation,
-                notes: notes,
-                status: status,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$ListeningsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $ListeningsTable,
-      Listening,
-      $$ListeningsTableFilterComposer,
-      $$ListeningsTableOrderingComposer,
-      $$ListeningsTableAnnotationComposer,
-      $$ListeningsTableCreateCompanionBuilder,
-      $$ListeningsTableUpdateCompanionBuilder,
-      (Listening, BaseReferences<_$AppDatabase, $ListeningsTable, Listening>),
-      Listening,
       PrefetchHooks Function()
     >;
 typedef $$StudyPlansTableCreateCompanionBuilder =
@@ -11300,20 +22660,40 @@ class $AppDatabaseManager {
       $$MasterKanjisTableTableManager(_db, _db.masterKanjis);
   $$UserKanjisTableTableManager get userKanjis =>
       $$UserKanjisTableTableManager(_db, _db.userKanjis);
-  $$VocabulariesTableTableManager get vocabularies =>
-      $$VocabulariesTableTableManager(_db, _db.vocabularies);
-  $$GrammarsTableTableManager get grammars =>
-      $$GrammarsTableTableManager(_db, _db.grammars);
+  $$MasterVocabulariesTableTableManager get masterVocabularies =>
+      $$MasterVocabulariesTableTableManager(_db, _db.masterVocabularies);
+  $$UserVocabulariesTableTableManager get userVocabularies =>
+      $$UserVocabulariesTableTableManager(_db, _db.userVocabularies);
+  $$MasterGrammarsTableTableManager get masterGrammars =>
+      $$MasterGrammarsTableTableManager(_db, _db.masterGrammars);
+  $$UserGrammarsTableTableManager get userGrammars =>
+      $$UserGrammarsTableTableManager(_db, _db.userGrammars);
+  $$MasterReadingsTableTableManager get masterReadings =>
+      $$MasterReadingsTableTableManager(_db, _db.masterReadings);
+  $$UserReadingsTableTableManager get userReadings =>
+      $$UserReadingsTableTableManager(_db, _db.userReadings);
+  $$MasterListeningsTableTableManager get masterListenings =>
+      $$MasterListeningsTableTableManager(_db, _db.masterListenings);
+  $$UserListeningsTableTableManager get userListenings =>
+      $$UserListeningsTableTableManager(_db, _db.userListenings);
+  $$KanjiVocabsTableTableManager get kanjiVocabs =>
+      $$KanjiVocabsTableTableManager(_db, _db.kanjiVocabs);
+  $$VocabGrammarsTableTableManager get vocabGrammars =>
+      $$VocabGrammarsTableTableManager(_db, _db.vocabGrammars);
+  $$GrammarReadingsTableTableManager get grammarReadings =>
+      $$GrammarReadingsTableTableManager(_db, _db.grammarReadings);
+  $$ReadingListeningsTableTableManager get readingListenings =>
+      $$ReadingListeningsTableTableManager(_db, _db.readingListenings);
+  $$KanjiReadingsTableTableManager get kanjiReadings =>
+      $$KanjiReadingsTableTableManager(_db, _db.kanjiReadings);
+  $$VocabReadingsTableTableManager get vocabReadings =>
+      $$VocabReadingsTableTableManager(_db, _db.vocabReadings);
   $$StudySessionsTableTableManager get studySessions =>
       $$StudySessionsTableTableManager(_db, _db.studySessions);
   $$DailyGoalsTableTableManager get dailyGoals =>
       $$DailyGoalsTableTableManager(_db, _db.dailyGoals);
   $$QuizResultsTableTableManager get quizResults =>
       $$QuizResultsTableTableManager(_db, _db.quizResults);
-  $$ReadingsTableTableManager get readings =>
-      $$ReadingsTableTableManager(_db, _db.readings);
-  $$ListeningsTableTableManager get listenings =>
-      $$ListeningsTableTableManager(_db, _db.listenings);
   $$StudyPlansTableTableManager get studyPlans =>
       $$StudyPlansTableTableManager(_db, _db.studyPlans);
   $$PlannerTasksTableTableManager get plannerTasks =>
