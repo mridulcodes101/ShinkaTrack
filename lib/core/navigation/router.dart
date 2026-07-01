@@ -13,6 +13,9 @@ import 'package:shinka_track_n3/features/study/presentation/screens/add_kanji_sc
 import 'package:shinka_track_n3/features/kanji/presentation/screens/master_library_screen.dart';
 import 'package:shinka_track_n3/features/kanji/presentation/screens/user_collection_screen.dart';
 import 'package:shinka_track_n3/features/kanji/presentation/screens/kanji_details_screen.dart' as new_kanji;
+import 'package:shinka_track_n3/features/vocabulary/presentation/screens/master_library_screen.dart' as v_lib;
+import 'package:shinka_track_n3/features/vocabulary/presentation/screens/user_collection_screen.dart' as v_coll;
+import 'package:shinka_track_n3/features/vocabulary/presentation/screens/vocabulary_details_screen.dart' as v_details;
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
 import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/review_screen.dart';
@@ -63,6 +66,24 @@ final goRouter = GoRouter(
       path: '/kanji/collection',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const UserCollectionScreen(),
+    ),
+    GoRoute(
+      path: '/vocabulary_details',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id']!;
+        return v_details.VocabularyDetailsScreen(vocabId: id);
+      },
+    ),
+    GoRoute(
+      path: '/vocabulary/library',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const v_lib.MasterLibraryScreen(),
+    ),
+    GoRoute(
+      path: '/vocabulary/collection',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const v_coll.UserCollectionScreen(),
     ),
     ShellRoute(
       builder: (context, state, child) {
