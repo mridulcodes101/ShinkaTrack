@@ -19,6 +19,10 @@ import 'package:shinka_track_n3/features/vocabulary/presentation/screens/vocabul
 import 'package:shinka_track_n3/features/grammar/presentation/screens/master_library_screen.dart' as g_lib;
 import 'package:shinka_track_n3/features/grammar/presentation/screens/user_collection_screen.dart' as g_coll;
 import 'package:shinka_track_n3/features/grammar/presentation/screens/grammar_details_screen.dart' as g_details;
+import 'package:shinka_track_n3/features/reading/presentation/screens/master_library_screen.dart' as r_lib;
+import 'package:shinka_track_n3/features/reading/presentation/screens/user_collection_screen.dart' as r_coll;
+import 'package:shinka_track_n3/features/reading/presentation/screens/reading_details_screen.dart' as r_details;
+import 'package:shinka_track_n3/features/reading/presentation/screens/reading_mode_screen.dart' as r_mode;
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
 import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/review_screen.dart';
@@ -105,6 +109,32 @@ final goRouter = GoRouter(
       path: '/grammar/collection',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const g_coll.UserCollectionScreen(),
+    ),
+    GoRoute(
+      path: '/reading_details',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id']!;
+        return r_details.ReadingDetailsScreen(readingId: id);
+      },
+    ),
+    GoRoute(
+      path: '/reading_mode',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id']!;
+        return r_mode.ReadingModeScreen(readingId: id);
+      },
+    ),
+    GoRoute(
+      path: '/reading/library',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const r_lib.MasterLibraryScreen(),
+    ),
+    GoRoute(
+      path: '/reading/collection',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const r_coll.UserCollectionScreen(),
     ),
     ShellRoute(
       builder: (context, state, child) {
