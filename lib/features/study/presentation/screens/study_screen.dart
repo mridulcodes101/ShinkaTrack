@@ -175,20 +175,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                 total: grammar.length,
                 due: grammar.where((g) => g.status == StudyStatus.learning).length,
                 onContinue: () {
-                  setState(() {
-                    _filterCollectionOnly = true;
-                    _showHub = false;
-                    _tabController.index = 2;
-                    _updateFab();
-                  });
+                  context.push('/grammar/collection');
                 },
                 onBrowse: () {
-                  setState(() {
-                    _filterCollectionOnly = false;
-                    _showHub = false;
-                    _tabController.index = 2;
-                    _updateFab();
-                  });
+                  context.push('/grammar/library');
                 },
               ),
               const SizedBox(height: AppSpacing.lg),
