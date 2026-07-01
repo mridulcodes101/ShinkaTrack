@@ -23,6 +23,10 @@ import 'package:shinka_track_n3/features/reading/presentation/screens/master_lib
 import 'package:shinka_track_n3/features/reading/presentation/screens/user_collection_screen.dart' as r_coll;
 import 'package:shinka_track_n3/features/reading/presentation/screens/reading_details_screen.dart' as r_details;
 import 'package:shinka_track_n3/features/reading/presentation/screens/reading_mode_screen.dart' as r_mode;
+import 'package:shinka_track_n3/features/listening/presentation/screens/master_library_screen.dart' as l_lib;
+import 'package:shinka_track_n3/features/listening/presentation/screens/user_collection_screen.dart' as l_coll;
+import 'package:shinka_track_n3/features/listening/presentation/screens/lesson_details_screen.dart' as l_details;
+import 'package:shinka_track_n3/features/listening/presentation/screens/listening_player_screen.dart' as l_player;
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
 import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/review_screen.dart';
@@ -135,6 +139,32 @@ final goRouter = GoRouter(
       path: '/reading/collection',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const r_coll.UserCollectionScreen(),
+    ),
+    GoRoute(
+      path: '/listening_details',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id']!;
+        return l_details.LessonDetailsScreen(lessonId: id);
+      },
+    ),
+    GoRoute(
+      path: '/listening_player',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final id = state.uri.queryParameters['id']!;
+        return l_player.ListeningPlayerScreen(lessonId: id);
+      },
+    ),
+    GoRoute(
+      path: '/listening/library',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const l_lib.MasterLibraryScreen(),
+    ),
+    GoRoute(
+      path: '/listening/collection',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const l_coll.UserCollectionScreen(),
     ),
     ShellRoute(
       builder: (context, state, child) {
