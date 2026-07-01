@@ -190,20 +190,10 @@ class _StudyScreenState extends ConsumerState<StudyScreen> with SingleTickerProv
                 total: reading.length,
                 due: reading.where((r) => r.status == StudyStatus.learning).length,
                 onContinue: () {
-                  setState(() {
-                    _filterCollectionOnly = true;
-                    _showHub = false;
-                    _tabController.index = 3;
-                    _updateFab();
-                  });
+                  context.push('/reading/collection');
                 },
                 onBrowse: () {
-                  setState(() {
-                    _filterCollectionOnly = false;
-                    _showHub = false;
-                    _tabController.index = 3;
-                    _updateFab();
-                  });
+                  context.push('/reading/library');
                 },
               ),
               const SizedBox(height: AppSpacing.lg),
