@@ -325,6 +325,20 @@ class ReviewItems extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+class ReviewHistoryRecords extends Table {
+  TextColumn get id => text()();
+  TextColumn get itemId => text()();
+  TextColumn get itemType => text()();
+  DateTimeColumn get timestamp => dateTime()();
+  TextColumn get result => text()(); // correct, incorrect, Again, Hard, Good, Easy
+  IntColumn get timeTakenSeconds => integer()();
+  IntColumn get prevInterval => integer()();
+  IntColumn get nextInterval => integer()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class UserStats extends Table {
   TextColumn get id => text()(); // "user"
   IntColumn get xp => integer().withDefault(const Constant(0))();
@@ -386,7 +400,8 @@ class WeeklyGoals extends Table {
   ReviewItems,
   UserStats,
   Achievements,
-  WeeklyGoals
+  WeeklyGoals,
+  ReviewHistoryRecords
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
@@ -420,6 +435,7 @@ class AppDatabase extends _$AppDatabase {
       await delete(plannerTasks).go();
       await delete(reviewItems).go();
       await delete(weeklyGoals).go();
+      await delete(reviewHistoryRecords).go();
 
       await _seedDatabase();
     });

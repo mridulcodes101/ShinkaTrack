@@ -12664,6 +12664,531 @@ class WeeklyGoalsCompanion extends UpdateCompanion<WeeklyGoal> {
   }
 }
 
+class $ReviewHistoryRecordsTable extends ReviewHistoryRecords
+    with TableInfo<$ReviewHistoryRecordsTable, ReviewHistoryRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReviewHistoryRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+    'item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _itemTypeMeta = const VerificationMeta(
+    'itemType',
+  );
+  @override
+  late final GeneratedColumn<String> itemType = GeneratedColumn<String>(
+    'item_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resultMeta = const VerificationMeta('result');
+  @override
+  late final GeneratedColumn<String> result = GeneratedColumn<String>(
+    'result',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeTakenSecondsMeta = const VerificationMeta(
+    'timeTakenSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> timeTakenSeconds = GeneratedColumn<int>(
+    'time_taken_seconds',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _prevIntervalMeta = const VerificationMeta(
+    'prevInterval',
+  );
+  @override
+  late final GeneratedColumn<int> prevInterval = GeneratedColumn<int>(
+    'prev_interval',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nextIntervalMeta = const VerificationMeta(
+    'nextInterval',
+  );
+  @override
+  late final GeneratedColumn<int> nextInterval = GeneratedColumn<int>(
+    'next_interval',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    itemId,
+    itemType,
+    timestamp,
+    result,
+    timeTakenSeconds,
+    prevInterval,
+    nextInterval,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'review_history_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ReviewHistoryRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(
+        _itemIdMeta,
+        itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('item_type')) {
+      context.handle(
+        _itemTypeMeta,
+        itemType.isAcceptableOrUnknown(data['item_type']!, _itemTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_itemTypeMeta);
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('result')) {
+      context.handle(
+        _resultMeta,
+        result.isAcceptableOrUnknown(data['result']!, _resultMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_resultMeta);
+    }
+    if (data.containsKey('time_taken_seconds')) {
+      context.handle(
+        _timeTakenSecondsMeta,
+        timeTakenSeconds.isAcceptableOrUnknown(
+          data['time_taken_seconds']!,
+          _timeTakenSecondsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_timeTakenSecondsMeta);
+    }
+    if (data.containsKey('prev_interval')) {
+      context.handle(
+        _prevIntervalMeta,
+        prevInterval.isAcceptableOrUnknown(
+          data['prev_interval']!,
+          _prevIntervalMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_prevIntervalMeta);
+    }
+    if (data.containsKey('next_interval')) {
+      context.handle(
+        _nextIntervalMeta,
+        nextInterval.isAcceptableOrUnknown(
+          data['next_interval']!,
+          _nextIntervalMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_nextIntervalMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReviewHistoryRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReviewHistoryRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      itemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_id'],
+      )!,
+      itemType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_type'],
+      )!,
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      result: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result'],
+      )!,
+      timeTakenSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}time_taken_seconds'],
+      )!,
+      prevInterval: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}prev_interval'],
+      )!,
+      nextInterval: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}next_interval'],
+      )!,
+    );
+  }
+
+  @override
+  $ReviewHistoryRecordsTable createAlias(String alias) {
+    return $ReviewHistoryRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class ReviewHistoryRecord extends DataClass
+    implements Insertable<ReviewHistoryRecord> {
+  final String id;
+  final String itemId;
+  final String itemType;
+  final DateTime timestamp;
+  final String result;
+  final int timeTakenSeconds;
+  final int prevInterval;
+  final int nextInterval;
+  const ReviewHistoryRecord({
+    required this.id,
+    required this.itemId,
+    required this.itemType,
+    required this.timestamp,
+    required this.result,
+    required this.timeTakenSeconds,
+    required this.prevInterval,
+    required this.nextInterval,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['item_id'] = Variable<String>(itemId);
+    map['item_type'] = Variable<String>(itemType);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['result'] = Variable<String>(result);
+    map['time_taken_seconds'] = Variable<int>(timeTakenSeconds);
+    map['prev_interval'] = Variable<int>(prevInterval);
+    map['next_interval'] = Variable<int>(nextInterval);
+    return map;
+  }
+
+  ReviewHistoryRecordsCompanion toCompanion(bool nullToAbsent) {
+    return ReviewHistoryRecordsCompanion(
+      id: Value(id),
+      itemId: Value(itemId),
+      itemType: Value(itemType),
+      timestamp: Value(timestamp),
+      result: Value(result),
+      timeTakenSeconds: Value(timeTakenSeconds),
+      prevInterval: Value(prevInterval),
+      nextInterval: Value(nextInterval),
+    );
+  }
+
+  factory ReviewHistoryRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReviewHistoryRecord(
+      id: serializer.fromJson<String>(json['id']),
+      itemId: serializer.fromJson<String>(json['itemId']),
+      itemType: serializer.fromJson<String>(json['itemType']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      result: serializer.fromJson<String>(json['result']),
+      timeTakenSeconds: serializer.fromJson<int>(json['timeTakenSeconds']),
+      prevInterval: serializer.fromJson<int>(json['prevInterval']),
+      nextInterval: serializer.fromJson<int>(json['nextInterval']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'itemId': serializer.toJson<String>(itemId),
+      'itemType': serializer.toJson<String>(itemType),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'result': serializer.toJson<String>(result),
+      'timeTakenSeconds': serializer.toJson<int>(timeTakenSeconds),
+      'prevInterval': serializer.toJson<int>(prevInterval),
+      'nextInterval': serializer.toJson<int>(nextInterval),
+    };
+  }
+
+  ReviewHistoryRecord copyWith({
+    String? id,
+    String? itemId,
+    String? itemType,
+    DateTime? timestamp,
+    String? result,
+    int? timeTakenSeconds,
+    int? prevInterval,
+    int? nextInterval,
+  }) => ReviewHistoryRecord(
+    id: id ?? this.id,
+    itemId: itemId ?? this.itemId,
+    itemType: itemType ?? this.itemType,
+    timestamp: timestamp ?? this.timestamp,
+    result: result ?? this.result,
+    timeTakenSeconds: timeTakenSeconds ?? this.timeTakenSeconds,
+    prevInterval: prevInterval ?? this.prevInterval,
+    nextInterval: nextInterval ?? this.nextInterval,
+  );
+  ReviewHistoryRecord copyWithCompanion(ReviewHistoryRecordsCompanion data) {
+    return ReviewHistoryRecord(
+      id: data.id.present ? data.id.value : this.id,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      itemType: data.itemType.present ? data.itemType.value : this.itemType,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      result: data.result.present ? data.result.value : this.result,
+      timeTakenSeconds: data.timeTakenSeconds.present
+          ? data.timeTakenSeconds.value
+          : this.timeTakenSeconds,
+      prevInterval: data.prevInterval.present
+          ? data.prevInterval.value
+          : this.prevInterval,
+      nextInterval: data.nextInterval.present
+          ? data.nextInterval.value
+          : this.nextInterval,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReviewHistoryRecord(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('itemType: $itemType, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('result: $result, ')
+          ..write('timeTakenSeconds: $timeTakenSeconds, ')
+          ..write('prevInterval: $prevInterval, ')
+          ..write('nextInterval: $nextInterval')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    itemId,
+    itemType,
+    timestamp,
+    result,
+    timeTakenSeconds,
+    prevInterval,
+    nextInterval,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReviewHistoryRecord &&
+          other.id == this.id &&
+          other.itemId == this.itemId &&
+          other.itemType == this.itemType &&
+          other.timestamp == this.timestamp &&
+          other.result == this.result &&
+          other.timeTakenSeconds == this.timeTakenSeconds &&
+          other.prevInterval == this.prevInterval &&
+          other.nextInterval == this.nextInterval);
+}
+
+class ReviewHistoryRecordsCompanion
+    extends UpdateCompanion<ReviewHistoryRecord> {
+  final Value<String> id;
+  final Value<String> itemId;
+  final Value<String> itemType;
+  final Value<DateTime> timestamp;
+  final Value<String> result;
+  final Value<int> timeTakenSeconds;
+  final Value<int> prevInterval;
+  final Value<int> nextInterval;
+  final Value<int> rowid;
+  const ReviewHistoryRecordsCompanion({
+    this.id = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.itemType = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.result = const Value.absent(),
+    this.timeTakenSeconds = const Value.absent(),
+    this.prevInterval = const Value.absent(),
+    this.nextInterval = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReviewHistoryRecordsCompanion.insert({
+    required String id,
+    required String itemId,
+    required String itemType,
+    required DateTime timestamp,
+    required String result,
+    required int timeTakenSeconds,
+    required int prevInterval,
+    required int nextInterval,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       itemId = Value(itemId),
+       itemType = Value(itemType),
+       timestamp = Value(timestamp),
+       result = Value(result),
+       timeTakenSeconds = Value(timeTakenSeconds),
+       prevInterval = Value(prevInterval),
+       nextInterval = Value(nextInterval);
+  static Insertable<ReviewHistoryRecord> custom({
+    Expression<String>? id,
+    Expression<String>? itemId,
+    Expression<String>? itemType,
+    Expression<DateTime>? timestamp,
+    Expression<String>? result,
+    Expression<int>? timeTakenSeconds,
+    Expression<int>? prevInterval,
+    Expression<int>? nextInterval,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (itemId != null) 'item_id': itemId,
+      if (itemType != null) 'item_type': itemType,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (result != null) 'result': result,
+      if (timeTakenSeconds != null) 'time_taken_seconds': timeTakenSeconds,
+      if (prevInterval != null) 'prev_interval': prevInterval,
+      if (nextInterval != null) 'next_interval': nextInterval,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReviewHistoryRecordsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? itemId,
+    Value<String>? itemType,
+    Value<DateTime>? timestamp,
+    Value<String>? result,
+    Value<int>? timeTakenSeconds,
+    Value<int>? prevInterval,
+    Value<int>? nextInterval,
+    Value<int>? rowid,
+  }) {
+    return ReviewHistoryRecordsCompanion(
+      id: id ?? this.id,
+      itemId: itemId ?? this.itemId,
+      itemType: itemType ?? this.itemType,
+      timestamp: timestamp ?? this.timestamp,
+      result: result ?? this.result,
+      timeTakenSeconds: timeTakenSeconds ?? this.timeTakenSeconds,
+      prevInterval: prevInterval ?? this.prevInterval,
+      nextInterval: nextInterval ?? this.nextInterval,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (itemType.present) {
+      map['item_type'] = Variable<String>(itemType.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (result.present) {
+      map['result'] = Variable<String>(result.value);
+    }
+    if (timeTakenSeconds.present) {
+      map['time_taken_seconds'] = Variable<int>(timeTakenSeconds.value);
+    }
+    if (prevInterval.present) {
+      map['prev_interval'] = Variable<int>(prevInterval.value);
+    }
+    if (nextInterval.present) {
+      map['next_interval'] = Variable<int>(nextInterval.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReviewHistoryRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('itemId: $itemId, ')
+          ..write('itemType: $itemType, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('result: $result, ')
+          ..write('timeTakenSeconds: $timeTakenSeconds, ')
+          ..write('prevInterval: $prevInterval, ')
+          ..write('nextInterval: $nextInterval, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -12700,6 +13225,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $UserStatsTable userStats = $UserStatsTable(this);
   late final $AchievementsTable achievements = $AchievementsTable(this);
   late final $WeeklyGoalsTable weeklyGoals = $WeeklyGoalsTable(this);
+  late final $ReviewHistoryRecordsTable reviewHistoryRecords =
+      $ReviewHistoryRecordsTable(this);
   late final Index idxMasterKanjisKanji = Index(
     'idx_master_kanjis_kanji',
     'CREATE INDEX idx_master_kanjis_kanji ON master_kanjis (kanji)',
@@ -12762,6 +13289,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     userStats,
     achievements,
     weeklyGoals,
+    reviewHistoryRecords,
     idxMasterKanjisKanji,
     idxMasterKanjisJlpt,
     idxUserKanjisMasterId,
@@ -22904,6 +23432,285 @@ typedef $$WeeklyGoalsTableProcessedTableManager =
       WeeklyGoal,
       PrefetchHooks Function()
     >;
+typedef $$ReviewHistoryRecordsTableCreateCompanionBuilder =
+    ReviewHistoryRecordsCompanion Function({
+      required String id,
+      required String itemId,
+      required String itemType,
+      required DateTime timestamp,
+      required String result,
+      required int timeTakenSeconds,
+      required int prevInterval,
+      required int nextInterval,
+      Value<int> rowid,
+    });
+typedef $$ReviewHistoryRecordsTableUpdateCompanionBuilder =
+    ReviewHistoryRecordsCompanion Function({
+      Value<String> id,
+      Value<String> itemId,
+      Value<String> itemType,
+      Value<DateTime> timestamp,
+      Value<String> result,
+      Value<int> timeTakenSeconds,
+      Value<int> prevInterval,
+      Value<int> nextInterval,
+      Value<int> rowid,
+    });
+
+class $$ReviewHistoryRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $ReviewHistoryRecordsTable> {
+  $$ReviewHistoryRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get itemType => $composableBuilder(
+    column: $table.itemType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get timeTakenSeconds => $composableBuilder(
+    column: $table.timeTakenSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get prevInterval => $composableBuilder(
+    column: $table.prevInterval,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get nextInterval => $composableBuilder(
+    column: $table.nextInterval,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ReviewHistoryRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ReviewHistoryRecordsTable> {
+  $$ReviewHistoryRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get itemType => $composableBuilder(
+    column: $table.itemType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get timeTakenSeconds => $composableBuilder(
+    column: $table.timeTakenSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get prevInterval => $composableBuilder(
+    column: $table.prevInterval,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get nextInterval => $composableBuilder(
+    column: $table.nextInterval,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ReviewHistoryRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ReviewHistoryRecordsTable> {
+  $$ReviewHistoryRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get itemType =>
+      $composableBuilder(column: $table.itemType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => column);
+
+  GeneratedColumn<int> get timeTakenSeconds => $composableBuilder(
+    column: $table.timeTakenSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get prevInterval => $composableBuilder(
+    column: $table.prevInterval,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get nextInterval => $composableBuilder(
+    column: $table.nextInterval,
+    builder: (column) => column,
+  );
+}
+
+class $$ReviewHistoryRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ReviewHistoryRecordsTable,
+          ReviewHistoryRecord,
+          $$ReviewHistoryRecordsTableFilterComposer,
+          $$ReviewHistoryRecordsTableOrderingComposer,
+          $$ReviewHistoryRecordsTableAnnotationComposer,
+          $$ReviewHistoryRecordsTableCreateCompanionBuilder,
+          $$ReviewHistoryRecordsTableUpdateCompanionBuilder,
+          (
+            ReviewHistoryRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $ReviewHistoryRecordsTable,
+              ReviewHistoryRecord
+            >,
+          ),
+          ReviewHistoryRecord,
+          PrefetchHooks Function()
+        > {
+  $$ReviewHistoryRecordsTableTableManager(
+    _$AppDatabase db,
+    $ReviewHistoryRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReviewHistoryRecordsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReviewHistoryRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$ReviewHistoryRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> itemId = const Value.absent(),
+                Value<String> itemType = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<String> result = const Value.absent(),
+                Value<int> timeTakenSeconds = const Value.absent(),
+                Value<int> prevInterval = const Value.absent(),
+                Value<int> nextInterval = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ReviewHistoryRecordsCompanion(
+                id: id,
+                itemId: itemId,
+                itemType: itemType,
+                timestamp: timestamp,
+                result: result,
+                timeTakenSeconds: timeTakenSeconds,
+                prevInterval: prevInterval,
+                nextInterval: nextInterval,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String itemId,
+                required String itemType,
+                required DateTime timestamp,
+                required String result,
+                required int timeTakenSeconds,
+                required int prevInterval,
+                required int nextInterval,
+                Value<int> rowid = const Value.absent(),
+              }) => ReviewHistoryRecordsCompanion.insert(
+                id: id,
+                itemId: itemId,
+                itemType: itemType,
+                timestamp: timestamp,
+                result: result,
+                timeTakenSeconds: timeTakenSeconds,
+                prevInterval: prevInterval,
+                nextInterval: nextInterval,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ReviewHistoryRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ReviewHistoryRecordsTable,
+      ReviewHistoryRecord,
+      $$ReviewHistoryRecordsTableFilterComposer,
+      $$ReviewHistoryRecordsTableOrderingComposer,
+      $$ReviewHistoryRecordsTableAnnotationComposer,
+      $$ReviewHistoryRecordsTableCreateCompanionBuilder,
+      $$ReviewHistoryRecordsTableUpdateCompanionBuilder,
+      (
+        ReviewHistoryRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $ReviewHistoryRecordsTable,
+          ReviewHistoryRecord
+        >,
+      ),
+      ReviewHistoryRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -22958,4 +23765,6 @@ class $AppDatabaseManager {
       $$AchievementsTableTableManager(_db, _db.achievements);
   $$WeeklyGoalsTableTableManager get weeklyGoals =>
       $$WeeklyGoalsTableTableManager(_db, _db.weeklyGoals);
+  $$ReviewHistoryRecordsTableTableManager get reviewHistoryRecords =>
+      $$ReviewHistoryRecordsTableTableManager(_db, _db.reviewHistoryRecords);
 }

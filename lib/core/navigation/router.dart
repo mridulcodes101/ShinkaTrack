@@ -29,7 +29,9 @@ import 'package:shinka_track_n3/features/listening/presentation/screens/lesson_d
 import 'package:shinka_track_n3/features/listening/presentation/screens/listening_player_screen.dart' as l_player;
 import 'package:shinka_track_n3/features/study/presentation/screens/admin_dashboard_screen.dart';
 import 'package:shinka_track_n3/features/settings/presentation/screens/developer_options_screen.dart';
-import 'package:shinka_track_n3/features/study/presentation/screens/review_screen.dart';
+import 'package:shinka_track_n3/features/review/presentation/screens/review_home_screen.dart' as rev_home;
+import 'package:shinka_track_n3/features/review/presentation/screens/review_session_screen.dart' as rev_session;
+import 'package:shinka_track_n3/features/review/presentation/screens/session_complete_screen.dart' as rev_complete;
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -184,7 +186,15 @@ final goRouter = GoRouter(
         ),
         GoRoute(
           path: '/review',
-          builder: (context, state) => const ReviewScreen(),
+          builder: (context, state) => const rev_home.ReviewHomeScreen(),
+        ),
+        GoRoute(
+          path: '/review/session',
+          builder: (context, state) => const rev_session.ReviewSessionScreen(),
+        ),
+        GoRoute(
+          path: '/review/complete',
+          builder: (context, state) => const rev_complete.SessionCompleteScreen(),
         ),
         GoRoute(
           path: '/planner',
