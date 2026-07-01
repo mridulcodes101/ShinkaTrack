@@ -10374,6 +10374,37 @@ class $StudyPlansTable extends StudyPlans
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _goalMeta = const VerificationMeta('goal');
+  @override
+  late final GeneratedColumn<String> goal = GeneratedColumn<String>(
+    'goal',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _studyDaysMeta = const VerificationMeta(
+    'studyDays',
+  );
+  @override
+  late final GeneratedColumn<String> studyDays = GeneratedColumn<String>(
+    'study_days',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resourcesMeta = const VerificationMeta(
+    'resources',
+  );
+  @override
+  late final GeneratedColumn<String> resources = GeneratedColumn<String>(
+    'resources',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -10381,6 +10412,9 @@ class $StudyPlansTable extends StudyPlans
     targetDate,
     availableHours,
     isActive,
+    goal,
+    studyDays,
+    resources,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -10432,6 +10466,24 @@ class $StudyPlansTable extends StudyPlans
         isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
       );
     }
+    if (data.containsKey('goal')) {
+      context.handle(
+        _goalMeta,
+        goal.isAcceptableOrUnknown(data['goal']!, _goalMeta),
+      );
+    }
+    if (data.containsKey('study_days')) {
+      context.handle(
+        _studyDaysMeta,
+        studyDays.isAcceptableOrUnknown(data['study_days']!, _studyDaysMeta),
+      );
+    }
+    if (data.containsKey('resources')) {
+      context.handle(
+        _resourcesMeta,
+        resources.isAcceptableOrUnknown(data['resources']!, _resourcesMeta),
+      );
+    }
     return context;
   }
 
@@ -10461,6 +10513,18 @@ class $StudyPlansTable extends StudyPlans
         DriftSqlType.bool,
         data['${effectivePrefix}is_active'],
       )!,
+      goal: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}goal'],
+      ),
+      studyDays: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}study_days'],
+      ),
+      resources: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}resources'],
+      ),
     );
   }
 
@@ -10476,12 +10540,18 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
   final DateTime targetDate;
   final double availableHours;
   final bool isActive;
+  final String? goal;
+  final String? studyDays;
+  final String? resources;
   const StudyPlan({
     required this.id,
     required this.startDate,
     required this.targetDate,
     required this.availableHours,
     required this.isActive,
+    this.goal,
+    this.studyDays,
+    this.resources,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10491,6 +10561,15 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
     map['target_date'] = Variable<DateTime>(targetDate);
     map['available_hours'] = Variable<double>(availableHours);
     map['is_active'] = Variable<bool>(isActive);
+    if (!nullToAbsent || goal != null) {
+      map['goal'] = Variable<String>(goal);
+    }
+    if (!nullToAbsent || studyDays != null) {
+      map['study_days'] = Variable<String>(studyDays);
+    }
+    if (!nullToAbsent || resources != null) {
+      map['resources'] = Variable<String>(resources);
+    }
     return map;
   }
 
@@ -10501,6 +10580,13 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
       targetDate: Value(targetDate),
       availableHours: Value(availableHours),
       isActive: Value(isActive),
+      goal: goal == null && nullToAbsent ? const Value.absent() : Value(goal),
+      studyDays: studyDays == null && nullToAbsent
+          ? const Value.absent()
+          : Value(studyDays),
+      resources: resources == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resources),
     );
   }
 
@@ -10515,6 +10601,9 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
       targetDate: serializer.fromJson<DateTime>(json['targetDate']),
       availableHours: serializer.fromJson<double>(json['availableHours']),
       isActive: serializer.fromJson<bool>(json['isActive']),
+      goal: serializer.fromJson<String?>(json['goal']),
+      studyDays: serializer.fromJson<String?>(json['studyDays']),
+      resources: serializer.fromJson<String?>(json['resources']),
     );
   }
   @override
@@ -10526,6 +10615,9 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
       'targetDate': serializer.toJson<DateTime>(targetDate),
       'availableHours': serializer.toJson<double>(availableHours),
       'isActive': serializer.toJson<bool>(isActive),
+      'goal': serializer.toJson<String?>(goal),
+      'studyDays': serializer.toJson<String?>(studyDays),
+      'resources': serializer.toJson<String?>(resources),
     };
   }
 
@@ -10535,12 +10627,18 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
     DateTime? targetDate,
     double? availableHours,
     bool? isActive,
+    Value<String?> goal = const Value.absent(),
+    Value<String?> studyDays = const Value.absent(),
+    Value<String?> resources = const Value.absent(),
   }) => StudyPlan(
     id: id ?? this.id,
     startDate: startDate ?? this.startDate,
     targetDate: targetDate ?? this.targetDate,
     availableHours: availableHours ?? this.availableHours,
     isActive: isActive ?? this.isActive,
+    goal: goal.present ? goal.value : this.goal,
+    studyDays: studyDays.present ? studyDays.value : this.studyDays,
+    resources: resources.present ? resources.value : this.resources,
   );
   StudyPlan copyWithCompanion(StudyPlansCompanion data) {
     return StudyPlan(
@@ -10553,6 +10651,9 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
           ? data.availableHours.value
           : this.availableHours,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      goal: data.goal.present ? data.goal.value : this.goal,
+      studyDays: data.studyDays.present ? data.studyDays.value : this.studyDays,
+      resources: data.resources.present ? data.resources.value : this.resources,
     );
   }
 
@@ -10563,14 +10664,25 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
           ..write('startDate: $startDate, ')
           ..write('targetDate: $targetDate, ')
           ..write('availableHours: $availableHours, ')
-          ..write('isActive: $isActive')
+          ..write('isActive: $isActive, ')
+          ..write('goal: $goal, ')
+          ..write('studyDays: $studyDays, ')
+          ..write('resources: $resources')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, startDate, targetDate, availableHours, isActive);
+  int get hashCode => Object.hash(
+    id,
+    startDate,
+    targetDate,
+    availableHours,
+    isActive,
+    goal,
+    studyDays,
+    resources,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10579,7 +10691,10 @@ class StudyPlan extends DataClass implements Insertable<StudyPlan> {
           other.startDate == this.startDate &&
           other.targetDate == this.targetDate &&
           other.availableHours == this.availableHours &&
-          other.isActive == this.isActive);
+          other.isActive == this.isActive &&
+          other.goal == this.goal &&
+          other.studyDays == this.studyDays &&
+          other.resources == this.resources);
 }
 
 class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
@@ -10588,6 +10703,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
   final Value<DateTime> targetDate;
   final Value<double> availableHours;
   final Value<bool> isActive;
+  final Value<String?> goal;
+  final Value<String?> studyDays;
+  final Value<String?> resources;
   final Value<int> rowid;
   const StudyPlansCompanion({
     this.id = const Value.absent(),
@@ -10595,6 +10713,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
     this.targetDate = const Value.absent(),
     this.availableHours = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.goal = const Value.absent(),
+    this.studyDays = const Value.absent(),
+    this.resources = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StudyPlansCompanion.insert({
@@ -10603,6 +10724,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
     required DateTime targetDate,
     required double availableHours,
     this.isActive = const Value.absent(),
+    this.goal = const Value.absent(),
+    this.studyDays = const Value.absent(),
+    this.resources = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        startDate = Value(startDate),
@@ -10614,6 +10738,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
     Expression<DateTime>? targetDate,
     Expression<double>? availableHours,
     Expression<bool>? isActive,
+    Expression<String>? goal,
+    Expression<String>? studyDays,
+    Expression<String>? resources,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -10622,6 +10749,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
       if (targetDate != null) 'target_date': targetDate,
       if (availableHours != null) 'available_hours': availableHours,
       if (isActive != null) 'is_active': isActive,
+      if (goal != null) 'goal': goal,
+      if (studyDays != null) 'study_days': studyDays,
+      if (resources != null) 'resources': resources,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -10632,6 +10762,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
     Value<DateTime>? targetDate,
     Value<double>? availableHours,
     Value<bool>? isActive,
+    Value<String?>? goal,
+    Value<String?>? studyDays,
+    Value<String?>? resources,
     Value<int>? rowid,
   }) {
     return StudyPlansCompanion(
@@ -10640,6 +10773,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
       targetDate: targetDate ?? this.targetDate,
       availableHours: availableHours ?? this.availableHours,
       isActive: isActive ?? this.isActive,
+      goal: goal ?? this.goal,
+      studyDays: studyDays ?? this.studyDays,
+      resources: resources ?? this.resources,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -10662,6 +10798,15 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
+    if (goal.present) {
+      map['goal'] = Variable<String>(goal.value);
+    }
+    if (studyDays.present) {
+      map['study_days'] = Variable<String>(studyDays.value);
+    }
+    if (resources.present) {
+      map['resources'] = Variable<String>(resources.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -10676,6 +10821,9 @@ class StudyPlansCompanion extends UpdateCompanion<StudyPlan> {
           ..write('targetDate: $targetDate, ')
           ..write('availableHours: $availableHours, ')
           ..write('isActive: $isActive, ')
+          ..write('goal: $goal, ')
+          ..write('studyDays: $studyDays, ')
+          ..write('resources: $resources, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10756,6 +10904,61 @@ class $PlannerTasksTable extends PlannerTasks
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _durationMeta = const VerificationMeta(
+    'duration',
+  );
+  @override
+  late final GeneratedColumn<int> duration = GeneratedColumn<int>(
+    'duration',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _priorityMeta = const VerificationMeta(
+    'priority',
+  );
+  @override
+  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
+    'priority',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _completionMeta = const VerificationMeta(
+    'completion',
+  );
+  @override
+  late final GeneratedColumn<double> completion = GeneratedColumn<double>(
+    'completion',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -10764,6 +10967,11 @@ class $PlannerTasksTable extends PlannerTasks
     itemId,
     isCompleted,
     isReview,
+    duration,
+    priority,
+    completion,
+    createdAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -10821,6 +11029,36 @@ class $PlannerTasksTable extends PlannerTasks
         isReview.isAcceptableOrUnknown(data['is_review']!, _isReviewMeta),
       );
     }
+    if (data.containsKey('duration')) {
+      context.handle(
+        _durationMeta,
+        duration.isAcceptableOrUnknown(data['duration']!, _durationMeta),
+      );
+    }
+    if (data.containsKey('priority')) {
+      context.handle(
+        _priorityMeta,
+        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
+      );
+    }
+    if (data.containsKey('completion')) {
+      context.handle(
+        _completionMeta,
+        completion.isAcceptableOrUnknown(data['completion']!, _completionMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -10854,6 +11092,26 @@ class $PlannerTasksTable extends PlannerTasks
         DriftSqlType.bool,
         data['${effectivePrefix}is_review'],
       )!,
+      duration: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration'],
+      ),
+      priority: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}priority'],
+      ),
+      completion: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}completion'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
     );
   }
 
@@ -10870,6 +11128,11 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
   final String itemId;
   final bool isCompleted;
   final bool isReview;
+  final int? duration;
+  final int? priority;
+  final double? completion;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
   const PlannerTask({
     required this.id,
     required this.date,
@@ -10877,6 +11140,11 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
     required this.itemId,
     required this.isCompleted,
     required this.isReview,
+    this.duration,
+    this.priority,
+    this.completion,
+    this.createdAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10887,6 +11155,21 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
     map['item_id'] = Variable<String>(itemId);
     map['is_completed'] = Variable<bool>(isCompleted);
     map['is_review'] = Variable<bool>(isReview);
+    if (!nullToAbsent || duration != null) {
+      map['duration'] = Variable<int>(duration);
+    }
+    if (!nullToAbsent || priority != null) {
+      map['priority'] = Variable<int>(priority);
+    }
+    if (!nullToAbsent || completion != null) {
+      map['completion'] = Variable<double>(completion);
+    }
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
     return map;
   }
 
@@ -10898,6 +11181,21 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
       itemId: Value(itemId),
       isCompleted: Value(isCompleted),
       isReview: Value(isReview),
+      duration: duration == null && nullToAbsent
+          ? const Value.absent()
+          : Value(duration),
+      priority: priority == null && nullToAbsent
+          ? const Value.absent()
+          : Value(priority),
+      completion: completion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completion),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
     );
   }
 
@@ -10913,6 +11211,11 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
       itemId: serializer.fromJson<String>(json['itemId']),
       isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       isReview: serializer.fromJson<bool>(json['isReview']),
+      duration: serializer.fromJson<int?>(json['duration']),
+      priority: serializer.fromJson<int?>(json['priority']),
+      completion: serializer.fromJson<double?>(json['completion']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
   }
   @override
@@ -10925,6 +11228,11 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
       'itemId': serializer.toJson<String>(itemId),
       'isCompleted': serializer.toJson<bool>(isCompleted),
       'isReview': serializer.toJson<bool>(isReview),
+      'duration': serializer.toJson<int?>(duration),
+      'priority': serializer.toJson<int?>(priority),
+      'completion': serializer.toJson<double?>(completion),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
   }
 
@@ -10935,6 +11243,11 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
     String? itemId,
     bool? isCompleted,
     bool? isReview,
+    Value<int?> duration = const Value.absent(),
+    Value<int?> priority = const Value.absent(),
+    Value<double?> completion = const Value.absent(),
+    Value<DateTime?> createdAt = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
   }) => PlannerTask(
     id: id ?? this.id,
     date: date ?? this.date,
@@ -10942,6 +11255,11 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
     itemId: itemId ?? this.itemId,
     isCompleted: isCompleted ?? this.isCompleted,
     isReview: isReview ?? this.isReview,
+    duration: duration.present ? duration.value : this.duration,
+    priority: priority.present ? priority.value : this.priority,
+    completion: completion.present ? completion.value : this.completion,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   PlannerTask copyWithCompanion(PlannerTasksCompanion data) {
     return PlannerTask(
@@ -10953,6 +11271,13 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
           ? data.isCompleted.value
           : this.isCompleted,
       isReview: data.isReview.present ? data.isReview.value : this.isReview,
+      duration: data.duration.present ? data.duration.value : this.duration,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      completion: data.completion.present
+          ? data.completion.value
+          : this.completion,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -10964,14 +11289,30 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
           ..write('itemType: $itemType, ')
           ..write('itemId: $itemId, ')
           ..write('isCompleted: $isCompleted, ')
-          ..write('isReview: $isReview')
+          ..write('isReview: $isReview, ')
+          ..write('duration: $duration, ')
+          ..write('priority: $priority, ')
+          ..write('completion: $completion, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, date, itemType, itemId, isCompleted, isReview);
+  int get hashCode => Object.hash(
+    id,
+    date,
+    itemType,
+    itemId,
+    isCompleted,
+    isReview,
+    duration,
+    priority,
+    completion,
+    createdAt,
+    updatedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10981,7 +11322,12 @@ class PlannerTask extends DataClass implements Insertable<PlannerTask> {
           other.itemType == this.itemType &&
           other.itemId == this.itemId &&
           other.isCompleted == this.isCompleted &&
-          other.isReview == this.isReview);
+          other.isReview == this.isReview &&
+          other.duration == this.duration &&
+          other.priority == this.priority &&
+          other.completion == this.completion &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
@@ -10991,6 +11337,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
   final Value<String> itemId;
   final Value<bool> isCompleted;
   final Value<bool> isReview;
+  final Value<int?> duration;
+  final Value<int?> priority;
+  final Value<double?> completion;
+  final Value<DateTime?> createdAt;
+  final Value<DateTime?> updatedAt;
   final Value<int> rowid;
   const PlannerTasksCompanion({
     this.id = const Value.absent(),
@@ -10999,6 +11350,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
     this.itemId = const Value.absent(),
     this.isCompleted = const Value.absent(),
     this.isReview = const Value.absent(),
+    this.duration = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.completion = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PlannerTasksCompanion.insert({
@@ -11008,6 +11364,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
     required String itemId,
     this.isCompleted = const Value.absent(),
     this.isReview = const Value.absent(),
+    this.duration = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.completion = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        date = Value(date),
@@ -11020,6 +11381,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
     Expression<String>? itemId,
     Expression<bool>? isCompleted,
     Expression<bool>? isReview,
+    Expression<int>? duration,
+    Expression<int>? priority,
+    Expression<double>? completion,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -11029,6 +11395,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
       if (itemId != null) 'item_id': itemId,
       if (isCompleted != null) 'is_completed': isCompleted,
       if (isReview != null) 'is_review': isReview,
+      if (duration != null) 'duration': duration,
+      if (priority != null) 'priority': priority,
+      if (completion != null) 'completion': completion,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -11040,6 +11411,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
     Value<String>? itemId,
     Value<bool>? isCompleted,
     Value<bool>? isReview,
+    Value<int?>? duration,
+    Value<int?>? priority,
+    Value<double?>? completion,
+    Value<DateTime?>? createdAt,
+    Value<DateTime?>? updatedAt,
     Value<int>? rowid,
   }) {
     return PlannerTasksCompanion(
@@ -11049,6 +11425,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
       itemId: itemId ?? this.itemId,
       isCompleted: isCompleted ?? this.isCompleted,
       isReview: isReview ?? this.isReview,
+      duration: duration ?? this.duration,
+      priority: priority ?? this.priority,
+      completion: completion ?? this.completion,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -11074,6 +11455,21 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
     if (isReview.present) {
       map['is_review'] = Variable<bool>(isReview.value);
     }
+    if (duration.present) {
+      map['duration'] = Variable<int>(duration.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<int>(priority.value);
+    }
+    if (completion.present) {
+      map['completion'] = Variable<double>(completion.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -11089,6 +11485,11 @@ class PlannerTasksCompanion extends UpdateCompanion<PlannerTask> {
           ..write('itemId: $itemId, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('isReview: $isReview, ')
+          ..write('duration: $duration, ')
+          ..write('priority: $priority, ')
+          ..write('completion: $completion, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -22165,6 +22566,9 @@ typedef $$StudyPlansTableCreateCompanionBuilder =
       required DateTime targetDate,
       required double availableHours,
       Value<bool> isActive,
+      Value<String?> goal,
+      Value<String?> studyDays,
+      Value<String?> resources,
       Value<int> rowid,
     });
 typedef $$StudyPlansTableUpdateCompanionBuilder =
@@ -22174,6 +22578,9 @@ typedef $$StudyPlansTableUpdateCompanionBuilder =
       Value<DateTime> targetDate,
       Value<double> availableHours,
       Value<bool> isActive,
+      Value<String?> goal,
+      Value<String?> studyDays,
+      Value<String?> resources,
       Value<int> rowid,
     });
 
@@ -22208,6 +22615,21 @@ class $$StudyPlansTableFilterComposer
 
   ColumnFilters<bool> get isActive => $composableBuilder(
     column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get goal => $composableBuilder(
+    column: $table.goal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studyDays => $composableBuilder(
+    column: $table.studyDays,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get resources => $composableBuilder(
+    column: $table.resources,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -22245,6 +22667,21 @@ class $$StudyPlansTableOrderingComposer
     column: $table.isActive,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get goal => $composableBuilder(
+    column: $table.goal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studyDays => $composableBuilder(
+    column: $table.studyDays,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get resources => $composableBuilder(
+    column: $table.resources,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StudyPlansTableAnnotationComposer
@@ -22274,6 +22711,15 @@ class $$StudyPlansTableAnnotationComposer
 
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<String> get goal =>
+      $composableBuilder(column: $table.goal, builder: (column) => column);
+
+  GeneratedColumn<String> get studyDays =>
+      $composableBuilder(column: $table.studyDays, builder: (column) => column);
+
+  GeneratedColumn<String> get resources =>
+      $composableBuilder(column: $table.resources, builder: (column) => column);
 }
 
 class $$StudyPlansTableTableManager
@@ -22312,6 +22758,9 @@ class $$StudyPlansTableTableManager
                 Value<DateTime> targetDate = const Value.absent(),
                 Value<double> availableHours = const Value.absent(),
                 Value<bool> isActive = const Value.absent(),
+                Value<String?> goal = const Value.absent(),
+                Value<String?> studyDays = const Value.absent(),
+                Value<String?> resources = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StudyPlansCompanion(
                 id: id,
@@ -22319,6 +22768,9 @@ class $$StudyPlansTableTableManager
                 targetDate: targetDate,
                 availableHours: availableHours,
                 isActive: isActive,
+                goal: goal,
+                studyDays: studyDays,
+                resources: resources,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -22328,6 +22780,9 @@ class $$StudyPlansTableTableManager
                 required DateTime targetDate,
                 required double availableHours,
                 Value<bool> isActive = const Value.absent(),
+                Value<String?> goal = const Value.absent(),
+                Value<String?> studyDays = const Value.absent(),
+                Value<String?> resources = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StudyPlansCompanion.insert(
                 id: id,
@@ -22335,6 +22790,9 @@ class $$StudyPlansTableTableManager
                 targetDate: targetDate,
                 availableHours: availableHours,
                 isActive: isActive,
+                goal: goal,
+                studyDays: studyDays,
+                resources: resources,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -22367,6 +22825,11 @@ typedef $$PlannerTasksTableCreateCompanionBuilder =
       required String itemId,
       Value<bool> isCompleted,
       Value<bool> isReview,
+      Value<int?> duration,
+      Value<int?> priority,
+      Value<double?> completion,
+      Value<DateTime?> createdAt,
+      Value<DateTime?> updatedAt,
       Value<int> rowid,
     });
 typedef $$PlannerTasksTableUpdateCompanionBuilder =
@@ -22377,6 +22840,11 @@ typedef $$PlannerTasksTableUpdateCompanionBuilder =
       Value<String> itemId,
       Value<bool> isCompleted,
       Value<bool> isReview,
+      Value<int?> duration,
+      Value<int?> priority,
+      Value<double?> completion,
+      Value<DateTime?> createdAt,
+      Value<DateTime?> updatedAt,
       Value<int> rowid,
     });
 
@@ -22416,6 +22884,31 @@ class $$PlannerTasksTableFilterComposer
 
   ColumnFilters<bool> get isReview => $composableBuilder(
     column: $table.isReview,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get duration => $composableBuilder(
+    column: $table.duration,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get completion => $composableBuilder(
+    column: $table.completion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -22458,6 +22951,31 @@ class $$PlannerTasksTableOrderingComposer
     column: $table.isReview,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get duration => $composableBuilder(
+    column: $table.duration,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get completion => $composableBuilder(
+    column: $table.completion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PlannerTasksTableAnnotationComposer
@@ -22488,6 +23006,23 @@ class $$PlannerTasksTableAnnotationComposer
 
   GeneratedColumn<bool> get isReview =>
       $composableBuilder(column: $table.isReview, builder: (column) => column);
+
+  GeneratedColumn<int> get duration =>
+      $composableBuilder(column: $table.duration, builder: (column) => column);
+
+  GeneratedColumn<int> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<double> get completion => $composableBuilder(
+    column: $table.completion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
 class $$PlannerTasksTableTableManager
@@ -22527,6 +23062,11 @@ class $$PlannerTasksTableTableManager
                 Value<String> itemId = const Value.absent(),
                 Value<bool> isCompleted = const Value.absent(),
                 Value<bool> isReview = const Value.absent(),
+                Value<int?> duration = const Value.absent(),
+                Value<int?> priority = const Value.absent(),
+                Value<double?> completion = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PlannerTasksCompanion(
                 id: id,
@@ -22535,6 +23075,11 @@ class $$PlannerTasksTableTableManager
                 itemId: itemId,
                 isCompleted: isCompleted,
                 isReview: isReview,
+                duration: duration,
+                priority: priority,
+                completion: completion,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -22545,6 +23090,11 @@ class $$PlannerTasksTableTableManager
                 required String itemId,
                 Value<bool> isCompleted = const Value.absent(),
                 Value<bool> isReview = const Value.absent(),
+                Value<int?> duration = const Value.absent(),
+                Value<int?> priority = const Value.absent(),
+                Value<double?> completion = const Value.absent(),
+                Value<DateTime?> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PlannerTasksCompanion.insert(
                 id: id,
@@ -22553,6 +23103,11 @@ class $$PlannerTasksTableTableManager
                 itemId: itemId,
                 isCompleted: isCompleted,
                 isReview: isReview,
+                duration: duration,
+                priority: priority,
+                completion: completion,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

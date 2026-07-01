@@ -294,6 +294,9 @@ class StudyPlans extends Table {
   DateTimeColumn get targetDate => dateTime()();
   RealColumn get availableHours => real()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
+  TextColumn get goal => text().nullable()();
+  TextColumn get studyDays => text().nullable()();
+  TextColumn get resources => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -307,6 +310,11 @@ class PlannerTasks extends Table {
   TextColumn get itemId => text()(); // ID of target item
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   BoolColumn get isReview => boolean().withDefault(const Constant(false))();
+  IntColumn get duration => integer().nullable()();
+  IntColumn get priority => integer().nullable()();
+  RealColumn get completion => real().nullable()();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -32,6 +32,8 @@ import 'package:shinka_track_n3/features/settings/presentation/screens/developer
 import 'package:shinka_track_n3/features/review/presentation/screens/review_home_screen.dart' as rev_home;
 import 'package:shinka_track_n3/features/review/presentation/screens/review_session_screen.dart' as rev_session;
 import 'package:shinka_track_n3/features/review/presentation/screens/session_complete_screen.dart' as rev_complete;
+import 'package:shinka_track_n3/features/planner/presentation/screens/planner_dashboard_screen.dart' as p_dash;
+import 'package:shinka_track_n3/features/planner/presentation/screens/planner_setup_wizard_screen.dart' as p_wizard;
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -198,7 +200,11 @@ final goRouter = GoRouter(
         ),
         GoRoute(
           path: '/planner',
-          builder: (context, state) => const PlannerSetupScreen(),
+          builder: (context, state) => const p_dash.PlannerDashboardScreen(),
+        ),
+        GoRoute(
+          path: '/planner/setup',
+          builder: (context, state) => const p_wizard.PlannerSetupWizardScreen(),
         ),
         GoRoute(
           path: '/analytics',
