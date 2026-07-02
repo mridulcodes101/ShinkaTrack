@@ -63,6 +63,8 @@ class UserKanjis extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_master_vocabularies_word', columns: {#word})
+@TableIndex(name: 'idx_master_vocabularies_kana', columns: {#kana})
 class MasterVocabularies extends Table {
   TextColumn get id => text()();
   TextColumn get word => text()();
@@ -103,6 +105,7 @@ class UserVocabularies extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_master_grammars_pattern', columns: {#pattern})
 class MasterGrammars extends Table {
   TextColumn get id => text()();
   TextColumn get pattern => text()();
@@ -169,6 +172,7 @@ class QuizResults extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_master_readings_title', columns: {#title})
 class MasterReadings extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
@@ -205,6 +209,7 @@ class UserReadings extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@TableIndex(name: 'idx_master_listenings_title', columns: {#title})
 class MasterListenings extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
@@ -360,10 +365,16 @@ class Achievements extends Table {
   TextColumn get id => text()();
   TextColumn get title => text()();
   TextColumn get description => text()();
+  TextColumn get category => text().withDefault(const Constant('learning'))(); // learning, consistency, review, collection, planner, milestones, hidden
   IntColumn get xpReward => integer()();
   IntColumn get coinReward => integer()();
+  TextColumn get icon => text().withDefault(const Constant('star'))();
+  IntColumn get progress => integer().withDefault(const Constant(0))();
+  IntColumn get target => integer().withDefault(const Constant(1))();
   BoolColumn get isUnlocked => boolean().withDefault(const Constant(false))();
   DateTimeColumn get unlockedAt => dateTime().nullable()();
+  BoolColumn get hidden => boolean().withDefault(const Constant(false))();
+  TextColumn get difficulty => text().withDefault(const Constant('Easy'))(); // Easy, Medium, Hard, Legendary
 
   @override
   Set<Column> get primaryKey => {id};
@@ -376,6 +387,57 @@ class WeeklyGoals extends Table {
   IntColumn get targetItems => integer()();
   IntColumn get completedItems => integer().withDefault(const Constant(0))();
   BoolColumn get isClaimed => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@TableIndex(name: 'idx_graph_nodes_master', columns: {#masterId, #contentType})
+class GraphNodes extends Table {
+  TextColumn get id => text()();
+  TextColumn get contentType => text()();
+  TextColumn get masterId => text()();
+  TextColumn get title => text()();
+  TextColumn get subtitle => text().nullable()();
+  RealColumn get difficulty => real().nullable()();
+  IntColumn get jlpt => integer().nullable()();
+  TextColumn get tags => text().nullable()(); // JSON List<String>
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@TableIndex(name: 'idx_graph_relationships_source', columns: {#sourceNodeId})
+@TableIndex(name: 'idx_graph_relationships_target', columns: {#targetNodeId})
+@TableIndex(name: 'idx_graph_relationships_type', columns: {#relationshipType})
+class GraphRelationships extends Table {
+  TextColumn get id => text()();
+  TextColumn get sourceNodeId => text()();
+  TextColumn get targetNodeId => text()();
+  TextColumn get relationshipType => text()();
+  RealColumn get weight => real().nullable()();
+  RealColumn get strength => real().nullable()();
+  TextColumn get status => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+@TableIndex(name: 'idx_analytics_events_type', columns: {#eventType})
+@TableIndex(name: 'idx_analytics_events_time', columns: {#timestamp})
+class AnalyticsEvents extends Table {
+  TextColumn get id => text()();
+  TextColumn get eventType => text()();
+  TextColumn get contentType => text().nullable()();
+  TextColumn get contentId => text().nullable()();
+  DateTimeColumn get timestamp => dateTime()();
+  IntColumn get durationSeconds => integer().nullable()();
+  TextColumn get result => text().nullable()();
+  TextColumn get metadata => text().nullable()(); // JSON Map
 
   @override
   Set<Column> get primaryKey => {id};
@@ -409,7 +471,10 @@ class WeeklyGoals extends Table {
   UserStats,
   Achievements,
   WeeklyGoals,
-  ReviewHistoryRecords
+  ReviewHistoryRecords,
+  GraphNodes,
+  GraphRelationships,
+  AnalyticsEvents
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
@@ -444,6 +509,9 @@ class AppDatabase extends _$AppDatabase {
       await delete(reviewItems).go();
       await delete(weeklyGoals).go();
       await delete(reviewHistoryRecords).go();
+      await delete(graphNodes).go();
+      await delete(graphRelationships).go();
+      await delete(analyticsEvents).go();
 
       await _seedDatabase();
     });

@@ -12192,6 +12192,18 @@ class $AchievementsTable extends Achievements
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('learning'),
+  );
   static const VerificationMeta _xpRewardMeta = const VerificationMeta(
     'xpReward',
   );
@@ -12213,6 +12225,38 @@ class $AchievementsTable extends Achievements
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+    'icon',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('star'),
+  );
+  static const VerificationMeta _progressMeta = const VerificationMeta(
+    'progress',
+  );
+  @override
+  late final GeneratedColumn<int> progress = GeneratedColumn<int>(
+    'progress',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _targetMeta = const VerificationMeta('target');
+  @override
+  late final GeneratedColumn<int> target = GeneratedColumn<int>(
+    'target',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
   );
   static const VerificationMeta _isUnlockedMeta = const VerificationMeta(
     'isUnlocked',
@@ -12240,15 +12284,46 @@ class $AchievementsTable extends Achievements
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hiddenMeta = const VerificationMeta('hidden');
+  @override
+  late final GeneratedColumn<bool> hidden = GeneratedColumn<bool>(
+    'hidden',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("hidden" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _difficultyMeta = const VerificationMeta(
+    'difficulty',
+  );
+  @override
+  late final GeneratedColumn<String> difficulty = GeneratedColumn<String>(
+    'difficulty',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Easy'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     title,
     description,
+    category,
     xpReward,
     coinReward,
+    icon,
+    progress,
+    target,
     isUnlocked,
     unlockedAt,
+    hidden,
+    difficulty,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -12286,6 +12361,12 @@ class $AchievementsTable extends Achievements
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
     if (data.containsKey('xp_reward')) {
       context.handle(
         _xpRewardMeta,
@@ -12302,6 +12383,24 @@ class $AchievementsTable extends Achievements
     } else if (isInserting) {
       context.missing(_coinRewardMeta);
     }
+    if (data.containsKey('icon')) {
+      context.handle(
+        _iconMeta,
+        icon.isAcceptableOrUnknown(data['icon']!, _iconMeta),
+      );
+    }
+    if (data.containsKey('progress')) {
+      context.handle(
+        _progressMeta,
+        progress.isAcceptableOrUnknown(data['progress']!, _progressMeta),
+      );
+    }
+    if (data.containsKey('target')) {
+      context.handle(
+        _targetMeta,
+        target.isAcceptableOrUnknown(data['target']!, _targetMeta),
+      );
+    }
     if (data.containsKey('is_unlocked')) {
       context.handle(
         _isUnlockedMeta,
@@ -12312,6 +12411,18 @@ class $AchievementsTable extends Achievements
       context.handle(
         _unlockedAtMeta,
         unlockedAt.isAcceptableOrUnknown(data['unlocked_at']!, _unlockedAtMeta),
+      );
+    }
+    if (data.containsKey('hidden')) {
+      context.handle(
+        _hiddenMeta,
+        hidden.isAcceptableOrUnknown(data['hidden']!, _hiddenMeta),
+      );
+    }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+        _difficultyMeta,
+        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
       );
     }
     return context;
@@ -12335,6 +12446,10 @@ class $AchievementsTable extends Achievements
         DriftSqlType.string,
         data['${effectivePrefix}description'],
       )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
       xpReward: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}xp_reward'],
@@ -12342,6 +12457,18 @@ class $AchievementsTable extends Achievements
       coinReward: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}coin_reward'],
+      )!,
+      icon: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}icon'],
+      )!,
+      progress: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}progress'],
+      )!,
+      target: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target'],
       )!,
       isUnlocked: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -12351,6 +12478,14 @@ class $AchievementsTable extends Achievements
         DriftSqlType.dateTime,
         data['${effectivePrefix}unlocked_at'],
       ),
+      hidden: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}hidden'],
+      )!,
+      difficulty: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}difficulty'],
+      )!,
     );
   }
 
@@ -12364,18 +12499,30 @@ class Achievement extends DataClass implements Insertable<Achievement> {
   final String id;
   final String title;
   final String description;
+  final String category;
   final int xpReward;
   final int coinReward;
+  final String icon;
+  final int progress;
+  final int target;
   final bool isUnlocked;
   final DateTime? unlockedAt;
+  final bool hidden;
+  final String difficulty;
   const Achievement({
     required this.id,
     required this.title,
     required this.description,
+    required this.category,
     required this.xpReward,
     required this.coinReward,
+    required this.icon,
+    required this.progress,
+    required this.target,
     required this.isUnlocked,
     this.unlockedAt,
+    required this.hidden,
+    required this.difficulty,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -12383,12 +12530,18 @@ class Achievement extends DataClass implements Insertable<Achievement> {
     map['id'] = Variable<String>(id);
     map['title'] = Variable<String>(title);
     map['description'] = Variable<String>(description);
+    map['category'] = Variable<String>(category);
     map['xp_reward'] = Variable<int>(xpReward);
     map['coin_reward'] = Variable<int>(coinReward);
+    map['icon'] = Variable<String>(icon);
+    map['progress'] = Variable<int>(progress);
+    map['target'] = Variable<int>(target);
     map['is_unlocked'] = Variable<bool>(isUnlocked);
     if (!nullToAbsent || unlockedAt != null) {
       map['unlocked_at'] = Variable<DateTime>(unlockedAt);
     }
+    map['hidden'] = Variable<bool>(hidden);
+    map['difficulty'] = Variable<String>(difficulty);
     return map;
   }
 
@@ -12397,12 +12550,18 @@ class Achievement extends DataClass implements Insertable<Achievement> {
       id: Value(id),
       title: Value(title),
       description: Value(description),
+      category: Value(category),
       xpReward: Value(xpReward),
       coinReward: Value(coinReward),
+      icon: Value(icon),
+      progress: Value(progress),
+      target: Value(target),
       isUnlocked: Value(isUnlocked),
       unlockedAt: unlockedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(unlockedAt),
+      hidden: Value(hidden),
+      difficulty: Value(difficulty),
     );
   }
 
@@ -12415,10 +12574,16 @@ class Achievement extends DataClass implements Insertable<Achievement> {
       id: serializer.fromJson<String>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
+      category: serializer.fromJson<String>(json['category']),
       xpReward: serializer.fromJson<int>(json['xpReward']),
       coinReward: serializer.fromJson<int>(json['coinReward']),
+      icon: serializer.fromJson<String>(json['icon']),
+      progress: serializer.fromJson<int>(json['progress']),
+      target: serializer.fromJson<int>(json['target']),
       isUnlocked: serializer.fromJson<bool>(json['isUnlocked']),
       unlockedAt: serializer.fromJson<DateTime?>(json['unlockedAt']),
+      hidden: serializer.fromJson<bool>(json['hidden']),
+      difficulty: serializer.fromJson<String>(json['difficulty']),
     );
   }
   @override
@@ -12428,10 +12593,16 @@ class Achievement extends DataClass implements Insertable<Achievement> {
       'id': serializer.toJson<String>(id),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
+      'category': serializer.toJson<String>(category),
       'xpReward': serializer.toJson<int>(xpReward),
       'coinReward': serializer.toJson<int>(coinReward),
+      'icon': serializer.toJson<String>(icon),
+      'progress': serializer.toJson<int>(progress),
+      'target': serializer.toJson<int>(target),
       'isUnlocked': serializer.toJson<bool>(isUnlocked),
       'unlockedAt': serializer.toJson<DateTime?>(unlockedAt),
+      'hidden': serializer.toJson<bool>(hidden),
+      'difficulty': serializer.toJson<String>(difficulty),
     };
   }
 
@@ -12439,18 +12610,30 @@ class Achievement extends DataClass implements Insertable<Achievement> {
     String? id,
     String? title,
     String? description,
+    String? category,
     int? xpReward,
     int? coinReward,
+    String? icon,
+    int? progress,
+    int? target,
     bool? isUnlocked,
     Value<DateTime?> unlockedAt = const Value.absent(),
+    bool? hidden,
+    String? difficulty,
   }) => Achievement(
     id: id ?? this.id,
     title: title ?? this.title,
     description: description ?? this.description,
+    category: category ?? this.category,
     xpReward: xpReward ?? this.xpReward,
     coinReward: coinReward ?? this.coinReward,
+    icon: icon ?? this.icon,
+    progress: progress ?? this.progress,
+    target: target ?? this.target,
     isUnlocked: isUnlocked ?? this.isUnlocked,
     unlockedAt: unlockedAt.present ? unlockedAt.value : this.unlockedAt,
+    hidden: hidden ?? this.hidden,
+    difficulty: difficulty ?? this.difficulty,
   );
   Achievement copyWithCompanion(AchievementsCompanion data) {
     return Achievement(
@@ -12459,16 +12642,24 @@ class Achievement extends DataClass implements Insertable<Achievement> {
       description: data.description.present
           ? data.description.value
           : this.description,
+      category: data.category.present ? data.category.value : this.category,
       xpReward: data.xpReward.present ? data.xpReward.value : this.xpReward,
       coinReward: data.coinReward.present
           ? data.coinReward.value
           : this.coinReward,
+      icon: data.icon.present ? data.icon.value : this.icon,
+      progress: data.progress.present ? data.progress.value : this.progress,
+      target: data.target.present ? data.target.value : this.target,
       isUnlocked: data.isUnlocked.present
           ? data.isUnlocked.value
           : this.isUnlocked,
       unlockedAt: data.unlockedAt.present
           ? data.unlockedAt.value
           : this.unlockedAt,
+      hidden: data.hidden.present ? data.hidden.value : this.hidden,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
     );
   }
 
@@ -12478,10 +12669,16 @@ class Achievement extends DataClass implements Insertable<Achievement> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
+          ..write('category: $category, ')
           ..write('xpReward: $xpReward, ')
           ..write('coinReward: $coinReward, ')
+          ..write('icon: $icon, ')
+          ..write('progress: $progress, ')
+          ..write('target: $target, ')
           ..write('isUnlocked: $isUnlocked, ')
-          ..write('unlockedAt: $unlockedAt')
+          ..write('unlockedAt: $unlockedAt, ')
+          ..write('hidden: $hidden, ')
+          ..write('difficulty: $difficulty')
           ..write(')'))
         .toString();
   }
@@ -12491,10 +12688,16 @@ class Achievement extends DataClass implements Insertable<Achievement> {
     id,
     title,
     description,
+    category,
     xpReward,
     coinReward,
+    icon,
+    progress,
+    target,
     isUnlocked,
     unlockedAt,
+    hidden,
+    difficulty,
   );
   @override
   bool operator ==(Object other) =>
@@ -12503,39 +12706,63 @@ class Achievement extends DataClass implements Insertable<Achievement> {
           other.id == this.id &&
           other.title == this.title &&
           other.description == this.description &&
+          other.category == this.category &&
           other.xpReward == this.xpReward &&
           other.coinReward == this.coinReward &&
+          other.icon == this.icon &&
+          other.progress == this.progress &&
+          other.target == this.target &&
           other.isUnlocked == this.isUnlocked &&
-          other.unlockedAt == this.unlockedAt);
+          other.unlockedAt == this.unlockedAt &&
+          other.hidden == this.hidden &&
+          other.difficulty == this.difficulty);
 }
 
 class AchievementsCompanion extends UpdateCompanion<Achievement> {
   final Value<String> id;
   final Value<String> title;
   final Value<String> description;
+  final Value<String> category;
   final Value<int> xpReward;
   final Value<int> coinReward;
+  final Value<String> icon;
+  final Value<int> progress;
+  final Value<int> target;
   final Value<bool> isUnlocked;
   final Value<DateTime?> unlockedAt;
+  final Value<bool> hidden;
+  final Value<String> difficulty;
   final Value<int> rowid;
   const AchievementsCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
+    this.category = const Value.absent(),
     this.xpReward = const Value.absent(),
     this.coinReward = const Value.absent(),
+    this.icon = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.target = const Value.absent(),
     this.isUnlocked = const Value.absent(),
     this.unlockedAt = const Value.absent(),
+    this.hidden = const Value.absent(),
+    this.difficulty = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AchievementsCompanion.insert({
     required String id,
     required String title,
     required String description,
+    this.category = const Value.absent(),
     required int xpReward,
     required int coinReward,
+    this.icon = const Value.absent(),
+    this.progress = const Value.absent(),
+    this.target = const Value.absent(),
     this.isUnlocked = const Value.absent(),
     this.unlockedAt = const Value.absent(),
+    this.hidden = const Value.absent(),
+    this.difficulty = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        title = Value(title),
@@ -12546,20 +12773,32 @@ class AchievementsCompanion extends UpdateCompanion<Achievement> {
     Expression<String>? id,
     Expression<String>? title,
     Expression<String>? description,
+    Expression<String>? category,
     Expression<int>? xpReward,
     Expression<int>? coinReward,
+    Expression<String>? icon,
+    Expression<int>? progress,
+    Expression<int>? target,
     Expression<bool>? isUnlocked,
     Expression<DateTime>? unlockedAt,
+    Expression<bool>? hidden,
+    Expression<String>? difficulty,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
+      if (category != null) 'category': category,
       if (xpReward != null) 'xp_reward': xpReward,
       if (coinReward != null) 'coin_reward': coinReward,
+      if (icon != null) 'icon': icon,
+      if (progress != null) 'progress': progress,
+      if (target != null) 'target': target,
       if (isUnlocked != null) 'is_unlocked': isUnlocked,
       if (unlockedAt != null) 'unlocked_at': unlockedAt,
+      if (hidden != null) 'hidden': hidden,
+      if (difficulty != null) 'difficulty': difficulty,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -12568,20 +12807,32 @@ class AchievementsCompanion extends UpdateCompanion<Achievement> {
     Value<String>? id,
     Value<String>? title,
     Value<String>? description,
+    Value<String>? category,
     Value<int>? xpReward,
     Value<int>? coinReward,
+    Value<String>? icon,
+    Value<int>? progress,
+    Value<int>? target,
     Value<bool>? isUnlocked,
     Value<DateTime?>? unlockedAt,
+    Value<bool>? hidden,
+    Value<String>? difficulty,
     Value<int>? rowid,
   }) {
     return AchievementsCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
+      category: category ?? this.category,
       xpReward: xpReward ?? this.xpReward,
       coinReward: coinReward ?? this.coinReward,
+      icon: icon ?? this.icon,
+      progress: progress ?? this.progress,
+      target: target ?? this.target,
       isUnlocked: isUnlocked ?? this.isUnlocked,
       unlockedAt: unlockedAt ?? this.unlockedAt,
+      hidden: hidden ?? this.hidden,
+      difficulty: difficulty ?? this.difficulty,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -12598,17 +12849,35 @@ class AchievementsCompanion extends UpdateCompanion<Achievement> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
     if (xpReward.present) {
       map['xp_reward'] = Variable<int>(xpReward.value);
     }
     if (coinReward.present) {
       map['coin_reward'] = Variable<int>(coinReward.value);
     }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
+    if (progress.present) {
+      map['progress'] = Variable<int>(progress.value);
+    }
+    if (target.present) {
+      map['target'] = Variable<int>(target.value);
+    }
     if (isUnlocked.present) {
       map['is_unlocked'] = Variable<bool>(isUnlocked.value);
     }
     if (unlockedAt.present) {
       map['unlocked_at'] = Variable<DateTime>(unlockedAt.value);
+    }
+    if (hidden.present) {
+      map['hidden'] = Variable<bool>(hidden.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<String>(difficulty.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -12622,10 +12891,16 @@ class AchievementsCompanion extends UpdateCompanion<Achievement> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
+          ..write('category: $category, ')
           ..write('xpReward: $xpReward, ')
           ..write('coinReward: $coinReward, ')
+          ..write('icon: $icon, ')
+          ..write('progress: $progress, ')
+          ..write('target: $target, ')
           ..write('isUnlocked: $isUnlocked, ')
           ..write('unlockedAt: $unlockedAt, ')
+          ..write('hidden: $hidden, ')
+          ..write('difficulty: $difficulty, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -13590,6 +13865,1717 @@ class ReviewHistoryRecordsCompanion
   }
 }
 
+class $GraphNodesTable extends GraphNodes
+    with TableInfo<$GraphNodesTable, GraphNode> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GraphNodesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentTypeMeta = const VerificationMeta(
+    'contentType',
+  );
+  @override
+  late final GeneratedColumn<String> contentType = GeneratedColumn<String>(
+    'content_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _masterIdMeta = const VerificationMeta(
+    'masterId',
+  );
+  @override
+  late final GeneratedColumn<String> masterId = GeneratedColumn<String>(
+    'master_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subtitleMeta = const VerificationMeta(
+    'subtitle',
+  );
+  @override
+  late final GeneratedColumn<String> subtitle = GeneratedColumn<String>(
+    'subtitle',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _difficultyMeta = const VerificationMeta(
+    'difficulty',
+  );
+  @override
+  late final GeneratedColumn<double> difficulty = GeneratedColumn<double>(
+    'difficulty',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _jlptMeta = const VerificationMeta('jlpt');
+  @override
+  late final GeneratedColumn<int> jlpt = GeneratedColumn<int>(
+    'jlpt',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+    'tags',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    contentType,
+    masterId,
+    title,
+    subtitle,
+    difficulty,
+    jlpt,
+    tags,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'graph_nodes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GraphNode> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('content_type')) {
+      context.handle(
+        _contentTypeMeta,
+        contentType.isAcceptableOrUnknown(
+          data['content_type']!,
+          _contentTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_contentTypeMeta);
+    }
+    if (data.containsKey('master_id')) {
+      context.handle(
+        _masterIdMeta,
+        masterId.isAcceptableOrUnknown(data['master_id']!, _masterIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_masterIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('subtitle')) {
+      context.handle(
+        _subtitleMeta,
+        subtitle.isAcceptableOrUnknown(data['subtitle']!, _subtitleMeta),
+      );
+    }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+        _difficultyMeta,
+        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
+      );
+    }
+    if (data.containsKey('jlpt')) {
+      context.handle(
+        _jlptMeta,
+        jlpt.isAcceptableOrUnknown(data['jlpt']!, _jlptMeta),
+      );
+    }
+    if (data.containsKey('tags')) {
+      context.handle(
+        _tagsMeta,
+        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GraphNode map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GraphNode(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      contentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_type'],
+      )!,
+      masterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}master_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      subtitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subtitle'],
+      ),
+      difficulty: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}difficulty'],
+      ),
+      jlpt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}jlpt'],
+      ),
+      tags: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tags'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $GraphNodesTable createAlias(String alias) {
+    return $GraphNodesTable(attachedDatabase, alias);
+  }
+}
+
+class GraphNode extends DataClass implements Insertable<GraphNode> {
+  final String id;
+  final String contentType;
+  final String masterId;
+  final String title;
+  final String? subtitle;
+  final double? difficulty;
+  final int? jlpt;
+  final String? tags;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const GraphNode({
+    required this.id,
+    required this.contentType,
+    required this.masterId,
+    required this.title,
+    this.subtitle,
+    this.difficulty,
+    this.jlpt,
+    this.tags,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['content_type'] = Variable<String>(contentType);
+    map['master_id'] = Variable<String>(masterId);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || subtitle != null) {
+      map['subtitle'] = Variable<String>(subtitle);
+    }
+    if (!nullToAbsent || difficulty != null) {
+      map['difficulty'] = Variable<double>(difficulty);
+    }
+    if (!nullToAbsent || jlpt != null) {
+      map['jlpt'] = Variable<int>(jlpt);
+    }
+    if (!nullToAbsent || tags != null) {
+      map['tags'] = Variable<String>(tags);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  GraphNodesCompanion toCompanion(bool nullToAbsent) {
+    return GraphNodesCompanion(
+      id: Value(id),
+      contentType: Value(contentType),
+      masterId: Value(masterId),
+      title: Value(title),
+      subtitle: subtitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(subtitle),
+      difficulty: difficulty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(difficulty),
+      jlpt: jlpt == null && nullToAbsent ? const Value.absent() : Value(jlpt),
+      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory GraphNode.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GraphNode(
+      id: serializer.fromJson<String>(json['id']),
+      contentType: serializer.fromJson<String>(json['contentType']),
+      masterId: serializer.fromJson<String>(json['masterId']),
+      title: serializer.fromJson<String>(json['title']),
+      subtitle: serializer.fromJson<String?>(json['subtitle']),
+      difficulty: serializer.fromJson<double?>(json['difficulty']),
+      jlpt: serializer.fromJson<int?>(json['jlpt']),
+      tags: serializer.fromJson<String?>(json['tags']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'contentType': serializer.toJson<String>(contentType),
+      'masterId': serializer.toJson<String>(masterId),
+      'title': serializer.toJson<String>(title),
+      'subtitle': serializer.toJson<String?>(subtitle),
+      'difficulty': serializer.toJson<double?>(difficulty),
+      'jlpt': serializer.toJson<int?>(jlpt),
+      'tags': serializer.toJson<String?>(tags),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  GraphNode copyWith({
+    String? id,
+    String? contentType,
+    String? masterId,
+    String? title,
+    Value<String?> subtitle = const Value.absent(),
+    Value<double?> difficulty = const Value.absent(),
+    Value<int?> jlpt = const Value.absent(),
+    Value<String?> tags = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => GraphNode(
+    id: id ?? this.id,
+    contentType: contentType ?? this.contentType,
+    masterId: masterId ?? this.masterId,
+    title: title ?? this.title,
+    subtitle: subtitle.present ? subtitle.value : this.subtitle,
+    difficulty: difficulty.present ? difficulty.value : this.difficulty,
+    jlpt: jlpt.present ? jlpt.value : this.jlpt,
+    tags: tags.present ? tags.value : this.tags,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  GraphNode copyWithCompanion(GraphNodesCompanion data) {
+    return GraphNode(
+      id: data.id.present ? data.id.value : this.id,
+      contentType: data.contentType.present
+          ? data.contentType.value
+          : this.contentType,
+      masterId: data.masterId.present ? data.masterId.value : this.masterId,
+      title: data.title.present ? data.title.value : this.title,
+      subtitle: data.subtitle.present ? data.subtitle.value : this.subtitle,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
+      jlpt: data.jlpt.present ? data.jlpt.value : this.jlpt,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GraphNode(')
+          ..write('id: $id, ')
+          ..write('contentType: $contentType, ')
+          ..write('masterId: $masterId, ')
+          ..write('title: $title, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('jlpt: $jlpt, ')
+          ..write('tags: $tags, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    contentType,
+    masterId,
+    title,
+    subtitle,
+    difficulty,
+    jlpt,
+    tags,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GraphNode &&
+          other.id == this.id &&
+          other.contentType == this.contentType &&
+          other.masterId == this.masterId &&
+          other.title == this.title &&
+          other.subtitle == this.subtitle &&
+          other.difficulty == this.difficulty &&
+          other.jlpt == this.jlpt &&
+          other.tags == this.tags &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class GraphNodesCompanion extends UpdateCompanion<GraphNode> {
+  final Value<String> id;
+  final Value<String> contentType;
+  final Value<String> masterId;
+  final Value<String> title;
+  final Value<String?> subtitle;
+  final Value<double?> difficulty;
+  final Value<int?> jlpt;
+  final Value<String?> tags;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const GraphNodesCompanion({
+    this.id = const Value.absent(),
+    this.contentType = const Value.absent(),
+    this.masterId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.subtitle = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.jlpt = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GraphNodesCompanion.insert({
+    required String id,
+    required String contentType,
+    required String masterId,
+    required String title,
+    this.subtitle = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.jlpt = const Value.absent(),
+    this.tags = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       contentType = Value(contentType),
+       masterId = Value(masterId),
+       title = Value(title),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<GraphNode> custom({
+    Expression<String>? id,
+    Expression<String>? contentType,
+    Expression<String>? masterId,
+    Expression<String>? title,
+    Expression<String>? subtitle,
+    Expression<double>? difficulty,
+    Expression<int>? jlpt,
+    Expression<String>? tags,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (contentType != null) 'content_type': contentType,
+      if (masterId != null) 'master_id': masterId,
+      if (title != null) 'title': title,
+      if (subtitle != null) 'subtitle': subtitle,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (jlpt != null) 'jlpt': jlpt,
+      if (tags != null) 'tags': tags,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GraphNodesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? contentType,
+    Value<String>? masterId,
+    Value<String>? title,
+    Value<String?>? subtitle,
+    Value<double?>? difficulty,
+    Value<int?>? jlpt,
+    Value<String?>? tags,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return GraphNodesCompanion(
+      id: id ?? this.id,
+      contentType: contentType ?? this.contentType,
+      masterId: masterId ?? this.masterId,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      difficulty: difficulty ?? this.difficulty,
+      jlpt: jlpt ?? this.jlpt,
+      tags: tags ?? this.tags,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (contentType.present) {
+      map['content_type'] = Variable<String>(contentType.value);
+    }
+    if (masterId.present) {
+      map['master_id'] = Variable<String>(masterId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (subtitle.present) {
+      map['subtitle'] = Variable<String>(subtitle.value);
+    }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<double>(difficulty.value);
+    }
+    if (jlpt.present) {
+      map['jlpt'] = Variable<int>(jlpt.value);
+    }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GraphNodesCompanion(')
+          ..write('id: $id, ')
+          ..write('contentType: $contentType, ')
+          ..write('masterId: $masterId, ')
+          ..write('title: $title, ')
+          ..write('subtitle: $subtitle, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('jlpt: $jlpt, ')
+          ..write('tags: $tags, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GraphRelationshipsTable extends GraphRelationships
+    with TableInfo<$GraphRelationshipsTable, GraphRelationship> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GraphRelationshipsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceNodeIdMeta = const VerificationMeta(
+    'sourceNodeId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceNodeId = GeneratedColumn<String>(
+    'source_node_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetNodeIdMeta = const VerificationMeta(
+    'targetNodeId',
+  );
+  @override
+  late final GeneratedColumn<String> targetNodeId = GeneratedColumn<String>(
+    'target_node_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _relationshipTypeMeta = const VerificationMeta(
+    'relationshipType',
+  );
+  @override
+  late final GeneratedColumn<String> relationshipType = GeneratedColumn<String>(
+    'relationship_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
+  @override
+  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
+    'weight',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _strengthMeta = const VerificationMeta(
+    'strength',
+  );
+  @override
+  late final GeneratedColumn<double> strength = GeneratedColumn<double>(
+    'strength',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    sourceNodeId,
+    targetNodeId,
+    relationshipType,
+    weight,
+    strength,
+    status,
+    createdAt,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'graph_relationships';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GraphRelationship> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('source_node_id')) {
+      context.handle(
+        _sourceNodeIdMeta,
+        sourceNodeId.isAcceptableOrUnknown(
+          data['source_node_id']!,
+          _sourceNodeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceNodeIdMeta);
+    }
+    if (data.containsKey('target_node_id')) {
+      context.handle(
+        _targetNodeIdMeta,
+        targetNodeId.isAcceptableOrUnknown(
+          data['target_node_id']!,
+          _targetNodeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetNodeIdMeta);
+    }
+    if (data.containsKey('relationship_type')) {
+      context.handle(
+        _relationshipTypeMeta,
+        relationshipType.isAcceptableOrUnknown(
+          data['relationship_type']!,
+          _relationshipTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_relationshipTypeMeta);
+    }
+    if (data.containsKey('weight')) {
+      context.handle(
+        _weightMeta,
+        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
+      );
+    }
+    if (data.containsKey('strength')) {
+      context.handle(
+        _strengthMeta,
+        strength.isAcceptableOrUnknown(data['strength']!, _strengthMeta),
+      );
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  GraphRelationship map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GraphRelationship(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sourceNodeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_node_id'],
+      )!,
+      targetNodeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}target_node_id'],
+      )!,
+      relationshipType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}relationship_type'],
+      )!,
+      weight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}weight'],
+      ),
+      strength: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}strength'],
+      ),
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $GraphRelationshipsTable createAlias(String alias) {
+    return $GraphRelationshipsTable(attachedDatabase, alias);
+  }
+}
+
+class GraphRelationship extends DataClass
+    implements Insertable<GraphRelationship> {
+  final String id;
+  final String sourceNodeId;
+  final String targetNodeId;
+  final String relationshipType;
+  final double? weight;
+  final double? strength;
+  final String? status;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const GraphRelationship({
+    required this.id,
+    required this.sourceNodeId,
+    required this.targetNodeId,
+    required this.relationshipType,
+    this.weight,
+    this.strength,
+    this.status,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['source_node_id'] = Variable<String>(sourceNodeId);
+    map['target_node_id'] = Variable<String>(targetNodeId);
+    map['relationship_type'] = Variable<String>(relationshipType);
+    if (!nullToAbsent || weight != null) {
+      map['weight'] = Variable<double>(weight);
+    }
+    if (!nullToAbsent || strength != null) {
+      map['strength'] = Variable<double>(strength);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  GraphRelationshipsCompanion toCompanion(bool nullToAbsent) {
+    return GraphRelationshipsCompanion(
+      id: Value(id),
+      sourceNodeId: Value(sourceNodeId),
+      targetNodeId: Value(targetNodeId),
+      relationshipType: Value(relationshipType),
+      weight: weight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(weight),
+      strength: strength == null && nullToAbsent
+          ? const Value.absent()
+          : Value(strength),
+      status: status == null && nullToAbsent
+          ? const Value.absent()
+          : Value(status),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory GraphRelationship.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GraphRelationship(
+      id: serializer.fromJson<String>(json['id']),
+      sourceNodeId: serializer.fromJson<String>(json['sourceNodeId']),
+      targetNodeId: serializer.fromJson<String>(json['targetNodeId']),
+      relationshipType: serializer.fromJson<String>(json['relationshipType']),
+      weight: serializer.fromJson<double?>(json['weight']),
+      strength: serializer.fromJson<double?>(json['strength']),
+      status: serializer.fromJson<String?>(json['status']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'sourceNodeId': serializer.toJson<String>(sourceNodeId),
+      'targetNodeId': serializer.toJson<String>(targetNodeId),
+      'relationshipType': serializer.toJson<String>(relationshipType),
+      'weight': serializer.toJson<double?>(weight),
+      'strength': serializer.toJson<double?>(strength),
+      'status': serializer.toJson<String?>(status),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  GraphRelationship copyWith({
+    String? id,
+    String? sourceNodeId,
+    String? targetNodeId,
+    String? relationshipType,
+    Value<double?> weight = const Value.absent(),
+    Value<double?> strength = const Value.absent(),
+    Value<String?> status = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => GraphRelationship(
+    id: id ?? this.id,
+    sourceNodeId: sourceNodeId ?? this.sourceNodeId,
+    targetNodeId: targetNodeId ?? this.targetNodeId,
+    relationshipType: relationshipType ?? this.relationshipType,
+    weight: weight.present ? weight.value : this.weight,
+    strength: strength.present ? strength.value : this.strength,
+    status: status.present ? status.value : this.status,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  GraphRelationship copyWithCompanion(GraphRelationshipsCompanion data) {
+    return GraphRelationship(
+      id: data.id.present ? data.id.value : this.id,
+      sourceNodeId: data.sourceNodeId.present
+          ? data.sourceNodeId.value
+          : this.sourceNodeId,
+      targetNodeId: data.targetNodeId.present
+          ? data.targetNodeId.value
+          : this.targetNodeId,
+      relationshipType: data.relationshipType.present
+          ? data.relationshipType.value
+          : this.relationshipType,
+      weight: data.weight.present ? data.weight.value : this.weight,
+      strength: data.strength.present ? data.strength.value : this.strength,
+      status: data.status.present ? data.status.value : this.status,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GraphRelationship(')
+          ..write('id: $id, ')
+          ..write('sourceNodeId: $sourceNodeId, ')
+          ..write('targetNodeId: $targetNodeId, ')
+          ..write('relationshipType: $relationshipType, ')
+          ..write('weight: $weight, ')
+          ..write('strength: $strength, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    sourceNodeId,
+    targetNodeId,
+    relationshipType,
+    weight,
+    strength,
+    status,
+    createdAt,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GraphRelationship &&
+          other.id == this.id &&
+          other.sourceNodeId == this.sourceNodeId &&
+          other.targetNodeId == this.targetNodeId &&
+          other.relationshipType == this.relationshipType &&
+          other.weight == this.weight &&
+          other.strength == this.strength &&
+          other.status == this.status &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class GraphRelationshipsCompanion extends UpdateCompanion<GraphRelationship> {
+  final Value<String> id;
+  final Value<String> sourceNodeId;
+  final Value<String> targetNodeId;
+  final Value<String> relationshipType;
+  final Value<double?> weight;
+  final Value<double?> strength;
+  final Value<String?> status;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const GraphRelationshipsCompanion({
+    this.id = const Value.absent(),
+    this.sourceNodeId = const Value.absent(),
+    this.targetNodeId = const Value.absent(),
+    this.relationshipType = const Value.absent(),
+    this.weight = const Value.absent(),
+    this.strength = const Value.absent(),
+    this.status = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GraphRelationshipsCompanion.insert({
+    required String id,
+    required String sourceNodeId,
+    required String targetNodeId,
+    required String relationshipType,
+    this.weight = const Value.absent(),
+    this.strength = const Value.absent(),
+    this.status = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       sourceNodeId = Value(sourceNodeId),
+       targetNodeId = Value(targetNodeId),
+       relationshipType = Value(relationshipType),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<GraphRelationship> custom({
+    Expression<String>? id,
+    Expression<String>? sourceNodeId,
+    Expression<String>? targetNodeId,
+    Expression<String>? relationshipType,
+    Expression<double>? weight,
+    Expression<double>? strength,
+    Expression<String>? status,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (sourceNodeId != null) 'source_node_id': sourceNodeId,
+      if (targetNodeId != null) 'target_node_id': targetNodeId,
+      if (relationshipType != null) 'relationship_type': relationshipType,
+      if (weight != null) 'weight': weight,
+      if (strength != null) 'strength': strength,
+      if (status != null) 'status': status,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GraphRelationshipsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? sourceNodeId,
+    Value<String>? targetNodeId,
+    Value<String>? relationshipType,
+    Value<double?>? weight,
+    Value<double?>? strength,
+    Value<String?>? status,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return GraphRelationshipsCompanion(
+      id: id ?? this.id,
+      sourceNodeId: sourceNodeId ?? this.sourceNodeId,
+      targetNodeId: targetNodeId ?? this.targetNodeId,
+      relationshipType: relationshipType ?? this.relationshipType,
+      weight: weight ?? this.weight,
+      strength: strength ?? this.strength,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sourceNodeId.present) {
+      map['source_node_id'] = Variable<String>(sourceNodeId.value);
+    }
+    if (targetNodeId.present) {
+      map['target_node_id'] = Variable<String>(targetNodeId.value);
+    }
+    if (relationshipType.present) {
+      map['relationship_type'] = Variable<String>(relationshipType.value);
+    }
+    if (weight.present) {
+      map['weight'] = Variable<double>(weight.value);
+    }
+    if (strength.present) {
+      map['strength'] = Variable<double>(strength.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GraphRelationshipsCompanion(')
+          ..write('id: $id, ')
+          ..write('sourceNodeId: $sourceNodeId, ')
+          ..write('targetNodeId: $targetNodeId, ')
+          ..write('relationshipType: $relationshipType, ')
+          ..write('weight: $weight, ')
+          ..write('strength: $strength, ')
+          ..write('status: $status, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AnalyticsEventsTable extends AnalyticsEvents
+    with TableInfo<$AnalyticsEventsTable, AnalyticsEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AnalyticsEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _eventTypeMeta = const VerificationMeta(
+    'eventType',
+  );
+  @override
+  late final GeneratedColumn<String> eventType = GeneratedColumn<String>(
+    'event_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _contentTypeMeta = const VerificationMeta(
+    'contentType',
+  );
+  @override
+  late final GeneratedColumn<String> contentType = GeneratedColumn<String>(
+    'content_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _contentIdMeta = const VerificationMeta(
+    'contentId',
+  );
+  @override
+  late final GeneratedColumn<String> contentId = GeneratedColumn<String>(
+    'content_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _timestampMeta = const VerificationMeta(
+    'timestamp',
+  );
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+    'timestamp',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _durationSecondsMeta = const VerificationMeta(
+    'durationSeconds',
+  );
+  @override
+  late final GeneratedColumn<int> durationSeconds = GeneratedColumn<int>(
+    'duration_seconds',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _resultMeta = const VerificationMeta('result');
+  @override
+  late final GeneratedColumn<String> result = GeneratedColumn<String>(
+    'result',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _metadataMeta = const VerificationMeta(
+    'metadata',
+  );
+  @override
+  late final GeneratedColumn<String> metadata = GeneratedColumn<String>(
+    'metadata',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    eventType,
+    contentType,
+    contentId,
+    timestamp,
+    durationSeconds,
+    result,
+    metadata,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'analytics_events';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AnalyticsEvent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('event_type')) {
+      context.handle(
+        _eventTypeMeta,
+        eventType.isAcceptableOrUnknown(data['event_type']!, _eventTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_eventTypeMeta);
+    }
+    if (data.containsKey('content_type')) {
+      context.handle(
+        _contentTypeMeta,
+        contentType.isAcceptableOrUnknown(
+          data['content_type']!,
+          _contentTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('content_id')) {
+      context.handle(
+        _contentIdMeta,
+        contentId.isAcceptableOrUnknown(data['content_id']!, _contentIdMeta),
+      );
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(
+        _timestampMeta,
+        timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('duration_seconds')) {
+      context.handle(
+        _durationSecondsMeta,
+        durationSeconds.isAcceptableOrUnknown(
+          data['duration_seconds']!,
+          _durationSecondsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('result')) {
+      context.handle(
+        _resultMeta,
+        result.isAcceptableOrUnknown(data['result']!, _resultMeta),
+      );
+    }
+    if (data.containsKey('metadata')) {
+      context.handle(
+        _metadataMeta,
+        metadata.isAcceptableOrUnknown(data['metadata']!, _metadataMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AnalyticsEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AnalyticsEvent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      eventType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}event_type'],
+      )!,
+      contentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_type'],
+      ),
+      contentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_id'],
+      ),
+      timestamp: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}timestamp'],
+      )!,
+      durationSeconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}duration_seconds'],
+      ),
+      result: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}result'],
+      ),
+      metadata: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metadata'],
+      ),
+    );
+  }
+
+  @override
+  $AnalyticsEventsTable createAlias(String alias) {
+    return $AnalyticsEventsTable(attachedDatabase, alias);
+  }
+}
+
+class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
+  final String id;
+  final String eventType;
+  final String? contentType;
+  final String? contentId;
+  final DateTime timestamp;
+  final int? durationSeconds;
+  final String? result;
+  final String? metadata;
+  const AnalyticsEvent({
+    required this.id,
+    required this.eventType,
+    this.contentType,
+    this.contentId,
+    required this.timestamp,
+    this.durationSeconds,
+    this.result,
+    this.metadata,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['event_type'] = Variable<String>(eventType);
+    if (!nullToAbsent || contentType != null) {
+      map['content_type'] = Variable<String>(contentType);
+    }
+    if (!nullToAbsent || contentId != null) {
+      map['content_id'] = Variable<String>(contentId);
+    }
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    if (!nullToAbsent || durationSeconds != null) {
+      map['duration_seconds'] = Variable<int>(durationSeconds);
+    }
+    if (!nullToAbsent || result != null) {
+      map['result'] = Variable<String>(result);
+    }
+    if (!nullToAbsent || metadata != null) {
+      map['metadata'] = Variable<String>(metadata);
+    }
+    return map;
+  }
+
+  AnalyticsEventsCompanion toCompanion(bool nullToAbsent) {
+    return AnalyticsEventsCompanion(
+      id: Value(id),
+      eventType: Value(eventType),
+      contentType: contentType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentType),
+      contentId: contentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(contentId),
+      timestamp: Value(timestamp),
+      durationSeconds: durationSeconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationSeconds),
+      result: result == null && nullToAbsent
+          ? const Value.absent()
+          : Value(result),
+      metadata: metadata == null && nullToAbsent
+          ? const Value.absent()
+          : Value(metadata),
+    );
+  }
+
+  factory AnalyticsEvent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AnalyticsEvent(
+      id: serializer.fromJson<String>(json['id']),
+      eventType: serializer.fromJson<String>(json['eventType']),
+      contentType: serializer.fromJson<String?>(json['contentType']),
+      contentId: serializer.fromJson<String?>(json['contentId']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      durationSeconds: serializer.fromJson<int?>(json['durationSeconds']),
+      result: serializer.fromJson<String?>(json['result']),
+      metadata: serializer.fromJson<String?>(json['metadata']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'eventType': serializer.toJson<String>(eventType),
+      'contentType': serializer.toJson<String?>(contentType),
+      'contentId': serializer.toJson<String?>(contentId),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'durationSeconds': serializer.toJson<int?>(durationSeconds),
+      'result': serializer.toJson<String?>(result),
+      'metadata': serializer.toJson<String?>(metadata),
+    };
+  }
+
+  AnalyticsEvent copyWith({
+    String? id,
+    String? eventType,
+    Value<String?> contentType = const Value.absent(),
+    Value<String?> contentId = const Value.absent(),
+    DateTime? timestamp,
+    Value<int?> durationSeconds = const Value.absent(),
+    Value<String?> result = const Value.absent(),
+    Value<String?> metadata = const Value.absent(),
+  }) => AnalyticsEvent(
+    id: id ?? this.id,
+    eventType: eventType ?? this.eventType,
+    contentType: contentType.present ? contentType.value : this.contentType,
+    contentId: contentId.present ? contentId.value : this.contentId,
+    timestamp: timestamp ?? this.timestamp,
+    durationSeconds: durationSeconds.present
+        ? durationSeconds.value
+        : this.durationSeconds,
+    result: result.present ? result.value : this.result,
+    metadata: metadata.present ? metadata.value : this.metadata,
+  );
+  AnalyticsEvent copyWithCompanion(AnalyticsEventsCompanion data) {
+    return AnalyticsEvent(
+      id: data.id.present ? data.id.value : this.id,
+      eventType: data.eventType.present ? data.eventType.value : this.eventType,
+      contentType: data.contentType.present
+          ? data.contentType.value
+          : this.contentType,
+      contentId: data.contentId.present ? data.contentId.value : this.contentId,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+      durationSeconds: data.durationSeconds.present
+          ? data.durationSeconds.value
+          : this.durationSeconds,
+      result: data.result.present ? data.result.value : this.result,
+      metadata: data.metadata.present ? data.metadata.value : this.metadata,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnalyticsEvent(')
+          ..write('id: $id, ')
+          ..write('eventType: $eventType, ')
+          ..write('contentType: $contentType, ')
+          ..write('contentId: $contentId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('result: $result, ')
+          ..write('metadata: $metadata')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    eventType,
+    contentType,
+    contentId,
+    timestamp,
+    durationSeconds,
+    result,
+    metadata,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AnalyticsEvent &&
+          other.id == this.id &&
+          other.eventType == this.eventType &&
+          other.contentType == this.contentType &&
+          other.contentId == this.contentId &&
+          other.timestamp == this.timestamp &&
+          other.durationSeconds == this.durationSeconds &&
+          other.result == this.result &&
+          other.metadata == this.metadata);
+}
+
+class AnalyticsEventsCompanion extends UpdateCompanion<AnalyticsEvent> {
+  final Value<String> id;
+  final Value<String> eventType;
+  final Value<String?> contentType;
+  final Value<String?> contentId;
+  final Value<DateTime> timestamp;
+  final Value<int?> durationSeconds;
+  final Value<String?> result;
+  final Value<String?> metadata;
+  final Value<int> rowid;
+  const AnalyticsEventsCompanion({
+    this.id = const Value.absent(),
+    this.eventType = const Value.absent(),
+    this.contentType = const Value.absent(),
+    this.contentId = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.durationSeconds = const Value.absent(),
+    this.result = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AnalyticsEventsCompanion.insert({
+    required String id,
+    required String eventType,
+    this.contentType = const Value.absent(),
+    this.contentId = const Value.absent(),
+    required DateTime timestamp,
+    this.durationSeconds = const Value.absent(),
+    this.result = const Value.absent(),
+    this.metadata = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       eventType = Value(eventType),
+       timestamp = Value(timestamp);
+  static Insertable<AnalyticsEvent> custom({
+    Expression<String>? id,
+    Expression<String>? eventType,
+    Expression<String>? contentType,
+    Expression<String>? contentId,
+    Expression<DateTime>? timestamp,
+    Expression<int>? durationSeconds,
+    Expression<String>? result,
+    Expression<String>? metadata,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (eventType != null) 'event_type': eventType,
+      if (contentType != null) 'content_type': contentType,
+      if (contentId != null) 'content_id': contentId,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (durationSeconds != null) 'duration_seconds': durationSeconds,
+      if (result != null) 'result': result,
+      if (metadata != null) 'metadata': metadata,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AnalyticsEventsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? eventType,
+    Value<String?>? contentType,
+    Value<String?>? contentId,
+    Value<DateTime>? timestamp,
+    Value<int?>? durationSeconds,
+    Value<String?>? result,
+    Value<String?>? metadata,
+    Value<int>? rowid,
+  }) {
+    return AnalyticsEventsCompanion(
+      id: id ?? this.id,
+      eventType: eventType ?? this.eventType,
+      contentType: contentType ?? this.contentType,
+      contentId: contentId ?? this.contentId,
+      timestamp: timestamp ?? this.timestamp,
+      durationSeconds: durationSeconds ?? this.durationSeconds,
+      result: result ?? this.result,
+      metadata: metadata ?? this.metadata,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (eventType.present) {
+      map['event_type'] = Variable<String>(eventType.value);
+    }
+    if (contentType.present) {
+      map['content_type'] = Variable<String>(contentType.value);
+    }
+    if (contentId.present) {
+      map['content_id'] = Variable<String>(contentId.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (durationSeconds.present) {
+      map['duration_seconds'] = Variable<int>(durationSeconds.value);
+    }
+    if (result.present) {
+      map['result'] = Variable<String>(result.value);
+    }
+    if (metadata.present) {
+      map['metadata'] = Variable<String>(metadata.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AnalyticsEventsCompanion(')
+          ..write('id: $id, ')
+          ..write('eventType: $eventType, ')
+          ..write('contentType: $contentType, ')
+          ..write('contentId: $contentId, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('durationSeconds: $durationSeconds, ')
+          ..write('result: $result, ')
+          ..write('metadata: $metadata, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -13628,6 +15614,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WeeklyGoalsTable weeklyGoals = $WeeklyGoalsTable(this);
   late final $ReviewHistoryRecordsTable reviewHistoryRecords =
       $ReviewHistoryRecordsTable(this);
+  late final $GraphNodesTable graphNodes = $GraphNodesTable(this);
+  late final $GraphRelationshipsTable graphRelationships =
+      $GraphRelationshipsTable(this);
+  late final $AnalyticsEventsTable analyticsEvents = $AnalyticsEventsTable(
+    this,
+  );
   late final Index idxMasterKanjisKanji = Index(
     'idx_master_kanjis_kanji',
     'CREATE INDEX idx_master_kanjis_kanji ON master_kanjis (kanji)',
@@ -13652,6 +15644,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'idx_user_kanjis_next_review',
     'CREATE INDEX idx_user_kanjis_next_review ON user_kanjis (next_review)',
   );
+  late final Index idxMasterVocabulariesWord = Index(
+    'idx_master_vocabularies_word',
+    'CREATE INDEX idx_master_vocabularies_word ON master_vocabularies (word)',
+  );
+  late final Index idxMasterVocabulariesKana = Index(
+    'idx_master_vocabularies_kana',
+    'CREATE INDEX idx_master_vocabularies_kana ON master_vocabularies (kana)',
+  );
+  late final Index idxMasterGrammarsPattern = Index(
+    'idx_master_grammars_pattern',
+    'CREATE INDEX idx_master_grammars_pattern ON master_grammars (pattern)',
+  );
+  late final Index idxMasterReadingsTitle = Index(
+    'idx_master_readings_title',
+    'CREATE INDEX idx_master_readings_title ON master_readings (title)',
+  );
+  late final Index idxMasterListeningsTitle = Index(
+    'idx_master_listenings_title',
+    'CREATE INDEX idx_master_listenings_title ON master_listenings (title)',
+  );
   late final Index idxPlannerTasksDate = Index(
     'idx_planner_tasks_date',
     'CREATE INDEX idx_planner_tasks_date ON planner_tasks (date)',
@@ -13659,6 +15671,30 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index idxReviewItemsNextReview = Index(
     'idx_review_items_next_review',
     'CREATE INDEX idx_review_items_next_review ON review_items (next_review_date, stage)',
+  );
+  late final Index idxGraphNodesMaster = Index(
+    'idx_graph_nodes_master',
+    'CREATE INDEX idx_graph_nodes_master ON graph_nodes (master_id, content_type)',
+  );
+  late final Index idxGraphRelationshipsSource = Index(
+    'idx_graph_relationships_source',
+    'CREATE INDEX idx_graph_relationships_source ON graph_relationships (source_node_id)',
+  );
+  late final Index idxGraphRelationshipsTarget = Index(
+    'idx_graph_relationships_target',
+    'CREATE INDEX idx_graph_relationships_target ON graph_relationships (target_node_id)',
+  );
+  late final Index idxGraphRelationshipsType = Index(
+    'idx_graph_relationships_type',
+    'CREATE INDEX idx_graph_relationships_type ON graph_relationships (relationship_type)',
+  );
+  late final Index idxAnalyticsEventsType = Index(
+    'idx_analytics_events_type',
+    'CREATE INDEX idx_analytics_events_type ON analytics_events (event_type)',
+  );
+  late final Index idxAnalyticsEventsTime = Index(
+    'idx_analytics_events_time',
+    'CREATE INDEX idx_analytics_events_time ON analytics_events (timestamp)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -13691,14 +15727,28 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     achievements,
     weeklyGoals,
     reviewHistoryRecords,
+    graphNodes,
+    graphRelationships,
+    analyticsEvents,
     idxMasterKanjisKanji,
     idxMasterKanjisJlpt,
     idxUserKanjisMasterId,
     idxUserKanjisLearned,
     idxUserKanjisFavorite,
     idxUserKanjisNextReview,
+    idxMasterVocabulariesWord,
+    idxMasterVocabulariesKana,
+    idxMasterGrammarsPattern,
+    idxMasterReadingsTitle,
+    idxMasterListeningsTitle,
     idxPlannerTasksDate,
     idxReviewItemsNextReview,
+    idxGraphNodesMaster,
+    idxGraphRelationshipsSource,
+    idxGraphRelationshipsTarget,
+    idxGraphRelationshipsType,
+    idxAnalyticsEventsType,
+    idxAnalyticsEventsTime,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -23519,10 +25569,16 @@ typedef $$AchievementsTableCreateCompanionBuilder =
       required String id,
       required String title,
       required String description,
+      Value<String> category,
       required int xpReward,
       required int coinReward,
+      Value<String> icon,
+      Value<int> progress,
+      Value<int> target,
       Value<bool> isUnlocked,
       Value<DateTime?> unlockedAt,
+      Value<bool> hidden,
+      Value<String> difficulty,
       Value<int> rowid,
     });
 typedef $$AchievementsTableUpdateCompanionBuilder =
@@ -23530,10 +25586,16 @@ typedef $$AchievementsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> title,
       Value<String> description,
+      Value<String> category,
       Value<int> xpReward,
       Value<int> coinReward,
+      Value<String> icon,
+      Value<int> progress,
+      Value<int> target,
       Value<bool> isUnlocked,
       Value<DateTime?> unlockedAt,
+      Value<bool> hidden,
+      Value<String> difficulty,
       Value<int> rowid,
     });
 
@@ -23561,6 +25623,11 @@ class $$AchievementsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get xpReward => $composableBuilder(
     column: $table.xpReward,
     builder: (column) => ColumnFilters(column),
@@ -23571,6 +25638,21 @@ class $$AchievementsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get icon => $composableBuilder(
+    column: $table.icon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get target => $composableBuilder(
+    column: $table.target,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<bool> get isUnlocked => $composableBuilder(
     column: $table.isUnlocked,
     builder: (column) => ColumnFilters(column),
@@ -23578,6 +25660,16 @@ class $$AchievementsTableFilterComposer
 
   ColumnFilters<DateTime> get unlockedAt => $composableBuilder(
     column: $table.unlockedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -23606,6 +25698,11 @@ class $$AchievementsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get xpReward => $composableBuilder(
     column: $table.xpReward,
     builder: (column) => ColumnOrderings(column),
@@ -23616,6 +25713,21 @@ class $$AchievementsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get icon => $composableBuilder(
+    column: $table.icon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get progress => $composableBuilder(
+    column: $table.progress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get target => $composableBuilder(
+    column: $table.target,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isUnlocked => $composableBuilder(
     column: $table.isUnlocked,
     builder: (column) => ColumnOrderings(column),
@@ -23623,6 +25735,16 @@ class $$AchievementsTableOrderingComposer
 
   ColumnOrderings<DateTime> get unlockedAt => $composableBuilder(
     column: $table.unlockedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hidden => $composableBuilder(
+    column: $table.hidden,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -23647,6 +25769,9 @@ class $$AchievementsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
   GeneratedColumn<int> get xpReward =>
       $composableBuilder(column: $table.xpReward, builder: (column) => column);
 
@@ -23655,6 +25780,15 @@ class $$AchievementsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get icon =>
+      $composableBuilder(column: $table.icon, builder: (column) => column);
+
+  GeneratedColumn<int> get progress =>
+      $composableBuilder(column: $table.progress, builder: (column) => column);
+
+  GeneratedColumn<int> get target =>
+      $composableBuilder(column: $table.target, builder: (column) => column);
+
   GeneratedColumn<bool> get isUnlocked => $composableBuilder(
     column: $table.isUnlocked,
     builder: (column) => column,
@@ -23662,6 +25796,14 @@ class $$AchievementsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get unlockedAt => $composableBuilder(
     column: $table.unlockedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get hidden =>
+      $composableBuilder(column: $table.hidden, builder: (column) => column);
+
+  GeneratedColumn<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
     builder: (column) => column,
   );
 }
@@ -23700,19 +25842,31 @@ class $$AchievementsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String> description = const Value.absent(),
+                Value<String> category = const Value.absent(),
                 Value<int> xpReward = const Value.absent(),
                 Value<int> coinReward = const Value.absent(),
+                Value<String> icon = const Value.absent(),
+                Value<int> progress = const Value.absent(),
+                Value<int> target = const Value.absent(),
                 Value<bool> isUnlocked = const Value.absent(),
                 Value<DateTime?> unlockedAt = const Value.absent(),
+                Value<bool> hidden = const Value.absent(),
+                Value<String> difficulty = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AchievementsCompanion(
                 id: id,
                 title: title,
                 description: description,
+                category: category,
                 xpReward: xpReward,
                 coinReward: coinReward,
+                icon: icon,
+                progress: progress,
+                target: target,
                 isUnlocked: isUnlocked,
                 unlockedAt: unlockedAt,
+                hidden: hidden,
+                difficulty: difficulty,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -23720,19 +25874,31 @@ class $$AchievementsTableTableManager
                 required String id,
                 required String title,
                 required String description,
+                Value<String> category = const Value.absent(),
                 required int xpReward,
                 required int coinReward,
+                Value<String> icon = const Value.absent(),
+                Value<int> progress = const Value.absent(),
+                Value<int> target = const Value.absent(),
                 Value<bool> isUnlocked = const Value.absent(),
                 Value<DateTime?> unlockedAt = const Value.absent(),
+                Value<bool> hidden = const Value.absent(),
+                Value<String> difficulty = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AchievementsCompanion.insert(
                 id: id,
                 title: title,
                 description: description,
+                category: category,
                 xpReward: xpReward,
                 coinReward: coinReward,
+                icon: icon,
+                progress: progress,
+                target: target,
                 isUnlocked: isUnlocked,
                 unlockedAt: unlockedAt,
+                hidden: hidden,
+                difficulty: difficulty,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -24266,6 +26432,864 @@ typedef $$ReviewHistoryRecordsTableProcessedTableManager =
       ReviewHistoryRecord,
       PrefetchHooks Function()
     >;
+typedef $$GraphNodesTableCreateCompanionBuilder =
+    GraphNodesCompanion Function({
+      required String id,
+      required String contentType,
+      required String masterId,
+      required String title,
+      Value<String?> subtitle,
+      Value<double?> difficulty,
+      Value<int?> jlpt,
+      Value<String?> tags,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$GraphNodesTableUpdateCompanionBuilder =
+    GraphNodesCompanion Function({
+      Value<String> id,
+      Value<String> contentType,
+      Value<String> masterId,
+      Value<String> title,
+      Value<String?> subtitle,
+      Value<double?> difficulty,
+      Value<int?> jlpt,
+      Value<String?> tags,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$GraphNodesTableFilterComposer
+    extends Composer<_$AppDatabase, $GraphNodesTable> {
+  $$GraphNodesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentType => $composableBuilder(
+    column: $table.contentType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get masterId => $composableBuilder(
+    column: $table.masterId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subtitle => $composableBuilder(
+    column: $table.subtitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get jlpt => $composableBuilder(
+    column: $table.jlpt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GraphNodesTableOrderingComposer
+    extends Composer<_$AppDatabase, $GraphNodesTable> {
+  $$GraphNodesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contentType => $composableBuilder(
+    column: $table.contentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get masterId => $composableBuilder(
+    column: $table.masterId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subtitle => $composableBuilder(
+    column: $table.subtitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get jlpt => $composableBuilder(
+    column: $table.jlpt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+    column: $table.tags,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GraphNodesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GraphNodesTable> {
+  $$GraphNodesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get contentType => $composableBuilder(
+    column: $table.contentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get masterId =>
+      $composableBuilder(column: $table.masterId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get subtitle =>
+      $composableBuilder(column: $table.subtitle, builder: (column) => column);
+
+  GeneratedColumn<double> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get jlpt =>
+      $composableBuilder(column: $table.jlpt, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$GraphNodesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GraphNodesTable,
+          GraphNode,
+          $$GraphNodesTableFilterComposer,
+          $$GraphNodesTableOrderingComposer,
+          $$GraphNodesTableAnnotationComposer,
+          $$GraphNodesTableCreateCompanionBuilder,
+          $$GraphNodesTableUpdateCompanionBuilder,
+          (
+            GraphNode,
+            BaseReferences<_$AppDatabase, $GraphNodesTable, GraphNode>,
+          ),
+          GraphNode,
+          PrefetchHooks Function()
+        > {
+  $$GraphNodesTableTableManager(_$AppDatabase db, $GraphNodesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GraphNodesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GraphNodesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GraphNodesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> contentType = const Value.absent(),
+                Value<String> masterId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> subtitle = const Value.absent(),
+                Value<double?> difficulty = const Value.absent(),
+                Value<int?> jlpt = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GraphNodesCompanion(
+                id: id,
+                contentType: contentType,
+                masterId: masterId,
+                title: title,
+                subtitle: subtitle,
+                difficulty: difficulty,
+                jlpt: jlpt,
+                tags: tags,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String contentType,
+                required String masterId,
+                required String title,
+                Value<String?> subtitle = const Value.absent(),
+                Value<double?> difficulty = const Value.absent(),
+                Value<int?> jlpt = const Value.absent(),
+                Value<String?> tags = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => GraphNodesCompanion.insert(
+                id: id,
+                contentType: contentType,
+                masterId: masterId,
+                title: title,
+                subtitle: subtitle,
+                difficulty: difficulty,
+                jlpt: jlpt,
+                tags: tags,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GraphNodesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GraphNodesTable,
+      GraphNode,
+      $$GraphNodesTableFilterComposer,
+      $$GraphNodesTableOrderingComposer,
+      $$GraphNodesTableAnnotationComposer,
+      $$GraphNodesTableCreateCompanionBuilder,
+      $$GraphNodesTableUpdateCompanionBuilder,
+      (GraphNode, BaseReferences<_$AppDatabase, $GraphNodesTable, GraphNode>),
+      GraphNode,
+      PrefetchHooks Function()
+    >;
+typedef $$GraphRelationshipsTableCreateCompanionBuilder =
+    GraphRelationshipsCompanion Function({
+      required String id,
+      required String sourceNodeId,
+      required String targetNodeId,
+      required String relationshipType,
+      Value<double?> weight,
+      Value<double?> strength,
+      Value<String?> status,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$GraphRelationshipsTableUpdateCompanionBuilder =
+    GraphRelationshipsCompanion Function({
+      Value<String> id,
+      Value<String> sourceNodeId,
+      Value<String> targetNodeId,
+      Value<String> relationshipType,
+      Value<double?> weight,
+      Value<double?> strength,
+      Value<String?> status,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$GraphRelationshipsTableFilterComposer
+    extends Composer<_$AppDatabase, $GraphRelationshipsTable> {
+  $$GraphRelationshipsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceNodeId => $composableBuilder(
+    column: $table.sourceNodeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get targetNodeId => $composableBuilder(
+    column: $table.targetNodeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get relationshipType => $composableBuilder(
+    column: $table.relationshipType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get strength => $composableBuilder(
+    column: $table.strength,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GraphRelationshipsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GraphRelationshipsTable> {
+  $$GraphRelationshipsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceNodeId => $composableBuilder(
+    column: $table.sourceNodeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get targetNodeId => $composableBuilder(
+    column: $table.targetNodeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get relationshipType => $composableBuilder(
+    column: $table.relationshipType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get weight => $composableBuilder(
+    column: $table.weight,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get strength => $composableBuilder(
+    column: $table.strength,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GraphRelationshipsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GraphRelationshipsTable> {
+  $$GraphRelationshipsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceNodeId => $composableBuilder(
+    column: $table.sourceNodeId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get targetNodeId => $composableBuilder(
+    column: $table.targetNodeId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get relationshipType => $composableBuilder(
+    column: $table.relationshipType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get weight =>
+      $composableBuilder(column: $table.weight, builder: (column) => column);
+
+  GeneratedColumn<double> get strength =>
+      $composableBuilder(column: $table.strength, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$GraphRelationshipsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GraphRelationshipsTable,
+          GraphRelationship,
+          $$GraphRelationshipsTableFilterComposer,
+          $$GraphRelationshipsTableOrderingComposer,
+          $$GraphRelationshipsTableAnnotationComposer,
+          $$GraphRelationshipsTableCreateCompanionBuilder,
+          $$GraphRelationshipsTableUpdateCompanionBuilder,
+          (
+            GraphRelationship,
+            BaseReferences<
+              _$AppDatabase,
+              $GraphRelationshipsTable,
+              GraphRelationship
+            >,
+          ),
+          GraphRelationship,
+          PrefetchHooks Function()
+        > {
+  $$GraphRelationshipsTableTableManager(
+    _$AppDatabase db,
+    $GraphRelationshipsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GraphRelationshipsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GraphRelationshipsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GraphRelationshipsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> sourceNodeId = const Value.absent(),
+                Value<String> targetNodeId = const Value.absent(),
+                Value<String> relationshipType = const Value.absent(),
+                Value<double?> weight = const Value.absent(),
+                Value<double?> strength = const Value.absent(),
+                Value<String?> status = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GraphRelationshipsCompanion(
+                id: id,
+                sourceNodeId: sourceNodeId,
+                targetNodeId: targetNodeId,
+                relationshipType: relationshipType,
+                weight: weight,
+                strength: strength,
+                status: status,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String sourceNodeId,
+                required String targetNodeId,
+                required String relationshipType,
+                Value<double?> weight = const Value.absent(),
+                Value<double?> strength = const Value.absent(),
+                Value<String?> status = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => GraphRelationshipsCompanion.insert(
+                id: id,
+                sourceNodeId: sourceNodeId,
+                targetNodeId: targetNodeId,
+                relationshipType: relationshipType,
+                weight: weight,
+                strength: strength,
+                status: status,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GraphRelationshipsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GraphRelationshipsTable,
+      GraphRelationship,
+      $$GraphRelationshipsTableFilterComposer,
+      $$GraphRelationshipsTableOrderingComposer,
+      $$GraphRelationshipsTableAnnotationComposer,
+      $$GraphRelationshipsTableCreateCompanionBuilder,
+      $$GraphRelationshipsTableUpdateCompanionBuilder,
+      (
+        GraphRelationship,
+        BaseReferences<
+          _$AppDatabase,
+          $GraphRelationshipsTable,
+          GraphRelationship
+        >,
+      ),
+      GraphRelationship,
+      PrefetchHooks Function()
+    >;
+typedef $$AnalyticsEventsTableCreateCompanionBuilder =
+    AnalyticsEventsCompanion Function({
+      required String id,
+      required String eventType,
+      Value<String?> contentType,
+      Value<String?> contentId,
+      required DateTime timestamp,
+      Value<int?> durationSeconds,
+      Value<String?> result,
+      Value<String?> metadata,
+      Value<int> rowid,
+    });
+typedef $$AnalyticsEventsTableUpdateCompanionBuilder =
+    AnalyticsEventsCompanion Function({
+      Value<String> id,
+      Value<String> eventType,
+      Value<String?> contentType,
+      Value<String?> contentId,
+      Value<DateTime> timestamp,
+      Value<int?> durationSeconds,
+      Value<String?> result,
+      Value<String?> metadata,
+      Value<int> rowid,
+    });
+
+class $$AnalyticsEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $AnalyticsEventsTable> {
+  $$AnalyticsEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get eventType => $composableBuilder(
+    column: $table.eventType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentType => $composableBuilder(
+    column: $table.contentType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get contentId => $composableBuilder(
+    column: $table.contentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AnalyticsEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AnalyticsEventsTable> {
+  $$AnalyticsEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get eventType => $composableBuilder(
+    column: $table.eventType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contentType => $composableBuilder(
+    column: $table.contentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get contentId => $composableBuilder(
+    column: $table.contentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+    column: $table.timestamp,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get result => $composableBuilder(
+    column: $table.result,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metadata => $composableBuilder(
+    column: $table.metadata,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AnalyticsEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AnalyticsEventsTable> {
+  $$AnalyticsEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get eventType =>
+      $composableBuilder(column: $table.eventType, builder: (column) => column);
+
+  GeneratedColumn<String> get contentType => $composableBuilder(
+    column: $table.contentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get contentId =>
+      $composableBuilder(column: $table.contentId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<int> get durationSeconds => $composableBuilder(
+    column: $table.durationSeconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get result =>
+      $composableBuilder(column: $table.result, builder: (column) => column);
+
+  GeneratedColumn<String> get metadata =>
+      $composableBuilder(column: $table.metadata, builder: (column) => column);
+}
+
+class $$AnalyticsEventsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AnalyticsEventsTable,
+          AnalyticsEvent,
+          $$AnalyticsEventsTableFilterComposer,
+          $$AnalyticsEventsTableOrderingComposer,
+          $$AnalyticsEventsTableAnnotationComposer,
+          $$AnalyticsEventsTableCreateCompanionBuilder,
+          $$AnalyticsEventsTableUpdateCompanionBuilder,
+          (
+            AnalyticsEvent,
+            BaseReferences<
+              _$AppDatabase,
+              $AnalyticsEventsTable,
+              AnalyticsEvent
+            >,
+          ),
+          AnalyticsEvent,
+          PrefetchHooks Function()
+        > {
+  $$AnalyticsEventsTableTableManager(
+    _$AppDatabase db,
+    $AnalyticsEventsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AnalyticsEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AnalyticsEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AnalyticsEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> eventType = const Value.absent(),
+                Value<String?> contentType = const Value.absent(),
+                Value<String?> contentId = const Value.absent(),
+                Value<DateTime> timestamp = const Value.absent(),
+                Value<int?> durationSeconds = const Value.absent(),
+                Value<String?> result = const Value.absent(),
+                Value<String?> metadata = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AnalyticsEventsCompanion(
+                id: id,
+                eventType: eventType,
+                contentType: contentType,
+                contentId: contentId,
+                timestamp: timestamp,
+                durationSeconds: durationSeconds,
+                result: result,
+                metadata: metadata,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String eventType,
+                Value<String?> contentType = const Value.absent(),
+                Value<String?> contentId = const Value.absent(),
+                required DateTime timestamp,
+                Value<int?> durationSeconds = const Value.absent(),
+                Value<String?> result = const Value.absent(),
+                Value<String?> metadata = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AnalyticsEventsCompanion.insert(
+                id: id,
+                eventType: eventType,
+                contentType: contentType,
+                contentId: contentId,
+                timestamp: timestamp,
+                durationSeconds: durationSeconds,
+                result: result,
+                metadata: metadata,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AnalyticsEventsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AnalyticsEventsTable,
+      AnalyticsEvent,
+      $$AnalyticsEventsTableFilterComposer,
+      $$AnalyticsEventsTableOrderingComposer,
+      $$AnalyticsEventsTableAnnotationComposer,
+      $$AnalyticsEventsTableCreateCompanionBuilder,
+      $$AnalyticsEventsTableUpdateCompanionBuilder,
+      (
+        AnalyticsEvent,
+        BaseReferences<_$AppDatabase, $AnalyticsEventsTable, AnalyticsEvent>,
+      ),
+      AnalyticsEvent,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -24322,4 +27346,10 @@ class $AppDatabaseManager {
       $$WeeklyGoalsTableTableManager(_db, _db.weeklyGoals);
   $$ReviewHistoryRecordsTableTableManager get reviewHistoryRecords =>
       $$ReviewHistoryRecordsTableTableManager(_db, _db.reviewHistoryRecords);
+  $$GraphNodesTableTableManager get graphNodes =>
+      $$GraphNodesTableTableManager(_db, _db.graphNodes);
+  $$GraphRelationshipsTableTableManager get graphRelationships =>
+      $$GraphRelationshipsTableTableManager(_db, _db.graphRelationships);
+  $$AnalyticsEventsTableTableManager get analyticsEvents =>
+      $$AnalyticsEventsTableTableManager(_db, _db.analyticsEvents);
 }
