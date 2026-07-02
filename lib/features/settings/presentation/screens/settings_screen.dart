@@ -11,6 +11,7 @@ import 'package:path/path.dart' as p;
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shinka_track_n3/core/services/admin_service.dart';
+import 'package:shinka_track_n3/features/achievements/application/achievements_notifier.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -301,6 +302,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ref.invalidate(dailyGoalProvider);
                 ref.invalidate(studySessionsProvider);
                 ref.invalidate(activePlanProvider);
+                ref.invalidate(userXpProvider);
+                ref.invalidate(achievementsListProvider);
 
                 messenger.showSnackBar(
                   const SnackBar(content: Text('All progress and study records have been reset.')),

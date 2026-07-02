@@ -8,6 +8,9 @@ import 'package:shinka_track_n3/core/navigation/responsive_layout.dart';
 import 'package:shinka_track_n3/features/study/domain/entities/study_entities.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/study_providers.dart';
 import 'package:shinka_track_n3/features/study/presentation/providers/gamification_providers.dart';
+import 'package:shinka_track_n3/features/achievements/application/achievements_notifier.dart';
+import 'package:shinka_track_n3/features/achievements/domain/models/progression_config.dart';
+import 'package:shinka_track_n3/core/theme/design_system.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -50,6 +53,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final streak = ref.watch(streakProvider).value ?? 0;
     final dailyGoal = ref.watch(dailyGoalProvider).value;
     final weeklyGoal = ref.watch(weeklyGoalProvider).value;
+    final userXp = ref.watch(userXpProvider).value ?? 0;
+    final userLevel = ProgressionConfig.calculateLevelFromXp(userXp);
 
     final kanjis = ref.watch(kanjiListProvider).value ?? [];
     final vocabs = ref.watch(vocabListProvider).value ?? [];
@@ -97,6 +102,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.emoji_events_rounded, color: PremiumDesignSystem.primaryBlue),
+            tooltip: 'Level $userLevel ($userXp XP)',
+            onPressed: () => context.push('/achievements'),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.lg),
             child: GestureDetector(
