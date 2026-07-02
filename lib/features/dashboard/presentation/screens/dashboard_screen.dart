@@ -11,6 +11,7 @@ import 'package:shinka_track_n3/features/study/presentation/providers/gamificati
 import 'package:shinka_track_n3/features/achievements/application/achievements_notifier.dart';
 import 'package:shinka_track_n3/features/achievements/domain/models/progression_config.dart';
 import 'package:shinka_track_n3/core/theme/design_system.dart';
+import 'package:shinka_track_n3/features/notifications/presentation/widgets/reminder_card.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -166,6 +167,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // 1.5 SMART REMINDERS
+              const SectionHeader(title: "Upcoming Smart Alerts"),
+              const SizedBox(height: AppSpacing.sm),
+              const ReminderCard(),
               const SizedBox(height: AppSpacing.lg),
 
               // 2. TODAY'S STUDY PLAN

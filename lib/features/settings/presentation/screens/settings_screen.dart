@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shinka_track_n3/core/services/admin_service.dart';
 import 'package:shinka_track_n3/features/achievements/application/achievements_notifier.dart';
+import 'package:shinka_track_n3/features/notifications/application/notifications_notifier.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -327,6 +328,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final themeMode = ref.watch(themeModeProvider);
     final themeColor = ref.watch(themeColorProvider);
     final fontSize = ref.watch(fontSizeProvider);
+    final quietSettings = ref.watch(notificationSettingsProvider);
+    final quietEnabled = quietSettings['quietHoursEnabled'] as bool? ?? false;
+    final quietStart = quietSettings['quietHoursStart'] as String? ?? '22:00';
+    final quietEnd = quietSettings['quietHoursEnd'] as String? ?? '07:00';
 
     return Scaffold(
       appBar: AppBar(
@@ -530,6 +535,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         subtitle: const Text('Sunday reminder at 9:00 AM for weekly reviews'),
                         value: _weeklyEnabled,
                         onChanged: (val) => _toggleReminder('weekly', val),
+                      ),
+                      const Divider(),
+                      SwitchListTile(
+                        title: const Text('Enable Quiet Hours'),
+                        subtitle: const Text('Mute reminders during sleeping hours'),
+                        value: quietEnabled,
+                        onChanged: (val) {
+                          ref.read(notificationSettingsProvider.notifier).updateSetting('quietHoursEnabled', val);
+                        },
+                      ),
+                      ListTile(
+                        enabled: quietEnabled,
+                        title: const Text('Quiet Hours Start'),
+                        trailing: Text(quietStart, style: TextStyle(color: quietEnabled ? Theme.of(context).primaryColor : Colors.grey)),
+                        onTap: quietEnabled ? () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                              hour: int.parse(quietStart.split(':')[0]),
+                              minute: int.parse(quietStart.split(':')[1]),
+                            ),
+                          );
+                          if (picked != null) {
+                            final startStr = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                            ref.read(notificationSettingsProvider.notifier).updateSetting('quietHoursStart', startStr);
+                          }
+                        } : null,
+                      ),
+                      ListTile(
+                        enabled: quietEnabled,
+                        title: const Text('Quiet Hours End'),
+                        trailing: Text(quietEnd, style: TextStyle(color: quietEnabled ? Theme.of(context).primaryColor : Colors.grey)),
+                        onTap: quietEnabled ? () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: TimeOfDay(
+                              hour: int.parse(quietEnd.split(':')[0]),
+                              minute: int.parse(quietEnd.split(':')[1]),
+                            ),
+                          );
+                          if (picked != null) {
+                            final endStr = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+                            ref.read(notificationSettingsProvider.notifier).updateSetting('quietHoursEnd', endStr);
+                          }
+                        } : null,
                       ),
                     ],
                   ),
