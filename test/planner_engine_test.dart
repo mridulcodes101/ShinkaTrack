@@ -4,8 +4,6 @@ import 'package:drift/native.dart';
 import 'package:shinka_track_n3/core/database/database.dart' hide StudyPlan, PlannerTask;
 import 'package:shinka_track_n3/features/planner/domain/models/study_plan.dart';
 import 'package:shinka_track_n3/features/planner/domain/models/planner_task.dart';
-import 'package:shinka_track_n3/features/planner/domain/repositories/planner_repository.dart';
-import 'package:shinka_track_n3/features/planner/data/repositories/planner_repository_impl.dart';
 import 'package:shinka_track_n3/features/planner/planner_engine/study_planner_engine.dart';
 
 void main() {
