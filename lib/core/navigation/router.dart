@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shinka_track_n3/core/navigation/responsive_layout.dart';
 import 'package:shinka_track_n3/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:shinka_track_n3/features/study/presentation/screens/study_screen.dart';
@@ -36,13 +37,47 @@ import 'package:shinka_track_n3/features/planner/presentation/screens/planner_da
 import 'package:shinka_track_n3/features/planner/presentation/screens/planner_setup_wizard_screen.dart' as p_wizard;
 import 'package:shinka_track_n3/core/search/presentation/screens/search_screen.dart' as search_screen;
 import 'package:shinka_track_n3/features/achievements/presentation/screens/achievements_screen.dart' as achievements;
+import 'package:shinka_track_n3/features/onboarding/presentation/screens/onboarding_screen.dart' as onboarding;
+import 'package:shinka_track_n3/features/onboarding/application/onboarding_notifier.dart';
+import 'package:shinka_track_n3/features/study_session/presentation/screens/study_session_screen.dart' as study_session;
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 final goRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
+  redirect: (context, state) {
+    try {
+      final container = ProviderScope.containerOf(context);
+      final onboardingCompleted = container.read(onboardingCompletedProvider);
+      final onOnboarding = state.uri.path == '/onboarding';
+
+      if (!onboardingCompleted) {
+        return '/onboarding';
+      }
+      if (onOnboarding) {
+        return '/';
+      }
+    } catch (_) {
+      // Fail-safe default
+    }
+    return null;
+  },
   routes: [
+    GoRoute(
+      path: '/onboarding',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const onboarding.OnboardingScreen(),
+    ),
+    GoRoute(
+      path: '/study_session',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final type = state.uri.queryParameters['type'] ?? 'guided';
+        final modules = state.uri.queryParameters['modules']?.split(',') ?? ['Kanji'];
+        return study_session.StudySessionScreen(sessionType: type, modules: modules);
+      },
+    ),
     GoRoute(
       path: '/settings',
       parentNavigatorKey: _rootNavigatorKey,

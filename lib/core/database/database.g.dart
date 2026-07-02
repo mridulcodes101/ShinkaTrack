@@ -9275,6 +9275,17 @@ class $StudySessionsTable extends StudySessions
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endTime = GeneratedColumn<DateTime>(
+    'end_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _durationSecondsMeta = const VerificationMeta(
     'durationSeconds',
   );
@@ -9297,8 +9308,116 @@ class $StudySessionsTable extends StudySessions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
-  List<GeneratedColumn> get $columns => [id, date, durationSeconds, category];
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('Created'),
+  );
+  static const VerificationMeta _modulesStudiedMeta = const VerificationMeta(
+    'modulesStudied',
+  );
+  @override
+  late final GeneratedColumn<String> modulesStudied = GeneratedColumn<String>(
+    'modules_studied',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _tasksCompletedMeta = const VerificationMeta(
+    'tasksCompleted',
+  );
+  @override
+  late final GeneratedColumn<int> tasksCompleted = GeneratedColumn<int>(
+    'tasks_completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _reviewsCompletedMeta = const VerificationMeta(
+    'reviewsCompleted',
+  );
+  @override
+  late final GeneratedColumn<int> reviewsCompleted = GeneratedColumn<int>(
+    'reviews_completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _interruptionsMeta = const VerificationMeta(
+    'interruptions',
+  );
+  @override
+  late final GeneratedColumn<int> interruptions = GeneratedColumn<int>(
+    'interruptions',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _pauseCountMeta = const VerificationMeta(
+    'pauseCount',
+  );
+  @override
+  late final GeneratedColumn<int> pauseCount = GeneratedColumn<int>(
+    'pause_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _completionMeta = const VerificationMeta(
+    'completion',
+  );
+  @override
+  late final GeneratedColumn<double> completion = GeneratedColumn<double>(
+    'completion',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0.0),
+  );
+  static const VerificationMeta _xpEarnedMeta = const VerificationMeta(
+    'xpEarned',
+  );
+  @override
+  late final GeneratedColumn<int> xpEarned = GeneratedColumn<int>(
+    'xp_earned',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    date,
+    endTime,
+    durationSeconds,
+    category,
+    status,
+    modulesStudied,
+    tasksCompleted,
+    reviewsCompleted,
+    interruptions,
+    pauseCount,
+    completion,
+    xpEarned,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -9324,6 +9443,12 @@ class $StudySessionsTable extends StudySessions
     } else if (isInserting) {
       context.missing(_dateMeta);
     }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
+    }
     if (data.containsKey('duration_seconds')) {
       context.handle(
         _durationSecondsMeta,
@@ -9343,6 +9468,66 @@ class $StudySessionsTable extends StudySessions
     } else if (isInserting) {
       context.missing(_categoryMeta);
     }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('modules_studied')) {
+      context.handle(
+        _modulesStudiedMeta,
+        modulesStudied.isAcceptableOrUnknown(
+          data['modules_studied']!,
+          _modulesStudiedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tasks_completed')) {
+      context.handle(
+        _tasksCompletedMeta,
+        tasksCompleted.isAcceptableOrUnknown(
+          data['tasks_completed']!,
+          _tasksCompletedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reviews_completed')) {
+      context.handle(
+        _reviewsCompletedMeta,
+        reviewsCompleted.isAcceptableOrUnknown(
+          data['reviews_completed']!,
+          _reviewsCompletedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('interruptions')) {
+      context.handle(
+        _interruptionsMeta,
+        interruptions.isAcceptableOrUnknown(
+          data['interruptions']!,
+          _interruptionsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('pause_count')) {
+      context.handle(
+        _pauseCountMeta,
+        pauseCount.isAcceptableOrUnknown(data['pause_count']!, _pauseCountMeta),
+      );
+    }
+    if (data.containsKey('completion')) {
+      context.handle(
+        _completionMeta,
+        completion.isAcceptableOrUnknown(data['completion']!, _completionMeta),
+      );
+    }
+    if (data.containsKey('xp_earned')) {
+      context.handle(
+        _xpEarnedMeta,
+        xpEarned.isAcceptableOrUnknown(data['xp_earned']!, _xpEarnedMeta),
+      );
+    }
     return context;
   }
 
@@ -9360,6 +9545,10 @@ class $StudySessionsTable extends StudySessions
         DriftSqlType.dateTime,
         data['${effectivePrefix}date'],
       )!,
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_time'],
+      ),
       durationSeconds: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}duration_seconds'],
@@ -9367,6 +9556,38 @@ class $StudySessionsTable extends StudySessions
       category: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}category'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      modulesStudied: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}modules_studied'],
+      )!,
+      tasksCompleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tasks_completed'],
+      )!,
+      reviewsCompleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reviews_completed'],
+      )!,
+      interruptions: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}interruptions'],
+      )!,
+      pauseCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pause_count'],
+      )!,
+      completion: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}completion'],
+      )!,
+      xpEarned: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}xp_earned'],
       )!,
     );
   }
@@ -9380,21 +9601,50 @@ class $StudySessionsTable extends StudySessions
 class StudySession extends DataClass implements Insertable<StudySession> {
   final String id;
   final DateTime date;
+  final DateTime? endTime;
   final int durationSeconds;
   final String category;
+  final String status;
+  final String modulesStudied;
+  final int tasksCompleted;
+  final int reviewsCompleted;
+  final int interruptions;
+  final int pauseCount;
+  final double completion;
+  final int xpEarned;
   const StudySession({
     required this.id,
     required this.date,
+    this.endTime,
     required this.durationSeconds,
     required this.category,
+    required this.status,
+    required this.modulesStudied,
+    required this.tasksCompleted,
+    required this.reviewsCompleted,
+    required this.interruptions,
+    required this.pauseCount,
+    required this.completion,
+    required this.xpEarned,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || endTime != null) {
+      map['end_time'] = Variable<DateTime>(endTime);
+    }
     map['duration_seconds'] = Variable<int>(durationSeconds);
     map['category'] = Variable<String>(category);
+    map['status'] = Variable<String>(status);
+    map['modules_studied'] = Variable<String>(modulesStudied);
+    map['tasks_completed'] = Variable<int>(tasksCompleted);
+    map['reviews_completed'] = Variable<int>(reviewsCompleted);
+    map['interruptions'] = Variable<int>(interruptions);
+    map['pause_count'] = Variable<int>(pauseCount);
+    map['completion'] = Variable<double>(completion);
+    map['xp_earned'] = Variable<int>(xpEarned);
     return map;
   }
 
@@ -9402,8 +9652,19 @@ class StudySession extends DataClass implements Insertable<StudySession> {
     return StudySessionsCompanion(
       id: Value(id),
       date: Value(date),
+      endTime: endTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endTime),
       durationSeconds: Value(durationSeconds),
       category: Value(category),
+      status: Value(status),
+      modulesStudied: Value(modulesStudied),
+      tasksCompleted: Value(tasksCompleted),
+      reviewsCompleted: Value(reviewsCompleted),
+      interruptions: Value(interruptions),
+      pauseCount: Value(pauseCount),
+      completion: Value(completion),
+      xpEarned: Value(xpEarned),
     );
   }
 
@@ -9415,8 +9676,17 @@ class StudySession extends DataClass implements Insertable<StudySession> {
     return StudySession(
       id: serializer.fromJson<String>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
+      endTime: serializer.fromJson<DateTime?>(json['endTime']),
       durationSeconds: serializer.fromJson<int>(json['durationSeconds']),
       category: serializer.fromJson<String>(json['category']),
+      status: serializer.fromJson<String>(json['status']),
+      modulesStudied: serializer.fromJson<String>(json['modulesStudied']),
+      tasksCompleted: serializer.fromJson<int>(json['tasksCompleted']),
+      reviewsCompleted: serializer.fromJson<int>(json['reviewsCompleted']),
+      interruptions: serializer.fromJson<int>(json['interruptions']),
+      pauseCount: serializer.fromJson<int>(json['pauseCount']),
+      completion: serializer.fromJson<double>(json['completion']),
+      xpEarned: serializer.fromJson<int>(json['xpEarned']),
     );
   }
   @override
@@ -9425,30 +9695,78 @@ class StudySession extends DataClass implements Insertable<StudySession> {
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'date': serializer.toJson<DateTime>(date),
+      'endTime': serializer.toJson<DateTime?>(endTime),
       'durationSeconds': serializer.toJson<int>(durationSeconds),
       'category': serializer.toJson<String>(category),
+      'status': serializer.toJson<String>(status),
+      'modulesStudied': serializer.toJson<String>(modulesStudied),
+      'tasksCompleted': serializer.toJson<int>(tasksCompleted),
+      'reviewsCompleted': serializer.toJson<int>(reviewsCompleted),
+      'interruptions': serializer.toJson<int>(interruptions),
+      'pauseCount': serializer.toJson<int>(pauseCount),
+      'completion': serializer.toJson<double>(completion),
+      'xpEarned': serializer.toJson<int>(xpEarned),
     };
   }
 
   StudySession copyWith({
     String? id,
     DateTime? date,
+    Value<DateTime?> endTime = const Value.absent(),
     int? durationSeconds,
     String? category,
+    String? status,
+    String? modulesStudied,
+    int? tasksCompleted,
+    int? reviewsCompleted,
+    int? interruptions,
+    int? pauseCount,
+    double? completion,
+    int? xpEarned,
   }) => StudySession(
     id: id ?? this.id,
     date: date ?? this.date,
+    endTime: endTime.present ? endTime.value : this.endTime,
     durationSeconds: durationSeconds ?? this.durationSeconds,
     category: category ?? this.category,
+    status: status ?? this.status,
+    modulesStudied: modulesStudied ?? this.modulesStudied,
+    tasksCompleted: tasksCompleted ?? this.tasksCompleted,
+    reviewsCompleted: reviewsCompleted ?? this.reviewsCompleted,
+    interruptions: interruptions ?? this.interruptions,
+    pauseCount: pauseCount ?? this.pauseCount,
+    completion: completion ?? this.completion,
+    xpEarned: xpEarned ?? this.xpEarned,
   );
   StudySession copyWithCompanion(StudySessionsCompanion data) {
     return StudySession(
       id: data.id.present ? data.id.value : this.id,
       date: data.date.present ? data.date.value : this.date,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
       durationSeconds: data.durationSeconds.present
           ? data.durationSeconds.value
           : this.durationSeconds,
       category: data.category.present ? data.category.value : this.category,
+      status: data.status.present ? data.status.value : this.status,
+      modulesStudied: data.modulesStudied.present
+          ? data.modulesStudied.value
+          : this.modulesStudied,
+      tasksCompleted: data.tasksCompleted.present
+          ? data.tasksCompleted.value
+          : this.tasksCompleted,
+      reviewsCompleted: data.reviewsCompleted.present
+          ? data.reviewsCompleted.value
+          : this.reviewsCompleted,
+      interruptions: data.interruptions.present
+          ? data.interruptions.value
+          : this.interruptions,
+      pauseCount: data.pauseCount.present
+          ? data.pauseCount.value
+          : this.pauseCount,
+      completion: data.completion.present
+          ? data.completion.value
+          : this.completion,
+      xpEarned: data.xpEarned.present ? data.xpEarned.value : this.xpEarned,
     );
   }
 
@@ -9457,42 +9775,101 @@ class StudySession extends DataClass implements Insertable<StudySession> {
     return (StringBuffer('StudySession(')
           ..write('id: $id, ')
           ..write('date: $date, ')
+          ..write('endTime: $endTime, ')
           ..write('durationSeconds: $durationSeconds, ')
-          ..write('category: $category')
+          ..write('category: $category, ')
+          ..write('status: $status, ')
+          ..write('modulesStudied: $modulesStudied, ')
+          ..write('tasksCompleted: $tasksCompleted, ')
+          ..write('reviewsCompleted: $reviewsCompleted, ')
+          ..write('interruptions: $interruptions, ')
+          ..write('pauseCount: $pauseCount, ')
+          ..write('completion: $completion, ')
+          ..write('xpEarned: $xpEarned')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, date, durationSeconds, category);
+  int get hashCode => Object.hash(
+    id,
+    date,
+    endTime,
+    durationSeconds,
+    category,
+    status,
+    modulesStudied,
+    tasksCompleted,
+    reviewsCompleted,
+    interruptions,
+    pauseCount,
+    completion,
+    xpEarned,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is StudySession &&
           other.id == this.id &&
           other.date == this.date &&
+          other.endTime == this.endTime &&
           other.durationSeconds == this.durationSeconds &&
-          other.category == this.category);
+          other.category == this.category &&
+          other.status == this.status &&
+          other.modulesStudied == this.modulesStudied &&
+          other.tasksCompleted == this.tasksCompleted &&
+          other.reviewsCompleted == this.reviewsCompleted &&
+          other.interruptions == this.interruptions &&
+          other.pauseCount == this.pauseCount &&
+          other.completion == this.completion &&
+          other.xpEarned == this.xpEarned);
 }
 
 class StudySessionsCompanion extends UpdateCompanion<StudySession> {
   final Value<String> id;
   final Value<DateTime> date;
+  final Value<DateTime?> endTime;
   final Value<int> durationSeconds;
   final Value<String> category;
+  final Value<String> status;
+  final Value<String> modulesStudied;
+  final Value<int> tasksCompleted;
+  final Value<int> reviewsCompleted;
+  final Value<int> interruptions;
+  final Value<int> pauseCount;
+  final Value<double> completion;
+  final Value<int> xpEarned;
   final Value<int> rowid;
   const StudySessionsCompanion({
     this.id = const Value.absent(),
     this.date = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.durationSeconds = const Value.absent(),
     this.category = const Value.absent(),
+    this.status = const Value.absent(),
+    this.modulesStudied = const Value.absent(),
+    this.tasksCompleted = const Value.absent(),
+    this.reviewsCompleted = const Value.absent(),
+    this.interruptions = const Value.absent(),
+    this.pauseCount = const Value.absent(),
+    this.completion = const Value.absent(),
+    this.xpEarned = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StudySessionsCompanion.insert({
     required String id,
     required DateTime date,
+    this.endTime = const Value.absent(),
     required int durationSeconds,
     required String category,
+    this.status = const Value.absent(),
+    this.modulesStudied = const Value.absent(),
+    this.tasksCompleted = const Value.absent(),
+    this.reviewsCompleted = const Value.absent(),
+    this.interruptions = const Value.absent(),
+    this.pauseCount = const Value.absent(),
+    this.completion = const Value.absent(),
+    this.xpEarned = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        date = Value(date),
@@ -9501,15 +9878,33 @@ class StudySessionsCompanion extends UpdateCompanion<StudySession> {
   static Insertable<StudySession> custom({
     Expression<String>? id,
     Expression<DateTime>? date,
+    Expression<DateTime>? endTime,
     Expression<int>? durationSeconds,
     Expression<String>? category,
+    Expression<String>? status,
+    Expression<String>? modulesStudied,
+    Expression<int>? tasksCompleted,
+    Expression<int>? reviewsCompleted,
+    Expression<int>? interruptions,
+    Expression<int>? pauseCount,
+    Expression<double>? completion,
+    Expression<int>? xpEarned,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (date != null) 'date': date,
+      if (endTime != null) 'end_time': endTime,
       if (durationSeconds != null) 'duration_seconds': durationSeconds,
       if (category != null) 'category': category,
+      if (status != null) 'status': status,
+      if (modulesStudied != null) 'modules_studied': modulesStudied,
+      if (tasksCompleted != null) 'tasks_completed': tasksCompleted,
+      if (reviewsCompleted != null) 'reviews_completed': reviewsCompleted,
+      if (interruptions != null) 'interruptions': interruptions,
+      if (pauseCount != null) 'pause_count': pauseCount,
+      if (completion != null) 'completion': completion,
+      if (xpEarned != null) 'xp_earned': xpEarned,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9517,15 +9912,33 @@ class StudySessionsCompanion extends UpdateCompanion<StudySession> {
   StudySessionsCompanion copyWith({
     Value<String>? id,
     Value<DateTime>? date,
+    Value<DateTime?>? endTime,
     Value<int>? durationSeconds,
     Value<String>? category,
+    Value<String>? status,
+    Value<String>? modulesStudied,
+    Value<int>? tasksCompleted,
+    Value<int>? reviewsCompleted,
+    Value<int>? interruptions,
+    Value<int>? pauseCount,
+    Value<double>? completion,
+    Value<int>? xpEarned,
     Value<int>? rowid,
   }) {
     return StudySessionsCompanion(
       id: id ?? this.id,
       date: date ?? this.date,
+      endTime: endTime ?? this.endTime,
       durationSeconds: durationSeconds ?? this.durationSeconds,
       category: category ?? this.category,
+      status: status ?? this.status,
+      modulesStudied: modulesStudied ?? this.modulesStudied,
+      tasksCompleted: tasksCompleted ?? this.tasksCompleted,
+      reviewsCompleted: reviewsCompleted ?? this.reviewsCompleted,
+      interruptions: interruptions ?? this.interruptions,
+      pauseCount: pauseCount ?? this.pauseCount,
+      completion: completion ?? this.completion,
+      xpEarned: xpEarned ?? this.xpEarned,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9539,11 +9952,38 @@ class StudySessionsCompanion extends UpdateCompanion<StudySession> {
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
+    if (endTime.present) {
+      map['end_time'] = Variable<DateTime>(endTime.value);
+    }
     if (durationSeconds.present) {
       map['duration_seconds'] = Variable<int>(durationSeconds.value);
     }
     if (category.present) {
       map['category'] = Variable<String>(category.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (modulesStudied.present) {
+      map['modules_studied'] = Variable<String>(modulesStudied.value);
+    }
+    if (tasksCompleted.present) {
+      map['tasks_completed'] = Variable<int>(tasksCompleted.value);
+    }
+    if (reviewsCompleted.present) {
+      map['reviews_completed'] = Variable<int>(reviewsCompleted.value);
+    }
+    if (interruptions.present) {
+      map['interruptions'] = Variable<int>(interruptions.value);
+    }
+    if (pauseCount.present) {
+      map['pause_count'] = Variable<int>(pauseCount.value);
+    }
+    if (completion.present) {
+      map['completion'] = Variable<double>(completion.value);
+    }
+    if (xpEarned.present) {
+      map['xp_earned'] = Variable<int>(xpEarned.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -9556,8 +9996,17 @@ class StudySessionsCompanion extends UpdateCompanion<StudySession> {
     return (StringBuffer('StudySessionsCompanion(')
           ..write('id: $id, ')
           ..write('date: $date, ')
+          ..write('endTime: $endTime, ')
           ..write('durationSeconds: $durationSeconds, ')
           ..write('category: $category, ')
+          ..write('status: $status, ')
+          ..write('modulesStudied: $modulesStudied, ')
+          ..write('tasksCompleted: $tasksCompleted, ')
+          ..write('reviewsCompleted: $reviewsCompleted, ')
+          ..write('interruptions: $interruptions, ')
+          ..write('pauseCount: $pauseCount, ')
+          ..write('completion: $completion, ')
+          ..write('xpEarned: $xpEarned, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -15050,7 +15499,7 @@ class GraphRelationshipsCompanion extends UpdateCompanion<GraphRelationship> {
 }
 
 class $AnalyticsEventsTable extends AnalyticsEvents
-    with TableInfo<$AnalyticsEventsTable, AnalyticsEvent> {
+    with TableInfo<$AnalyticsEventsTable, AnalyticsEventData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -15157,7 +15606,7 @@ class $AnalyticsEventsTable extends AnalyticsEvents
   static const String $name = 'analytics_events';
   @override
   VerificationContext validateIntegrity(
-    Insertable<AnalyticsEvent> instance, {
+    Insertable<AnalyticsEventData> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
@@ -15225,9 +15674,9 @@ class $AnalyticsEventsTable extends AnalyticsEvents
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  AnalyticsEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+  AnalyticsEventData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return AnalyticsEvent(
+    return AnalyticsEventData(
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
@@ -15269,7 +15718,8 @@ class $AnalyticsEventsTable extends AnalyticsEvents
   }
 }
 
-class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
+class AnalyticsEventData extends DataClass
+    implements Insertable<AnalyticsEventData> {
   final String id;
   final String eventType;
   final String? contentType;
@@ -15278,7 +15728,7 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
   final int? durationSeconds;
   final String? result;
   final String? metadata;
-  const AnalyticsEvent({
+  const AnalyticsEventData({
     required this.id,
     required this.eventType,
     this.contentType,
@@ -15335,12 +15785,12 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
     );
   }
 
-  factory AnalyticsEvent.fromJson(
+  factory AnalyticsEventData.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return AnalyticsEvent(
+    return AnalyticsEventData(
       id: serializer.fromJson<String>(json['id']),
       eventType: serializer.fromJson<String>(json['eventType']),
       contentType: serializer.fromJson<String?>(json['contentType']),
@@ -15366,7 +15816,7 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
     };
   }
 
-  AnalyticsEvent copyWith({
+  AnalyticsEventData copyWith({
     String? id,
     String? eventType,
     Value<String?> contentType = const Value.absent(),
@@ -15375,7 +15825,7 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
     Value<int?> durationSeconds = const Value.absent(),
     Value<String?> result = const Value.absent(),
     Value<String?> metadata = const Value.absent(),
-  }) => AnalyticsEvent(
+  }) => AnalyticsEventData(
     id: id ?? this.id,
     eventType: eventType ?? this.eventType,
     contentType: contentType.present ? contentType.value : this.contentType,
@@ -15387,8 +15837,8 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
     result: result.present ? result.value : this.result,
     metadata: metadata.present ? metadata.value : this.metadata,
   );
-  AnalyticsEvent copyWithCompanion(AnalyticsEventsCompanion data) {
-    return AnalyticsEvent(
+  AnalyticsEventData copyWithCompanion(AnalyticsEventsCompanion data) {
+    return AnalyticsEventData(
       id: data.id.present ? data.id.value : this.id,
       eventType: data.eventType.present ? data.eventType.value : this.eventType,
       contentType: data.contentType.present
@@ -15406,7 +15856,7 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
 
   @override
   String toString() {
-    return (StringBuffer('AnalyticsEvent(')
+    return (StringBuffer('AnalyticsEventData(')
           ..write('id: $id, ')
           ..write('eventType: $eventType, ')
           ..write('contentType: $contentType, ')
@@ -15433,7 +15883,7 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is AnalyticsEvent &&
+      (other is AnalyticsEventData &&
           other.id == this.id &&
           other.eventType == this.eventType &&
           other.contentType == this.contentType &&
@@ -15444,7 +15894,7 @@ class AnalyticsEvent extends DataClass implements Insertable<AnalyticsEvent> {
           other.metadata == this.metadata);
 }
 
-class AnalyticsEventsCompanion extends UpdateCompanion<AnalyticsEvent> {
+class AnalyticsEventsCompanion extends UpdateCompanion<AnalyticsEventData> {
   final Value<String> id;
   final Value<String> eventType;
   final Value<String?> contentType;
@@ -15478,7 +15928,7 @@ class AnalyticsEventsCompanion extends UpdateCompanion<AnalyticsEvent> {
   }) : id = Value(id),
        eventType = Value(eventType),
        timestamp = Value(timestamp);
-  static Insertable<AnalyticsEvent> custom({
+  static Insertable<AnalyticsEventData> custom({
     Expression<String>? id,
     Expression<String>? eventType,
     Expression<String>? contentType,
@@ -24021,16 +24471,34 @@ typedef $$StudySessionsTableCreateCompanionBuilder =
     StudySessionsCompanion Function({
       required String id,
       required DateTime date,
+      Value<DateTime?> endTime,
       required int durationSeconds,
       required String category,
+      Value<String> status,
+      Value<String> modulesStudied,
+      Value<int> tasksCompleted,
+      Value<int> reviewsCompleted,
+      Value<int> interruptions,
+      Value<int> pauseCount,
+      Value<double> completion,
+      Value<int> xpEarned,
       Value<int> rowid,
     });
 typedef $$StudySessionsTableUpdateCompanionBuilder =
     StudySessionsCompanion Function({
       Value<String> id,
       Value<DateTime> date,
+      Value<DateTime?> endTime,
       Value<int> durationSeconds,
       Value<String> category,
+      Value<String> status,
+      Value<String> modulesStudied,
+      Value<int> tasksCompleted,
+      Value<int> reviewsCompleted,
+      Value<int> interruptions,
+      Value<int> pauseCount,
+      Value<double> completion,
+      Value<int> xpEarned,
       Value<int> rowid,
     });
 
@@ -24053,6 +24521,11 @@ class $$StudySessionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get durationSeconds => $composableBuilder(
     column: $table.durationSeconds,
     builder: (column) => ColumnFilters(column),
@@ -24060,6 +24533,46 @@ class $$StudySessionsTableFilterComposer
 
   ColumnFilters<String> get category => $composableBuilder(
     column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modulesStudied => $composableBuilder(
+    column: $table.modulesStudied,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tasksCompleted => $composableBuilder(
+    column: $table.tasksCompleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reviewsCompleted => $composableBuilder(
+    column: $table.reviewsCompleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get interruptions => $composableBuilder(
+    column: $table.interruptions,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pauseCount => $composableBuilder(
+    column: $table.pauseCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get completion => $composableBuilder(
+    column: $table.completion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get xpEarned => $composableBuilder(
+    column: $table.xpEarned,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -24083,6 +24596,11 @@ class $$StudySessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get durationSeconds => $composableBuilder(
     column: $table.durationSeconds,
     builder: (column) => ColumnOrderings(column),
@@ -24090,6 +24608,46 @@ class $$StudySessionsTableOrderingComposer
 
   ColumnOrderings<String> get category => $composableBuilder(
     column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modulesStudied => $composableBuilder(
+    column: $table.modulesStudied,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tasksCompleted => $composableBuilder(
+    column: $table.tasksCompleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reviewsCompleted => $composableBuilder(
+    column: $table.reviewsCompleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get interruptions => $composableBuilder(
+    column: $table.interruptions,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pauseCount => $composableBuilder(
+    column: $table.pauseCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get completion => $composableBuilder(
+    column: $table.completion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get xpEarned => $composableBuilder(
+    column: $table.xpEarned,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -24109,6 +24667,9 @@ class $$StudySessionsTableAnnotationComposer
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
+
   GeneratedColumn<int> get durationSeconds => $composableBuilder(
     column: $table.durationSeconds,
     builder: (column) => column,
@@ -24116,6 +24677,42 @@ class $$StudySessionsTableAnnotationComposer
 
   GeneratedColumn<String> get category =>
       $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get modulesStudied => $composableBuilder(
+    column: $table.modulesStudied,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get tasksCompleted => $composableBuilder(
+    column: $table.tasksCompleted,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reviewsCompleted => $composableBuilder(
+    column: $table.reviewsCompleted,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get interruptions => $composableBuilder(
+    column: $table.interruptions,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pauseCount => $composableBuilder(
+    column: $table.pauseCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get completion => $composableBuilder(
+    column: $table.completion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get xpEarned =>
+      $composableBuilder(column: $table.xpEarned, builder: (column) => column);
 }
 
 class $$StudySessionsTableTableManager
@@ -24151,28 +24748,64 @@ class $$StudySessionsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
+                Value<DateTime?> endTime = const Value.absent(),
                 Value<int> durationSeconds = const Value.absent(),
                 Value<String> category = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> modulesStudied = const Value.absent(),
+                Value<int> tasksCompleted = const Value.absent(),
+                Value<int> reviewsCompleted = const Value.absent(),
+                Value<int> interruptions = const Value.absent(),
+                Value<int> pauseCount = const Value.absent(),
+                Value<double> completion = const Value.absent(),
+                Value<int> xpEarned = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StudySessionsCompanion(
                 id: id,
                 date: date,
+                endTime: endTime,
                 durationSeconds: durationSeconds,
                 category: category,
+                status: status,
+                modulesStudied: modulesStudied,
+                tasksCompleted: tasksCompleted,
+                reviewsCompleted: reviewsCompleted,
+                interruptions: interruptions,
+                pauseCount: pauseCount,
+                completion: completion,
+                xpEarned: xpEarned,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
                 required DateTime date,
+                Value<DateTime?> endTime = const Value.absent(),
                 required int durationSeconds,
                 required String category,
+                Value<String> status = const Value.absent(),
+                Value<String> modulesStudied = const Value.absent(),
+                Value<int> tasksCompleted = const Value.absent(),
+                Value<int> reviewsCompleted = const Value.absent(),
+                Value<int> interruptions = const Value.absent(),
+                Value<int> pauseCount = const Value.absent(),
+                Value<double> completion = const Value.absent(),
+                Value<int> xpEarned = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StudySessionsCompanion.insert(
                 id: id,
                 date: date,
+                endTime: endTime,
                 durationSeconds: durationSeconds,
                 category: category,
+                status: status,
+                modulesStudied: modulesStudied,
+                tasksCompleted: tasksCompleted,
+                reviewsCompleted: reviewsCompleted,
+                interruptions: interruptions,
+                pauseCount: pauseCount,
+                completion: completion,
+                xpEarned: xpEarned,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -27191,21 +27824,21 @@ class $$AnalyticsEventsTableTableManager
         RootTableManager<
           _$AppDatabase,
           $AnalyticsEventsTable,
-          AnalyticsEvent,
+          AnalyticsEventData,
           $$AnalyticsEventsTableFilterComposer,
           $$AnalyticsEventsTableOrderingComposer,
           $$AnalyticsEventsTableAnnotationComposer,
           $$AnalyticsEventsTableCreateCompanionBuilder,
           $$AnalyticsEventsTableUpdateCompanionBuilder,
           (
-            AnalyticsEvent,
+            AnalyticsEventData,
             BaseReferences<
               _$AppDatabase,
               $AnalyticsEventsTable,
-              AnalyticsEvent
+              AnalyticsEventData
             >,
           ),
-          AnalyticsEvent,
+          AnalyticsEventData,
           PrefetchHooks Function()
         > {
   $$AnalyticsEventsTableTableManager(
@@ -27277,17 +27910,21 @@ typedef $$AnalyticsEventsTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
       $AnalyticsEventsTable,
-      AnalyticsEvent,
+      AnalyticsEventData,
       $$AnalyticsEventsTableFilterComposer,
       $$AnalyticsEventsTableOrderingComposer,
       $$AnalyticsEventsTableAnnotationComposer,
       $$AnalyticsEventsTableCreateCompanionBuilder,
       $$AnalyticsEventsTableUpdateCompanionBuilder,
       (
-        AnalyticsEvent,
-        BaseReferences<_$AppDatabase, $AnalyticsEventsTable, AnalyticsEvent>,
+        AnalyticsEventData,
+        BaseReferences<
+          _$AppDatabase,
+          $AnalyticsEventsTable,
+          AnalyticsEventData
+        >,
       ),
-      AnalyticsEvent,
+      AnalyticsEventData,
       PrefetchHooks Function()
     >;
 

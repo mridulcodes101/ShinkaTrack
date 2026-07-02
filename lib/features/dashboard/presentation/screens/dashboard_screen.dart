@@ -169,6 +169,57 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(height: AppSpacing.lg),
 
+              // 1.2 STUDY SESSION TRIGGER
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                color: isDark ? PremiumDesignSystem.surfaceDark : Colors.white,
+                elevation: 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: PremiumDesignSystem.primaryBlue.withValues(alpha: 0.15),
+                            child: const Icon(Icons.school, color: PremiumDesignSystem.primaryBlue),
+                          ),
+                          const SizedBox(width: 16),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Start Study Session', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                SizedBox(height: 4),
+                                Text('Orchestrate tasks, reviews, and track study time.', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: PremiumDesignSystem.primaryBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          onPressed: () {
+                            context.push('/study_session?type=guided&modules=Kanji,Vocabulary,Grammar');
+                          },
+                          child: const Text('Start Guided Study', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
               // 1.5 SMART REMINDERS
               const SectionHeader(title: "Upcoming Smart Alerts"),
               const SizedBox(height: AppSpacing.sm),

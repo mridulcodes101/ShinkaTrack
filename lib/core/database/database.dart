@@ -142,9 +142,18 @@ class UserGrammars extends Table {
 
 class StudySessions extends Table {
   TextColumn get id => text()();
-  DateTimeColumn get date => dateTime()();
+  DateTimeColumn get date => dateTime()(); // startTime
+  DateTimeColumn get endTime => dateTime().nullable()();
   IntColumn get durationSeconds => integer()();
-  TextColumn get category => text()(); // kanji, vocabulary, grammar
+  TextColumn get category => text()(); // guided, review, quick, planner, custom
+  TextColumn get status => text().withDefault(const Constant('Created'))(); // Created, Running, Paused, Completed, Cancelled, Abandoned
+  TextColumn get modulesStudied => text().withDefault(const Constant(''))();
+  IntColumn get tasksCompleted => integer().withDefault(const Constant(0))();
+  IntColumn get reviewsCompleted => integer().withDefault(const Constant(0))();
+  IntColumn get interruptions => integer().withDefault(const Constant(0))();
+  IntColumn get pauseCount => integer().withDefault(const Constant(0))();
+  RealColumn get completion => real().withDefault(const Constant(0.0))();
+  IntColumn get xpEarned => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -429,6 +438,7 @@ class GraphRelationships extends Table {
 
 @TableIndex(name: 'idx_analytics_events_type', columns: {#eventType})
 @TableIndex(name: 'idx_analytics_events_time', columns: {#timestamp})
+@DataClassName('AnalyticsEventData')
 class AnalyticsEvents extends Table {
   TextColumn get id => text()();
   TextColumn get eventType => text()();

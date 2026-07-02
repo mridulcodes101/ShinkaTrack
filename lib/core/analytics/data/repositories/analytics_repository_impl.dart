@@ -71,7 +71,7 @@ class AnalyticsRepositoryImpl implements AnalyticsRepository {
         (tbl.eventType.equals('STUDY_FINISHED') | tbl.eventType.equals('REVIEW_FINISHED'))
       );
     final rows = await query.get();
-    return rows.fold(0, (sum, event) => sum + (event.durationSeconds ?? 0));
+    return rows.fold<int>(0, (sum, event) => sum + (event.durationSeconds ?? 0));
   }
 
   @override
