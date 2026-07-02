@@ -512,6 +512,8 @@ class AppDatabase extends _$AppDatabase {
       await delete(graphNodes).go();
       await delete(graphRelationships).go();
       await delete(analyticsEvents).go();
+      await delete(achievements).go();
+      await delete(userStats).go();
 
       await _seedDatabase();
     });
